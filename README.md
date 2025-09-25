@@ -1,5 +1,7 @@
 # The Endless Night
 
+![Cover](stuff/cover.png)
+
 An alien horror adventure in glorious 3D - Every night is the night of reckoning! Only for MS-DOS
 
 ## Instructions (Windows)
