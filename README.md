@@ -50,3 +50,61 @@ might require several iterations of a loop to complete the objectives).
   1. Rush to the crowbar and reach the old barn.
   2. Break open the door; discover generator parts and alien residue.
 * Tease: A faint alien signal is audible near the radio tower.
+
+### 3. Information Gathering
+
+* Objective: Learn the alien weakness.
+* Player Actions:
+  1. Explore radio tower, find locked terminal (needs code).
+  2. Discover scrap of paper with partial code inside the barn or mechanic’s workshop.
+  3. Collect fuel canisters near the tractor.
+* Twist: Aliens begin light patrols near the field.
+
+### 4. Powering Up
+
+* Objective: Activate the radio tower.
+* Player Actions:
+  1. Bring generator parts to the tower (may take more than one run).
+  2. Power up the terminal → intercept alien transmissions.
+  3. Learn mothership shield weak to EMP pulse.
+* Optional Path: Discover notes hinting at alternative bomb solution.
+
+### 5. Ingredients & Assembly
+
+* Objective: Begin constructing the weapon.
+* Player Actions:
+  1. Gather capacitors from the mechanic’s workshop.
+  2. Drag alien crystal from a downed drone (field patrol).
+  3. Hide parts in the barn to keep them “safe” for next loop.
+
+### 6. Alien Countermeasures
+
+* Objective: Raise stakes.
+* Events:
+  1. Aliens deploy stronger patrols and motion-activated lights.
+  2. Timer slightly shortens (e.g., 5 → 4.5 minutes) to increase tension.
+* Player Actions:
+  3. Finish wiring EMP device.
+* Retrieve final detonator component from village blacksmith.
+
+### 7. The Final Setup
+
+* Objective: Assemble & transport the weapon to the field.
+* Player Actions:
+  1. Carefully sneak past patrols with the assembled device.
+  2. Place it under the mothership.
+* Ending Choice:
+  1. Hit remote trigger and escape before reset, or
+  2. Stay and watch as time collapses with the ship.
+
+## Map
+
+```
+            Radio Tower
+               ▲
+               │
+ Barn ◄── Village ──► Mechanic’s Workshop
+               │
+           Mothership Field
+
+```
