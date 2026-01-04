@@ -11,12 +11,12 @@ function Main()
   SetDriver(DRIVER_SOFTWAREFAST)
   OpenScreen(604, 480, 0, 0)
 
-  --FPG:Load("../../HORDES/TEXTURES.FPG")
+  --FPG:Load("../../ENDLESS/TEXTURES.FPG")
   local pal64 = Pal64:Load("DIV.PAL")
   local imgs = LoadImages(ReadDir("../textures"))
   local pal_imgs = PalettizeImages(imgs, Pal256:Gen(pal64))
   local fpg = FPG:Create(pal64, pal_imgs)
-  fpg:save("../../HORDES/TEXTURES.FPG")
+  fpg:save("../../ENDLESS/TEXTURES.FPG")
 
   print("Done.")
 end
