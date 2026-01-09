@@ -12,7 +12,7 @@ function FPG:Load(filename)
   local reader = MemblockReader:Load(filename)
   
   -- Header
-  local id = Char(reader:readByte()) .. Char(reader:readByte()) .. Char(reader:readByte())
+  local id = string.char(reader:readByte()) .. string.char(reader:readByte()) .. string.char(reader:readByte())
   local hex = reader:readInt()
   local ver = reader:readByte()
   print(id)
@@ -72,9 +72,9 @@ function FPG:save(filename)
   local writer = MemblockWriter:Create(self:_memblockSize())
   
   -- Header
-  writer:writeByte(Code("f"))
-  writer:writeByte(Code("p"))
-  writer:writeByte(Code("g"))
+  writer:writeByte(string.byte("f"))
+  writer:writeByte(string.byte("p"))
+  writer:writeByte(string.byte("g"))
   writer:writeInt(658714)
   writer:writeByte(0)
 
@@ -96,9 +96,9 @@ function FPG:save(filename)
   for i, img in ipairs(self.imgs) do
     writer:writeInt(i) -- Code
     writer:writeInt(64 + img:width() * img:height()) -- Length
-    writer:writeFixedString(Right(img:filename(), 31), 31) -- Description
+    writer:writeFixedString(string.sub(img:filename(), -31), 31) -- Description
     writer:writeByte(0) -- Zero terminator for description
-    writer:writeFixedString(Right(img:filename(), 12), 12) -- Filename
+    writer:writeFixedString(string.sub(img:filename(), -12), 12) -- Filename
     writer:writeInt(img:width()) -- Width
     writer:writeInt(img:height()) -- Height
     writer:writeInt(0) -- Num control points

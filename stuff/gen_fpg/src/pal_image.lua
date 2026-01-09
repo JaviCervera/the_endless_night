@@ -9,7 +9,7 @@ function PalImage:Create(img, pal256)
     self.rows[y] = {}
     for x = 1, img:width() do
       local color = img:color(x, y)
-      self.rows[y][x] = PalImage:FindIndex(RedVal(color), GreenVal(color), BlueVal(color), pal256)
+      self.rows[y][x] = PalImage:FindIndex(color.r, color.g, color.b, pal256)
     end
   end
   return self

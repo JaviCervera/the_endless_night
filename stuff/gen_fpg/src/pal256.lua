@@ -7,9 +7,9 @@ function Pal256:Gen(pal64)
   for i = 1, 256 do
     local color = pal64[i]
     self.data[i] = {
-      Int(Clamp(pal64:red(i) * mul, 0, 255)),
-      Int(Clamp(pal64:green(i) * mul, 0, 255)),
-      Int(Clamp(pal64:blue(i) * mul, 0, 255)),
+      math.floor(Clamp(pal64:red(i) * mul, 0, 255)),
+      math.floor(Clamp(pal64:green(i) * mul, 0, 255)),
+      math.floor(Clamp(pal64:blue(i) * mul, 0, 255)),
     }
   end
   return self

@@ -23,7 +23,7 @@ function Pal64:Load(filename)
   local r = MemblockReader:Load(filename)
   
   -- Header
-  local id = Char(r:readByte()) .. Char(r:readByte()) .. Char(r:readByte())
+  local id = string.char(r:readByte()) .. string.char(r:readByte()) .. string.char(r:readByte())
   local hex = r:readInt()
   local ver = r:readByte()
 
@@ -62,15 +62,15 @@ function Pal64:range(range_index, color_index)
 end
 
 function Pal64:setRed(index, r)
-  self.data[index][1] = Int(Clamp(r, 0, 63))
+  self.data[index][1] = math.floor(Clamp(r, 0, 63))
 end
 
 function Pal64:setGreen(index, g)
-  self.data[index][2] = Int(Clamp(g, 0, 63))
+  self.data[index][2] = math.floor(Clamp(g, 0, 63))
 end
 
 function Pal64:setBlue(index, b)
-  self.data[index][3] = Int(Clamp(b, 0, 63))
+  self.data[index][3] = math.floor(Clamp(b, 0, 63))
 end
 
 function Pal64:setRange(range_index, color_index, color_value)

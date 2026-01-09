@@ -6,10 +6,10 @@ import("src/memblock_writer.lua")
 import("src/pal_image.lua")
 import("src/pal64.lua")
 import("src/pal256.lua")
+import("src/util.lua")
 
 function Main()
-  SetDriver(DRIVER_SOFTWAREFAST)
-  OpenScreen(604, 480, 0, 0)
+  InitWindow(640, 480, "")
 
   --FPG:Load("../../ENDLESS/TEXTURES.FPG")
   local pal64 = Pal64:Load("DIV.PAL")
@@ -22,12 +22,11 @@ function Main()
 end
 
 function ReadDir(path)
-  local contents = DirContents(path)
-  local dir = {}
-  for i = 3, SplitCount(contents, "\n") do
-    dir[#dir + 1] = path .. "/" .. SplitIndex(contents, "\n", i)
+  local contents = Split(DirContents(path), "\n")
+  for i, v in ipairs(contents) do
+    contents[i] = path .. "/" .. v
   end
-  return dir
+  return contents
 end
 
 function LoadImages(filenames)

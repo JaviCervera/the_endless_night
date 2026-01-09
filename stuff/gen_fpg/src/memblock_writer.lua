@@ -29,11 +29,11 @@ function MemblockWriter:writeInt(v)
 end
 
 function MemblockWriter:writeFixedString(str, size)
-  local max = Min(Len(str), size)
+  local max = math.min(str:len(), size)
   for i = 1, max do
-    self:writeByte(Code(Mid(str, i, 1)))
+    self:writeByte(string.byte(string.sub(str, i, i)))
   end
-  for i = Len(str) + 1, size do
+  for i = str:len() + 1, size do
     self:writeByte(0)
   end
 end

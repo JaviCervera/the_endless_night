@@ -5,15 +5,21 @@ function Image:Load(filename)
   self = Image:New()
   self.fname = StripDir(filename)
   self.rows = {}
-  local pixmap = LoadPixmap(filename)
-  for y = 1, PixmapHeight(pixmap) do
+  local img = LoadImage(filename)
+  local colors = LoadImageColors(img)
+  for y = 0, img.height - 1 do
     row = {}
-    for x = 1, PixmapWidth(pixmap) do
-      row[x] = ReadPixel(pixmap, x - 1, y - 1)
+    for x = 0, img.width - 1 do
+      local color = Color()
+      color.r = PeekByte(colors, (y * img.width + x) * 4)
+      color.g = PeekByte(colors, (y * img.width + x) * 4 + 1)
+      color.b = PeekByte(colors, (y * img.width + x) * 4 + 2)
+      color.a = PeekByte(colors, (y * img.width + x) * 4 + 3)
+      row[x + 1] = color
     end
     self.rows[#self.rows + 1] = row
   end
-  FreePixmap(pixmap)
+  UnloadImage(img)
   return self
 end
 
