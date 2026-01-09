@@ -1,24 +1,30 @@
-PROGRAM the_endless_night;
+PROGRAM ejemplo_start_mode8;
 
-PRIVATE
-    fpg;
+GLOBAL
+    fichero;
 
 BEGIN
-    fpg = load_fpg("d:\wld_view.fpg");
+  set_mode(m320x200);
+  set_fps(70,0);
+  fichero = load_fpg("D:\WLD_VIEW.FPG");
+  load_wld("D:\WLD_VIEW.WLD", fichero);
 
-    start_mode7(0, fpg, 62, 62, 0, 120);
+  start_mode8(id,0,0); // Inicializa una regi¢n de modo 8
 
-    m7.height = 64;
-    m7.distance = 0;
-    m7.color = 0;
-    m7.camera = id;
-
-    write(0, 160, 0, 1, "Use the arrow keys to move");
-    LOOP
-        IF (key(_right)) angle -= 8000; END
-        IF (key(_left)) angle += 8000; END
-        IF (key(_up)) advance(6); END
-        IF (key(_down)) advance(-6); END
-        FRAME;
-    END
+  ctype=c_m8;
+  height=64;
+  radius=64;
+  m8.height=32;
+  go_to_flag(0);
+  LOOP
+      IF (key(_right)) angle-=5000; END
+      IF (key(_left))  angle+=5000; END
+      IF (key(_up))    advance(24); END
+      IF (key(_down))  advance(-9); END
+      IF (key(_q))     z+=16;       END
+      IF (key(_a))     z-=16;       END
+      IF (key(_w))     m8.angle+=8; END
+      IF (key(_s))     m8.angle-=8; END
+      FRAME;
+  END
 END
