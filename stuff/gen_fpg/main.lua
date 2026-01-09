@@ -23,6 +23,7 @@ end
 
 function ReadDir(path)
   local contents = Split(DirContents(path), "\n")
+  table.sort(contents)
   for i, v in ipairs(contents) do
     contents[i] = path .. "/" .. v
   end

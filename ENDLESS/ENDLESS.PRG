@@ -85,10 +85,10 @@ BEGIN
   door_sound = load_pcm("D:\DOOR.PCM", 0);
   money_sound = load_pcm("D:\COIN.PCM", 0);
   */
-  textures_fpg = load_fpg("D:\WLD_VIEW.FPG");
+  textures_fpg = load_fpg("D:\TEXTURES.FPG");
   //furniture_fpg = load_fpg("D:\FURNITUR.FPG");
 
-  load_wld("D:\WLD_VIEW.WLD", textures_fpg);
+  load_wld("D:\TOWN.WLD", textures_fpg);
 
   write_int(0, 4, 24, 0, offset fps);
   write_int(0, 4, 34, 0, offset adventure_state);
@@ -344,6 +344,7 @@ BEGIN
   height = 96;
   radius = 32;
   go_to_flag(0);
+  angle = 90000;
   LOOP
     IF (NOT player_blocked)
       forward = 0;
