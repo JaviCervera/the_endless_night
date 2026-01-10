@@ -20,20 +20,14 @@ CONST
   _bush_graph = 2;
 
   // Adventure states
-  _find_coin = 1;
-  _buy_marbles = 2;
-  _play_marbles = 3;
-  _smash_car = 4;
-  _get_keys = 5;
-  _enter_house = 6;
-  _game_over = 7;
+  _get_crowbar = 1;
 
   // Banner data
   _max_banner_texts = 10;
   _banner_ticks = 60; // Number of frames a text is visible for
 
 GLOBAL
-  adventure_state = _find_coin; // Progress made (every correct action increments this by 1)
+  adventure_state = _get_crowbar; // Progress made (every correct action increments this by 1)
 
   // Action globals
   STRING action_text = ""; // The text to display at the bottom of the screen
@@ -49,13 +43,12 @@ GLOBAL
   textures_fpg;
   furniture_fpg;
 
+  // Font
+  font;
+
   // Player global data
   player_id; // Player process id
   player_blocked = 0; // If blocked, cannot move or action. It unblocks after all banners are gone.
-
-  // Sounds used by several processes
-  door_sound;
-  money_sound;
 
 PRIVATE
   f;
@@ -79,17 +72,14 @@ BEGIN
   set_mode(m320x200);
   set_fps(12, 4);
 
-  /*
-  door_sound = load_pcm("D:\DOOR.PCM", 0);
-  money_sound = load_pcm("D:\COIN.PCM", 0);
-  */
   textures_fpg = load_fpg("D:\TEXTURES.FPG");
   furniture_fpg = load_fpg("D:\FURNITUR.FPG");
+  //font = load_fnt("D:\FONT.FNT");
 
   load_wld("D:\TOWN.WLD", textures_fpg);
 
-  //write_int(0, 4, 24, 0, offset fps);
-  //write_int(0, 4, 34, 0, offset adventure_state);
+  write_int(font, 4, 24, 0, offset fps);
+  write_int(font, 4, 34, 0, offset adventure_state);
 
   define_region(_region_id, _region_x, _region_y, _region_width, _region_height);
   action_hit_controller();
@@ -118,15 +108,16 @@ BEGIN
   furniture(_tree_graph, 14);
   furniture(_tree_graph, 15);
   */
+  humming();
 
   start_mode8(player_id, 0, _region_id);
   set_fog(0, 100);
   m8.height=128;
 
   LOOP
-    IF (adventure_state <> _game_over)
+    //IF (adventure_state <> _game_over)
       FRAME;
-    ELSE
+    //ELSE
       /*
       stop_song();
       stop_mode8(0);
@@ -157,7 +148,7 @@ BEGIN
       WHILE (fading) FRAME; END
       exit(thanks_str, 0);
       */
-    END
+    //END
   END
 END
 
@@ -186,7 +177,7 @@ BEGIN
     IF (strcmp(current_text, action_text) <> 0)
       // If "action_text" changes, replace the text on screen
       delete_text(text_id);
-      text_id = write(0, 160, 190, 4, action_text);
+      text_id = write(font, 160, 190, 4, action_text);
       current_text = action_text;
     END
     FRAME;
@@ -228,16 +219,16 @@ PRIVATE
   text_id_a;
   text_id_b;
 BEGIN
-  text_id_a = write(0, 160, 2, 1, "");
-  text_id_b = write(0, 160, 10, 1, "");
+  text_id_a = write(font, 160, 2, 1, "");
+  text_id_b = write(font, 160, 10, 1, "");
   LOOP
     IF (num_banner_texts > 0 AND banner_countdown == 0)
       // If countdown reaches 0 and there are pending texts, draw next 2
       // and reset countdown
       delete_text(text_id_a);
       delete_text(text_id_b);
-      text_id_a = write(0, 160, 2, 1, banner_texts[first_banner_text]);
-      text_id_b = write(0, 160, 10, 1, banner_texts[(first_banner_text + 1) MOD _max_banner_texts]);
+      text_id_a = write(font, 160, 2, 1, banner_texts[first_banner_text]);
+      text_id_b = write(font, 160, 10, 1, banner_texts[(first_banner_text + 1) MOD _max_banner_texts]);
       banner_countdown = _banner_ticks;
     END
     IF (banner_countdown > 0)
@@ -249,8 +240,8 @@ BEGIN
         num_banner_texts -= 2;
         delete_text(text_id_a);
         delete_text(text_id_b);
-        text_id_a = write(0, 160, 2, 1, banner_texts[first_banner_text]);
-        text_id_b = write(0, 160, 10, 1, banner_texts[(first_banner_text + 1) MOD _max_banner_texts]);
+        text_id_a = write(font, 160, 2, 1, banner_texts[first_banner_text]);
+        text_id_b = write(font, 160, 10, 1, banner_texts[(first_banner_text + 1) MOD _max_banner_texts]);
         IF (num_banner_texts > 0)
           banner_countdown = _banner_ticks;
         ELSE
@@ -370,18 +361,13 @@ END
 
 PROCESS farmer()
 PRIVATE
-  //f;
   STRING talk_str;
-  /*
-  STRING woah_text;
-  STRING whathappened1_str;
-  STRING whathappened2_str;
-  STRING drunk1_str;
-  STRING drunk2_str;
-  has_talked = 0;
-  */
+  STRING loop1_1_str, loop1_2_str, loop1_3_str;
 BEGIN
-  talk_str = "Hablar con granjero";
+  talk_str = "Talk to farmer";
+  loop1_1_str = "Something strange has happened in the fields";
+  loop1_2_str = "to the south, but the path is closed.";
+  loop1_3_str = "A shimmering light comes from there.";
   /*
   f = fopen("D:\DAD.ES", "r");
   talk_str = read_string(f);
@@ -398,10 +384,28 @@ BEGIN
   graph = 1;
   go_to_flag(11);
   LOOP
-    update_action(id, talk_str);
+    IF (update_action(id, talk_str))
+      IF (adventure_state == _get_crowbar)
+        add_banner_text(loop1_1_str);
+        add_banner_text(loop1_2_str);
+        add_banner_text(loop1_3_str);
+      END
+    END
     FRAME;
   END
 END
+
+PROCESS humming()
+PRIVATE
+  snd;
+BEGIN
+  snd = load_pcm("D:\HUMMING.PCM", 1);
+  sound(snd, 128, 128);
+  LOOP
+    FRAME;
+  END
+END
+
 
 PROCESS furniture(graph, flag)
 BEGIN
