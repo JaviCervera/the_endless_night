@@ -18,8 +18,6 @@ CONST
   // Furniture graphs
   _tree_graph = 1;
   _bush_graph = 2;
-  _standpipe_graph = 3;
-  _garbage_graph = 4;
 
   // Adventure states
   _find_coin = 1;
@@ -86,7 +84,7 @@ BEGIN
   money_sound = load_pcm("D:\COIN.PCM", 0);
   */
   textures_fpg = load_fpg("D:\TEXTURES.FPG");
-  //furniture_fpg = load_fpg("D:\FURNITUR.FPG");
+  furniture_fpg = load_fpg("D:\FURNITUR.FPG");
 
   load_wld("D:\TOWN.WLD", textures_fpg);
 
@@ -107,11 +105,16 @@ BEGIN
   car();
   keys();
   house();
+  */
   furniture(_tree_graph, 1);
   furniture(_tree_graph, 2);
   furniture(_bush_graph, 3);
   furniture(_bush_graph, 4);
   furniture(_bush_graph, 5);
+  furniture(_tree_graph, 6);
+  furniture(_tree_graph, 7);
+  furniture(_bush_graph, 8);
+  /*
   furniture(_standpipe_graph, 6);
   furniture(_garbage_graph, 7);
   furniture(_garbage_graph, 8);
@@ -121,6 +124,7 @@ BEGIN
   */
 
   start_mode8(player_id, 0, _region_id);
+  set_fog(0, 100);
   m8.height=128;
 
   LOOP
@@ -364,6 +368,17 @@ BEGIN
       footsteps_channel = -1;
     END
     z -= _gravity;
+    FRAME;
+  END
+END
+
+PROCESS furniture(graph, flag)
+BEGIN
+  file = furniture_fpg;
+  ctype = c_m8;
+  radius = 8;
+  go_to_flag(flag);
+  LOOP
     FRAME;
   END
 END
