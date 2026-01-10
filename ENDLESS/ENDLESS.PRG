@@ -88,8 +88,8 @@ BEGIN
 
   load_wld("D:\TOWN.WLD", textures_fpg);
 
-  write_int(0, 4, 24, 0, offset fps);
-  write_int(0, 4, 34, 0, offset adventure_state);
+  //write_int(0, 4, 24, 0, offset fps);
+  //write_int(0, 4, 34, 0, offset adventure_state);
 
   define_region(_region_id, _region_x, _region_y, _region_width, _region_height);
   action_hit_controller();
@@ -98,6 +98,7 @@ BEGIN
   reset_banner();
 
   player_id = player();
+  farmer();
   /*
   benji();
   seller();
@@ -106,14 +107,9 @@ BEGIN
   keys();
   house();
   */
-  furniture(_tree_graph, 1);
-  furniture(_tree_graph, 2);
-  furniture(_bush_graph, 3);
-  furniture(_bush_graph, 4);
-  furniture(_bush_graph, 5);
-  furniture(_tree_graph, 6);
-  furniture(_tree_graph, 7);
-  furniture(_bush_graph, 8);
+  FROM counter = 1 TO 8;
+    furniture(_tree_graph, counter);
+  END
   /*
   furniture(_standpipe_graph, 6);
   furniture(_garbage_graph, 7);
@@ -368,6 +364,41 @@ BEGIN
       footsteps_channel = -1;
     END
     z -= _gravity;
+    FRAME;
+  END
+END
+
+PROCESS farmer()
+PRIVATE
+  //f;
+  STRING talk_str;
+  /*
+  STRING woah_text;
+  STRING whathappened1_str;
+  STRING whathappened2_str;
+  STRING drunk1_str;
+  STRING drunk2_str;
+  has_talked = 0;
+  */
+BEGIN
+  talk_str = "Hablar con granjero";
+  /*
+  f = fopen("D:\DAD.ES", "r");
+  talk_str = read_string(f);
+  woah_text = read_string(f);
+  whathappened1_str = read_string(f);
+  whathappened2_str = read_string(f);
+  drunk1_str = read_string(f);
+  drunk2_str = read_string(f);
+  fclose(f);
+  */
+
+  ctype = c_m8;
+  file = load_fpg("D:\FARMER.FPG");
+  graph = 1;
+  go_to_flag(11);
+  LOOP
+    update_action(id, talk_str);
     FRAME;
   END
 END
