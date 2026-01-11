@@ -18,9 +18,11 @@ CONST
   // Furniture graphs
   _tree_graph = 1;
   _bush_graph = 2;
+  _crowbar_graph = 3;
 
   // Adventure states
   _get_crowbar = 1;
+  _open_barn = 2;
 
   // Banner data
   _max_banner_texts = 10;
@@ -93,6 +95,8 @@ BEGIN
   m8.height=128;
 
   farmer();
+  barn_worker();
+  crowbar();
   FROM counter = 1 TO 8;
     furniture(_tree_graph, counter);
   END
@@ -380,6 +384,63 @@ BEGIN
   END
 END
 
+PROCESS barn_worker()
+PRIVATE
+  STRING talk_str;
+  STRING loop1_1_str, loop1_2_str, loop1_3_str, loop1_4_str;
+BEGIN
+  talk_str = "Talk to barn worker";
+  loop1_1_str = "A strange ship has landed down there.";
+  loop1_2_str = "I work at the barn to the west, but I can't";
+  loop1_3_str = "open the door. I have some parts there that";
+  loop1_4_str = "would be useful to analyse that humming sound.";
+
+  ctype = c_m8;
+  file = load_fpg("D:\FARMER.FPG");
+  graph = 1;
+  go_to_flag(12);
+  LOOP
+    IF (update_action(id, talk_str))
+      IF (adventure_state == _get_crowbar)
+        add_banner_text(loop1_1_str);
+        add_banner_text(loop1_2_str);
+        add_banner_text(loop1_3_str);
+        add_banner_text(loop1_4_str);
+      END
+    END
+    FRAME;
+  END
+END
+
+
+PROCESS crowbar()
+PRIVATE
+  tick;
+BEGIN
+  ctype = c_m8;
+  file = furniture_fpg;
+  graph = _crowbar_graph;
+  go_to_flag(20);
+  LOOP
+    // Arrow animation
+    tick++;
+    IF (tick == 3)
+      tick = 0;
+      IF (graph == _crowbar_graph) graph++; ELSE graph--; END
+    END
+
+    // Action
+    IF (update_action(id, "Take crowbar"))
+      adventure_state++;
+      action_text = "";
+      signal(id, s_kill);
+      add_banner_text("With this I should be able to open the barn.");
+    END
+
+    FRAME;
+  END
+END
+
 PROCESS humming()
 PRIVATE
   snd;
@@ -398,7 +459,6 @@ BEGIN
   ctype = c_m8;
   go_to_flag(30);
   LOOP
-    angle += 5000;
     IF (player_id <> 0)
       // Wrap player's angle to -180...180
       IF (player_id.angle > 180000)
@@ -409,11 +469,13 @@ BEGIN
 
       // Calculate env color based on angle to player ship
       val = abs(val + 90000);
-      IF (val < 90000 AND get_dist(player_id) < 2000)
+      IF (val < 90000 AND get_dist(player_id) < 750)
         val = (90000 - val) / 9000;
         val *= abs(sin(angle)) / 100; // Pulse
+        angle += 5000;
       ELSE
         val = 0;
+        angle = 0;
       END
 
       // Update env color
