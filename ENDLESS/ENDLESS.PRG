@@ -75,7 +75,6 @@ BEGIN
   textures_fpg = load_fpg("D:\TEXTURES.FPG");
   furniture_fpg = load_fpg("D:\FURNITUR.FPG");
   //font = load_fnt("D:\FONT.FNT");
-
   load_wld("D:\TOWN.WLD", textures_fpg);
 
   write_int(font, 4, 24, 0, offset fps);
@@ -88,31 +87,17 @@ BEGIN
   reset_banner();
 
   player_id = player();
-  farmer();
-  /*
-  benji();
-  seller();
-  coin();
-  car();
-  keys();
-  house();
-  */
-  FROM counter = 1 TO 8;
-    furniture(_tree_graph, counter);
-  END
-  /*
-  furniture(_standpipe_graph, 6);
-  furniture(_garbage_graph, 7);
-  furniture(_garbage_graph, 8);
-  furniture(_tree_graph, 13);
-  furniture(_tree_graph, 14);
-  furniture(_tree_graph, 15);
-  */
-  humming();
 
   start_mode8(player_id, 0, _region_id);
   set_fog(0, 100);
   m8.height=128;
+
+  farmer();
+  FROM counter = 1 TO 8;
+    furniture(_tree_graph, counter);
+  END
+  humming();
+  fog_updater();
 
   LOOP
     //IF (adventure_state <> _game_over)
@@ -406,6 +391,37 @@ BEGIN
   END
 END
 
+PROCESS fog_updater()
+PRIVATE
+  val;
+BEGIN
+  ctype = c_m8;
+  go_to_flag(30);
+  LOOP
+    angle += 5000;
+    IF (player_id <> 0)
+      // Wrap player's angle to -180...180
+      IF (player_id.angle > 180000)
+        val = player_id.angle - 360000;
+      ELSE
+        val = player_id.angle;
+      END
+
+      // Calculate env color based on angle to player ship
+      val = abs(val + 90000);
+      IF (val < 90000 AND get_dist(player_id) < 2000)
+        val = (90000 - val) / 9000;
+        val *= abs(sin(angle)) / 100; // Pulse
+      ELSE
+        val = 0;
+      END
+
+      // Update env color
+      set_env_color(0, val, 0);
+    END
+    FRAME;
+  END
+END
 
 PROCESS furniture(graph, flag)
 BEGIN
