@@ -28,6 +28,9 @@ CONST
   _max_banner_texts = 10;
   _banner_ticks = 60; // Number of frames a text is visible for
 
+  // Loop constants
+  _loop_frames = 1080; // Number of frames in a loop (90 seconds)
+
 GLOBAL
   adventure_state = _get_crowbar; // Progress made (every correct action increments this by 1)
 
@@ -52,6 +55,8 @@ GLOBAL
   player_id; // Player process id
   player_blocked = 0; // If blocked, cannot move or action. It unblocks after all banners are gone.
 
+  // Loop data
+  num_ticks_in_loop = 0; // Number of frames passed in the current loop
 PRIVATE
   f;
   STRING title_str;
@@ -80,7 +85,7 @@ BEGIN
   load_wld("D:\TOWN.WLD", textures_fpg);
 
   write_int(font, 4, 24, 0, offset fps);
-  write_int(font, 4, 34, 0, offset adventure_state);
+  write_int(font, 4, 34, 0, offset num_ticks_in_loop);
 
   define_region(_region_id, _region_x, _region_y, _region_width, _region_height);
   action_hit_controller();
@@ -102,6 +107,7 @@ BEGIN
   END
   humming();
   fog_updater();
+  loop_controller();
 
   LOOP
     //IF (adventure_state <> _game_over)
@@ -393,7 +399,7 @@ BEGIN
   loop1_1_str = "A strange ship has landed down there.";
   loop1_2_str = "I work at the barn to the west, but I can't";
   loop1_3_str = "open the door. I have some parts there that";
-  loop1_4_str = "would be useful to analyse that humming sound.";
+  loop1_4_str = "might be useful to analyse that humming sound.";
 
   ctype = c_m8;
   file = load_fpg("D:\FARMER.FPG");
@@ -441,13 +447,31 @@ BEGIN
   END
 END
 
+PROCESS furniture(graph, flag)
+BEGIN
+  file = furniture_fpg;
+  ctype = c_m8;
+  radius = 8;
+  go_to_flag(flag);
+  LOOP
+    FRAME;
+  END
+END
+
 PROCESS humming()
 PRIVATE
   snd;
+  chn;
+  vol = 128;
 BEGIN
+  // TODO: Load all resources in main program to avoid loading multiple times
   snd = load_pcm("D:\HUMMING.PCM", 1);
-  sound(snd, 128, 128);
+  chn = sound(snd, vol, vol);
   LOOP
+    IF (_loop_frames - num_ticks_in_loop < 120)
+      vol++;
+      change_sound(chn, vol, vol);
+    END
     FRAME;
   END
 END
@@ -485,13 +509,27 @@ BEGIN
   END
 END
 
-PROCESS furniture(graph, flag)
+PROCESS loop_controller()
 BEGIN
-  file = furniture_fpg;
-  ctype = c_m8;
-  radius = 8;
-  go_to_flag(flag);
   LOOP
+    num_ticks_in_loop++;
+    IF (num_ticks_in_loop == _loop_frames)
+      loop_finisher();
+      signal(id, s_kill);
+    END
     FRAME;
+  END
+END
+
+PROCESS loop_finisher()
+BEGIN
+  fade(200, 200, 200, 5);
+  WHILE (fading) FRAME; END
+  fade(100, 100, 100, 64);
+  num_ticks_in_loop = 0;
+  let_me_alone();
+  delete_text(all_text);
+  FROM x = 1 TO 16;
+    stop_sound(x);
   END
 END
