@@ -396,7 +396,7 @@ PRIVATE
   STRING loop1_1_str, loop1_2_str, loop1_3_str, loop1_4_str;
 BEGIN
   talk_str = "Talk to barn worker";
-  loop1_1_str = "A strange ship has landed down there.";
+  loop1_1_str = "A strange machine has landed down there.";
   loop1_2_str = "I work at the barn to the west, but I can't";
   loop1_3_str = "open the door. I have some parts there that";
   loop1_4_str = "might be useful to analyse that humming sound.";
