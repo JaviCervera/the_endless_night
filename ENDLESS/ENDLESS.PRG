@@ -31,7 +31,7 @@ CONST
   _banner_ticks = 60; // Number of frames a text is visible for
 
   // Loop constants
-  _loop_frames = 1080; // Number of frames in a loop (90 seconds)
+  _loop_frames = 720; // Number of frames in a loop (90 seconds)
 
 GLOBAL
   adventure_state = _get_crowbar; // Progress made (every correct action increments this by 1)
@@ -316,7 +316,7 @@ PRIVATE
   forward;
 BEGIN
   ctype = c_m8;
-  height = 96;
+  height = 110;
   radius = 32;
   go_to_flag(0);
   angle = 90000;
@@ -524,7 +524,7 @@ BEGIN
   chapter = "CHAPTER " + itoa(adventure_state) + ": " + _state_names[adventure_state];
   loop_ = "Loop " + itoa(loop_data.num_loop_in_state);
   chapter_text = write(font, 160, 100, 4, chapter);
-  FROM i = 1 TO 60;
+  FROM i = 1 TO 36;
     IF (i == 12 AND loop_data.num_loop_in_state > 1)
       loop_text = write(font, 160, 115, 4, loop_);
     END
