@@ -338,11 +338,13 @@ PROCESS farmer()
 PRIVATE
   STRING talk_str;
   STRING loop1_1_str, loop1_2_str, loop1_3_str;
+  STRING loop2_1_str;
 BEGIN
   talk_str = "Talk to farmer";
   loop1_1_str = "Something strange has happened in the fields";
   loop1_2_str = "to the south, but the path is closed.";
   loop1_3_str = "A shimmering light comes from there.";
+  loop2_1_str = "I have the feeling that I have done this before...";
   /*
   f = fopen("D:\DAD.ES", "r");
   talk_str = read_string(f);
@@ -361,6 +363,9 @@ BEGIN
   LOOP
     IF (update_action(id, talk_str))
       IF (adventure_state == _get_crowbar)
+        IF (loop_data.num_loop_in_state > 1)
+          add_banner_text(loop2_1_str);
+        END
         add_banner_text(loop1_1_str);
         add_banner_text(loop1_2_str);
         add_banner_text(loop1_3_str);
@@ -374,12 +379,14 @@ PROCESS barn_worker()
 PRIVATE
   STRING talk_str;
   STRING loop1_1_str, loop1_2_str, loop1_3_str, loop1_4_str;
+  STRING loop2_1_str;
 BEGIN
   talk_str = "Talk to barn worker";
   loop1_1_str = "A strange machine has landed down there.";
   loop1_2_str = "I work at the barn to the west, but I can't";
   loop1_3_str = "open the door. I have some parts there that";
   loop1_4_str = "might be useful to analyse that humming sound.";
+  loop2_1_str = "I think there is something odd...";
 
   ctype = c_m8;
   file = fpg_files.farmer;
@@ -388,6 +395,9 @@ BEGIN
   LOOP
     IF (update_action(id, talk_str))
       IF (adventure_state == _get_crowbar)
+        IF (loop_data.num_loop_in_state > 1)
+          add_banner_text(loop2_1_str);
+        END
         add_banner_text(loop1_1_str);
         add_banner_text(loop1_2_str);
         add_banner_text(loop1_3_str);
