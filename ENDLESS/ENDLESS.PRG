@@ -68,6 +68,8 @@ GLOBAL
   STRUCT loop_data
     needs_restart = 0; // Whether the loop needs restart
     num_ticks = 0; // Number of frames passed in the current loop
+    num_loop_in_state = 0; // The number of loops ran in the current state
+    last_loop_state = 1; // Game state when the last loop occured
   END
 PRIVATE
   f;
@@ -489,7 +491,14 @@ BEGIN
   // Write debug data
   write_int(font, 4, 24, 0, offset fps);
   write_int(font, 4, 34, 0, offset loop_data.num_ticks);
+  write_int(font, 4, 44, 0, offset loop_data.num_loop_in_state);
 
+  IF (adventure_state <> loop_data.last_loop_state)
+    loop_data.last_loop_state = adventure_state;
+    loop_data.num_loop_in_state = 1;
+  ELSE
+    loop_data.num_loop_in_state++;
+  END
 
   action_hit_controller();
   action_text_viewer();
