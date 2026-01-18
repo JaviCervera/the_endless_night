@@ -34,6 +34,12 @@ CONST
 GLOBAL
   adventure_state = _get_crowbar; // Progress made (every correct action increments this by 1)
 
+  // State names
+  _state_names[] =
+    "",
+    "The Awakening",
+    "First Unlock";
+
   // Action globals
   STRING action_text = ""; // The text to display at the bottom of the screen
   action_hit = 0; // Indicates if the action key was hit THE CURRENT FRAME
@@ -494,21 +500,37 @@ END
 // LOOP CONTROL
 //-------------------------------------
 
-FUNCTION start_loop()
+PROCESS start_loop()
 PRIVATE
   i;
+  chapter_text;
+  loop_text;
+  STRING chapter;
+  STRING loop_;
 BEGIN
-  // Write debug data
-  write_int(font, 4, 24, 0, offset fps);
-  write_int(font, 4, 34, 0, offset loop_data.num_ticks);
-  write_int(font, 4, 44, 0, offset loop_data.num_loop_in_state);
-
+  loop_data.needs_restart = 0;
   IF (adventure_state <> loop_data.last_loop_state)
     loop_data.last_loop_state = adventure_state;
     loop_data.num_loop_in_state = 1;
   ELSE
     loop_data.num_loop_in_state++;
   END
+
+  fade(0, 0, 0, 64);
+  fade_on();
+  chapter = "CHAPTER " + itoa(adventure_state) + ": " + _state_names[adventure_state];
+  loop_ = "Loop " + itoa(loop_data.num_loop_in_state);
+  chapter_text = write(font, 160, 100, 4, chapter);
+  FROM i = 1 TO 60;
+    IF (i == 12 AND loop_data.num_loop_in_state > 1)
+      loop_text = write(font, 160, 115, 4, loop_);
+    END
+    FRAME;
+  END
+  delete_text(chapter_text);
+  delete_text(loop_text);
+  fade_off();
+  WHILE (fading) FRAME; END
 
   action_hit_controller();
   action_text_viewer();
@@ -531,7 +553,12 @@ BEGIN
   humming();
   fog_updater();
   loop_controller();
-  loop_data.needs_restart = 0;
+  fade_on();
+
+  // Write debug data
+  write_int(font, 4, 24, 0, offset fps);
+  write_int(font, 4, 34, 0, offset loop_data.num_ticks);
+  write_int(font, 4, 44, 0, offset loop_data.num_loop_in_state);
 END
 
 PROCESS loop_controller()
@@ -556,5 +583,6 @@ BEGIN
   FROM x = 1 TO 16;
     stop_sound(x);
   END
+  stop_mode8(0);
   loop_data.needs_restart = 1;
 END
