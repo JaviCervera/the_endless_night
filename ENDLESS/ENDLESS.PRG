@@ -65,7 +65,10 @@ GLOBAL
   player_blocked = 0; // If blocked, cannot move or action. It unblocks after all banners are gone.
 
   // Loop data
-  num_ticks_in_loop = 0; // Number of frames passed in the current loop
+  STRUCT loop_data
+    needs_restart = 0; // Whether the loop needs restart
+    num_ticks = 0; // Number of frames passed in the current loop
+  END
 PRIVATE
   f;
   STRING title_str;
@@ -99,68 +102,18 @@ BEGIN
 
   //font = load_fnt("D:\FONT.FNT");
 
+  define_region(_region_id, _region_x, _region_y, _region_width, _region_height);
+
   load_wld("D:\TOWN.WLD", fpg_files.textures);
 
-  write_int(font, 4, 24, 0, offset fps);
-  write_int(font, 4, 34, 0, offset num_ticks_in_loop);
-
-  define_region(_region_id, _region_x, _region_y, _region_width, _region_height);
-  action_hit_controller();
-  action_text_viewer();
-  banner_text_viewer();
-  reset_banner();
-
-  player_id = player();
-
-  start_mode8(player_id, 0, _region_id);
-  set_fog(0, 100);
-  m8.height=128;
-
-  farmer();
-  barn_worker();
-  crowbar();
-  FROM counter = 1 TO 8;
-    furniture(_tree_graph, counter);
-  END
-  humming();
-  fog_updater();
-  loop_controller();
+  start_loop();
 
   LOOP
-    //IF (adventure_state <> _game_over)
-      FRAME;
-    //ELSE
-      /*
-      stop_song();
-      stop_mode8(0);
+    IF (loop_data.needs_restart)
       let_me_alone();
-      delete_text(all_text);
-      title_text = write(0, 160, 100, 4, title_str);
-      counter = 0;
-      fade_on();
-      WHILE (counter < _banner_ticks)
-        counter++;
-        FRAME;
-      END
-      delete_text(title_text);
-      title_text = write(0, 160, 100, 4, credits_str);
-      counter = 0;
-      WHILE (counter < _banner_ticks)
-        counter++;
-        FRAME;
-      END
-      delete_text(title_text);
-      title_text = write(0, 160, 100, 4, contest_str);
-      counter = 0;
-      WHILE (counter < _banner_ticks)
-        counter++;
-        FRAME;
-      END
-      fade_off();
-      WHILE (fading) FRAME; END
-      exit(thanks_str, 0);
-      */
-    //END
+      start_loop();
+    END
+    FRAME;
   END
 END
 
@@ -448,6 +401,7 @@ PROCESS crowbar()
 PRIVATE
   tick;
 BEGIN
+  IF (adventure_state <> _get_crowbar) RETURN; END
   ctype = c_m8;
   file = fpg_files.furniture;
   graph = _crowbar_graph;
@@ -490,7 +444,7 @@ PRIVATE
 BEGIN
   chn = sound(pcm_files.humming, vol, vol);
   LOOP
-    IF (_loop_frames - num_ticks_in_loop < 120)
+    IF (_loop_frames - loop_data.num_ticks < 120)
       vol++;
       change_sound(chn, vol, vol);
     END
@@ -524,11 +478,48 @@ BEGIN
   END
 END
 
+//-------------------------------------
+// LOOP CONTROL
+//-------------------------------------
+
+FUNCTION start_loop()
+PRIVATE
+  i;
+BEGIN
+  // Write debug data
+  write_int(font, 4, 24, 0, offset fps);
+  write_int(font, 4, 34, 0, offset loop_data.num_ticks);
+
+
+  action_hit_controller();
+  action_text_viewer();
+  banner_text_viewer();
+
+  reset_banner();
+
+  player_id = player();
+
+  start_mode8(player_id, 0, _region_id);
+  set_fog(0, 100);
+  m8.height=128;
+
+  farmer();
+  barn_worker();
+  crowbar();
+  FROM i = 1 TO 8;
+    furniture(_tree_graph, i);
+  END
+  humming();
+  fog_updater();
+  loop_controller();
+  loop_data.needs_restart = 0;
+END
+
 PROCESS loop_controller()
 BEGIN
   LOOP
-    num_ticks_in_loop++;
-    IF (num_ticks_in_loop == _loop_frames)
+    loop_data.num_ticks++;
+    IF (loop_data.num_ticks == _loop_frames)
       loop_finisher();
       signal(id, s_kill);
     END
@@ -541,10 +532,10 @@ BEGIN
   fade(200, 200, 200, 5);
   WHILE (fading) FRAME; END
   fade(100, 100, 100, 64);
-  num_ticks_in_loop = 0;
-  let_me_alone();
+  loop_data.num_ticks = 0;
   delete_text(all_text);
   FROM x = 1 TO 16;
     stop_sound(x);
   END
+  loop_data.needs_restart = 1;
 END
