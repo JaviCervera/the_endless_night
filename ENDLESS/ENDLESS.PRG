@@ -368,7 +368,7 @@ BEGIN
   ctype = c_m8;
   file = fpg_files.farmer;
   graph = 1;
-  go_to_flag(11);
+  go_to_flag(21);
   LOOP
     IF (update_action(id, talk_str))
       IF (adventure_state == _get_crowbar)
@@ -400,7 +400,7 @@ BEGIN
   ctype = c_m8;
   file = fpg_files.farmer;
   graph = 1;
-  go_to_flag(12);
+  go_to_flag(22);
   LOOP
     IF (update_action(id, talk_str))
       IF (adventure_state == _get_crowbar)
@@ -426,7 +426,7 @@ BEGIN
   ctype = c_m8;
   file = fpg_files.furniture;
   graph = _crowbar_graph;
-  go_to_flag(20);
+  go_to_flag(30);
   LOOP
     // Arrow animation
     tick++;
@@ -479,7 +479,7 @@ PRIVATE
   s;
 BEGIN
   ctype = c_m8;
-  go_to_flag(30);
+  go_to_flag(31);
   LOOP
     IF (player_id <> 0)
       s = sin(angle);
@@ -550,7 +550,7 @@ BEGIN
   farmer();
   barn_worker();
   crowbar();
-  FROM i = 1 TO 8;
+  FROM i = 1 TO 20;
     furniture(_tree_graph, i);
   END
   humming();
