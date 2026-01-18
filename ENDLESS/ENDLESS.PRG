@@ -1,6 +1,8 @@
 PROGRAM the_endless_night;
 
 CONST
+  _target_fps = 12;
+
   // Region data
   _region_id = 1;
   _region_x = 0;
@@ -97,7 +99,7 @@ BEGIN
   */
 
   set_mode(m320x200);
-  set_fps(12, 4);
+  set_fps(_target_fps, 4);
 
   // Load fpg
   fpg_files.textures = load_fpg("D:\TEXTURES.FPG");
@@ -121,6 +123,7 @@ BEGIN
       let_me_alone();
       start_loop();
     END
+
     FRAME;
   END
 END
@@ -553,12 +556,9 @@ BEGIN
   humming();
   fog_updater();
   loop_controller();
-  fade_on();
+  debug_data_viewer();
 
-  // Write debug data
-  write_int(font, 4, 24, 0, offset fps);
-  write_int(font, 4, 34, 0, offset loop_data.num_ticks);
-  write_int(font, 4, 44, 0, offset loop_data.num_loop_in_state);
+  fade_on();
 END
 
 PROCESS loop_controller()
@@ -585,4 +585,44 @@ BEGIN
   END
   stop_mode8(0);
   loop_data.needs_restart = 1;
+END
+
+//-------------------------------------
+// DEBUG VIEWER
+// Draws debug information on screen
+//-------------------------------------
+
+PROCESS debug_data_viewer()
+PRIVATE
+  STRING fps_str;
+  fps_id;
+  time_id;
+  secs_left;
+BEGIN
+  LOOP
+    secs_left = (_loop_frames - loop_data.num_ticks) / _target_fps;
+    fps_str = itoa(fps) + " FPS";
+    fps_id = write(font, 4, 24, 0, fps_str);
+    time_id = write(font, 4, 34, 0, time_fmt(secs_left));
+    FRAME;
+    delete_text(fps_id);
+    delete_text(time_id);
+  END
+END
+
+FUNCTION time_fmt(secs)
+PRIVATE
+  STRING str;
+BEGIN
+  str = pad2(secs / 60) + ":" + pad2(secs mod 60);
+  RETURN(str);
+END
+
+FUNCTION pad2(val)
+BEGIN
+  IF (val < 10)
+    RETURN("0" + itoa(val));
+  ELSE
+    RETURN(itoa(val));
+  END
 END

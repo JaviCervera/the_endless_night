@@ -114,7 +114,7 @@ might require several iterations of a loop to complete the objectives).
 - [x] Load resources on main program, not processes, to ensure they are not reloaded after loop reset.
 - [x] Shimmering light should be shown based on distance to mothership, not on viewing angle.
 - [x] Reset game after countdown.
-- [ ] At the beginning of each loop, it should indicate chapter name + loop number.
+- [x] At the beginning of each loop, it should indicate chapter name + loop number.
 - [ ] Sound when showing the white light after countdown.
 - [ ] Sound when interacting.
 - [ ] Ticking sound on the last seconds of countdown?
