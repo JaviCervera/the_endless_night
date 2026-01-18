@@ -45,8 +45,17 @@ GLOBAL
   banner_countdown = 0; // The frames remaining to show next banner texts
 
   // Graphics files
-  textures_fpg;
-  furniture_fpg;
+  STRUCT fpg_files
+    textures;
+    furniture;
+    farmer;
+  END
+
+  // Sound files
+  STRUCT pcm_files
+    footsteps;
+    humming;
+  END
 
   // Font
   font;
@@ -79,10 +88,18 @@ BEGIN
   set_mode(m320x200);
   set_fps(12, 4);
 
-  textures_fpg = load_fpg("D:\TEXTURES.FPG");
-  furniture_fpg = load_fpg("D:\FURNITUR.FPG");
+  // Load fpg
+  fpg_files.textures = load_fpg("D:\TEXTURES.FPG");
+  fpg_files.furniture = load_fpg("D:\FURNITUR.FPG");
+  fpg_files.farmer = load_fpg("D:\FARMER.FPG");
+
+  // Load pcm
+  pcm_files.footsteps = load_pcm("D:\STEPS.PCM", 1);
+  pcm_files.humming = load_pcm("D:\HUMMING.PCM", 1);
+
   //font = load_fnt("D:\FONT.FNT");
-  load_wld("D:\TOWN.WLD", textures_fpg);
+
+  load_wld("D:\TOWN.WLD", fpg_files.textures);
 
   write_int(font, 4, 24, 0, offset fps);
   write_int(font, 4, 34, 0, offset num_ticks_in_loop);
@@ -321,11 +338,9 @@ END
 
 PROCESS player()
 PRIVATE
-  footsteps;
   footsteps_channel = -1;
   forward;
 BEGIN
-  footsteps = load_pcm("D:\STEPS.PCM", 1);
   ctype = c_m8;
   height = 96;
   radius = 32;
@@ -341,7 +356,7 @@ BEGIN
       IF (forward <> 0)
         advance(forward);
         IF (NOT is_playing_sound(footsteps_channel))
-          footsteps_channel = sound(footsteps, 256, 350);
+          footsteps_channel = sound(pcm_files.footsteps, 256, 350);
         END
       END
     END
@@ -375,7 +390,7 @@ BEGIN
   */
 
   ctype = c_m8;
-  file = load_fpg("D:\FARMER.FPG");
+  file = fpg_files.farmer;
   graph = 1;
   go_to_flag(11);
   LOOP
@@ -402,7 +417,7 @@ BEGIN
   loop1_4_str = "might be useful to analyse that humming sound.";
 
   ctype = c_m8;
-  file = load_fpg("D:\FARMER.FPG");
+  file = fpg_files.farmer;
   graph = 1;
   go_to_flag(12);
   LOOP
@@ -424,7 +439,7 @@ PRIVATE
   tick;
 BEGIN
   ctype = c_m8;
-  file = furniture_fpg;
+  file = fpg_files.furniture;
   graph = _crowbar_graph;
   go_to_flag(20);
   LOOP
@@ -449,7 +464,7 @@ END
 
 PROCESS furniture(graph, flag)
 BEGIN
-  file = furniture_fpg;
+  file = fpg_files.furniture;
   ctype = c_m8;
   radius = 8;
   go_to_flag(flag);
@@ -460,13 +475,10 @@ END
 
 PROCESS humming()
 PRIVATE
-  snd;
   chn;
   vol = 128;
 BEGIN
-  // TODO: Load all resources in main program to avoid loading multiple times
-  snd = load_pcm("D:\HUMMING.PCM", 1);
-  chn = sound(snd, vol, vol);
+  chn = sound(pcm_files.humming, vol, vol);
   LOOP
     IF (_loop_frames - num_ticks_in_loop < 120)
       vol++;
