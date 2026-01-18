@@ -333,6 +333,16 @@ BEGIN
 END
 
 //-------------------------------------
+// LINEAR INTERPOLATION
+// t should be in 0..max_t instead of 0..1
+//-------------------------------------
+
+FUNCTION lerp(a, b, t, max_t)
+BEGIN
+  RETURN(a + ((b - a ) * t) / max_t);
+END
+
+//-------------------------------------
 // IN GAME PROCESSES
 //-------------------------------------
 
@@ -491,28 +501,21 @@ END
 PROCESS fog_updater()
 PRIVATE
   val;
+  s;
 BEGIN
   ctype = c_m8;
   go_to_flag(30);
   LOOP
     IF (player_id <> 0)
-      // Wrap player's angle to -180...180
-      IF (player_id.angle > 180000)
-        val = player_id.angle - 360000;
-      ELSE
-        val = player_id.angle;
-      END
-
-      // Calculate env color based on angle to player ship
-      val = abs(val + 90000);
-      IF (val < 90000 AND get_dist(player_id) < 750)
-        val = (90000 - val) / 9000;
-        val *= abs(sin(angle)) / 100; // Pulse
-        angle += 5000;
+      s = sin(angle);
+      IF (s <> 0)
+        val = lerp(100, 0, get_dist(player_id), abs(s));
+        IF (val < 0) val = 0; END
+        IF (val > 100) val = 100; END
       ELSE
         val = 0;
-        angle = 0;
       END
+      angle += 5000;
 
       // Update env color
       set_env_color(0, val, 0);
