@@ -38,6 +38,7 @@ CONST
 
   // Sectors
   _shack_sector = 7;
+  _barn_door_sector = 15;
 
 GLOBAL
   adventure_state = _open_barn; // Progress made (every correct action increments this by 1)
@@ -128,8 +129,6 @@ BEGIN
   //font = load_fnt("D:\FONT.FNT");
 
   define_region(_region_id, _region_x, _region_y, _region_width, _region_height);
-
-  load_wld("D:\TOWN.WLD", fpg_files.textures);
 
   start_loop();
 
@@ -465,7 +464,6 @@ BEGIN
     // Action
     IF (player_sector == _shack_sector OR player_last_picked_object == _crowbar)
       IF (update_action(id, "Take crowbar"))
-        player_last_picked_object = _crowbar;
         action_text = "";
         signal(id, s_kill);
         IF (player_last_picked_object <> _crowbar)
@@ -473,6 +471,7 @@ BEGIN
         ELSE
           add_banner_text("The crowbar is where I left it!");
         END
+        player_last_picked_object = _crowbar;
       END
     ELSE
       remove_action_text("Take crowbar");
@@ -480,6 +479,34 @@ BEGIN
 
     FRAME;
   END
+END
+
+PROCESS barn_door()
+BEGIN
+  IF (adventure_state <> _open_barn)
+    open_barn_door();
+    RETURN;
+  END
+  ctype = c_m8;
+  go_to_flag(23);
+  LOOP
+    IF (update_action(id, "Open barn door"))
+      IF (get_id(TYPE crowbar) == 0)
+        adventure_state++;
+        open_barn_door();
+        signal(id, s_kill);
+        remove_action_text("Open barn door");
+      ELSE
+        add_banner_text("The door is locked.");
+      END
+    END
+    FRAME;
+  END
+END
+
+PROCESS open_barn_door()
+BEGIN
+  set_sector_height(_barn_door_sector, 992, 1184);
 END
 
 PROCESS furniture(graph, flag)
@@ -547,6 +574,7 @@ PRIVATE
   STRING loop_;
 BEGIN
   loop_data.needs_restart = 0;
+  load_wld("D:\TOWN.WLD", fpg_files.textures);
   IF (adventure_state <> loop_data.last_loop_state)
     loop_data.last_loop_state = adventure_state;
     loop_data.num_loop_in_state = 1;
@@ -587,6 +615,7 @@ BEGIN
   farmer();
   barn_worker();
   crowbar();
+  barn_door();
   FROM i = 1 TO 20;
     furniture(_tree_graph, i);
   END
