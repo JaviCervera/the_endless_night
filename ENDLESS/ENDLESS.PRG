@@ -22,9 +22,12 @@ CONST
   _bush_graph = 2;
   _crowbar_graph = 3;
 
+  // Pickable objects
+  _crowbar = 1;
+
   // Adventure states
-  _get_crowbar = 1;
-  _open_barn = 2;
+  _open_barn = 1;
+  _collect_parts = 2;
 
   // Banner data
   _max_banner_texts = 10;
@@ -33,14 +36,17 @@ CONST
   // Loop constants
   _loop_frames = 720; // Number of frames in a loop (90 seconds)
 
+  // Sectors
+  _shack_sector = 7;
+
 GLOBAL
-  adventure_state = _get_crowbar; // Progress made (every correct action increments this by 1)
+  adventure_state = _open_barn; // Progress made (every correct action increments this by 1)
 
   // State names
   _state_names[] =
     "",
     "The Awakening",
-    "First Unlock";
+    "Collect Parts";
 
   // Action globals
   STRING action_text = ""; // The text to display at the bottom of the screen
@@ -71,6 +77,10 @@ GLOBAL
   // Player global data
   player_id; // Player process id
   player_blocked = 0; // If blocked, cannot move or action. It unblocks after all banners are gone.
+  player_sector; // The sector in which the player is located
+  player_last_picked_object = 0; // Last object picked by player
+  player_end_pos_x; // The player position when loop ended
+  player_end_pos_y; // The player position when loop ended
 
   // Loop data
   STRUCT loop_data
@@ -79,6 +89,11 @@ GLOBAL
     num_loop_in_state = 0; // The number of loops ran in the current state
     last_loop_state = 1; // Game state when the last loop occured
   END
+
+  // General use variable that is printed at the bottom
+  // of the debug data. Assign values here to trace their
+  // value on the screen during development
+  debug_data;
 PRIVATE
   f;
   STRING title_str;
@@ -320,6 +335,12 @@ BEGIN
   radius = 32;
   go_to_flag(0);
   angle = 90000;
+  IF (adventure_state == _open_barn AND loop_data.num_loop_in_state == 1)
+    add_banner_text("");
+    add_banner_text("What was that sound?");
+    add_banner_text("");
+    add_banner_text("It came from outside...");
+  END
   LOOP
     IF (NOT player_blocked)
       forward = 0;
@@ -339,6 +360,8 @@ BEGIN
       footsteps_channel = -1;
     END
     z -= _gravity;
+    player_sector = m8_sector;
+    debug_data = player_sector;
     FRAME;
   END
 END
@@ -371,7 +394,7 @@ BEGIN
   go_to_flag(21);
   LOOP
     IF (update_action(id, talk_str))
-      IF (adventure_state == _get_crowbar)
+      IF (adventure_state == _open_barn)
         IF (loop_data.num_loop_in_state > 1)
           add_banner_text(loop2_1_str);
         END
@@ -403,7 +426,7 @@ BEGIN
   go_to_flag(22);
   LOOP
     IF (update_action(id, talk_str))
-      IF (adventure_state == _get_crowbar)
+      IF (adventure_state == _open_barn)
         IF (loop_data.num_loop_in_state > 1)
           add_banner_text(loop2_1_str);
         END
@@ -422,11 +445,15 @@ PROCESS crowbar()
 PRIVATE
   tick;
 BEGIN
-  IF (adventure_state <> _get_crowbar) RETURN; END
+  IF (adventure_state <> _open_barn) RETURN; END
   ctype = c_m8;
   file = fpg_files.furniture;
   graph = _crowbar_graph;
   go_to_flag(30);
+  IF (player_last_picked_object == _crowbar)
+    x = player_end_pos_x;
+    y = player_end_pos_y;
+  END
   LOOP
     // Arrow animation
     tick++;
@@ -436,11 +463,19 @@ BEGIN
     END
 
     // Action
-    IF (update_action(id, "Take crowbar"))
-      adventure_state++;
-      action_text = "";
-      signal(id, s_kill);
-      add_banner_text("With this I should be able to open the barn.");
+    IF (player_sector == _shack_sector OR player_last_picked_object == _crowbar)
+      IF (update_action(id, "Take crowbar"))
+        player_last_picked_object = _crowbar;
+        action_text = "";
+        signal(id, s_kill);
+        IF (player_last_picked_object <> _crowbar)
+          add_banner_text("With this I should be able to open the barn.");
+        ELSE
+          add_banner_text("The crowbar is where I left it!");
+        END
+      END
+    ELSE
+      remove_action_text("Take crowbar");
     END
 
     FRAME;
@@ -519,6 +554,8 @@ BEGIN
     loop_data.num_loop_in_state++;
   END
 
+  stop_sounds();
+  delete_text(all_text);
   fade(0, 0, 0, 64);
   fade_on();
   chapter = "CHAPTER " + itoa(adventure_state) + ": " + _state_names[adventure_state];
@@ -580,11 +617,18 @@ BEGIN
   fade(100, 100, 100, 64);
   loop_data.num_ticks = 0;
   delete_text(all_text);
-  FROM x = 1 TO 16;
-    stop_sound(x);
-  END
+  stop_sounds();
   stop_mode8(0);
   loop_data.needs_restart = 1;
+  player_end_pos_x = player_id.x;
+  player_end_pos_y = player_id.y;
+END
+
+PROCESS stop_sounds()
+BEGIN
+  FROM x = 0 TO 32;
+    stop_sound(x);
+  END
 END
 
 //-------------------------------------
@@ -597,8 +641,10 @@ PRIVATE
   STRING fps_str;
   fps_id;
   time_id;
+  debug_data_id;
   secs_left;
 BEGIN
+  debug_data_id = write_int(font, 4, 44, 0, OFFSET debug_data);
   LOOP
     secs_left = (_loop_frames - loop_data.num_ticks) / _target_fps;
     fps_str = itoa(fps) + " FPS";

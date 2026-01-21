@@ -43,7 +43,7 @@ might require several iterations of a loop to complete the objectives).
   5. Bring the crowbar halfway to the barn before the reset.
 * Takeaway: Crowbar remains where you dropped it → persistence revealed.
 
-### 2. First Unlock
+### 2. Collect Parts
 
 * Objective: Use persistence to open a new area.
 * Player Actions:
