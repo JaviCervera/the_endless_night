@@ -100,14 +100,22 @@ might require several iterations of a loop to complete the objectives).
 ## Map
 
 ```
-            Radio Tower
-               ▲
-               │
+   Radio Tower  Church
+      ▲           ▲
+      │           │
  Barn ◄── Village ──► Mechanic’s Workshop
                │
            Mothership Field
 
 ```
+
+## IDEAS
+
+- Persistence could only apply to the surroundings of the barn. If loop resets when you are near it, whatever you are carrying persists. REJECTED.
+* New puzzle: There's a church in front of your cabin. A few seconds after loop starts, a rock slides from the roof and falls on the side. There is a rope connected to the bell. Next to the rock, one of the beams has a hook. If you attach the rope to the hook, on the next loop the rock will hit the rope and the bell will sound. We can use that for example to reduce the number of patrols nearby (maybe the path to the radio tower is impossible otherwise?).
+* The path to the mothership is blocked by vines. you have to find herbicide and put them on the vines, which will cause them to not appear on the next loops.
+* It would be nice if there was one game mechanic that requires you to leave an object at a certain place, so that when the loop restarts, the element being there will cause another object to behave differently -> When you open the barn, 
+* The time distortion could be stronger close to the mothership. Your actions when you are near it could be recorder, and on each loop, you could see your ghost with the actions you did on the last few loops (for example, last four loops). You could achieve victory by by performing a certain action in sync with your past selves. If all four do the action within a certain time window, the EMP pulse is activated (enable electricity on a pylon?).
 
 ## TODO
 
@@ -118,5 +126,5 @@ might require several iterations of a loop to complete the objectives).
 - [ ] Sound when showing the white light after countdown.
 - [ ] Sound when interacting.
 - [ ] Ticking sound on the last seconds of countdown?
-- [ ] Fireflies, birds, and other simple processed to improve immersion.
+- [ ] Fireflies, birds, and other simple processes to improve immersion.
 - [ ] Event-driven music.

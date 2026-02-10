@@ -28,6 +28,9 @@ CONST
   // Adventure states
   _open_barn = 1;
   _collect_parts = 2;
+  _info_gathering = 3;
+  _powering_up = 4;
+
 
   // Banner data
   _max_banner_texts = 10;
