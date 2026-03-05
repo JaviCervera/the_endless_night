@@ -40,7 +40,8 @@ might require several iterations of a loop to complete the objectives).
   2. Outside, villagers are panicked; a green light illuminates the sky.
   3. Talk to NPCs to learn of the “strange machine” in the fields.
   4. Discover a locked barn door and a hidden crowbar in a shed.
-  5. Bring the crowbar halfway to the barn before the reset.
+  5. Bring the crowbar to the barn before the reset.
+  6. If you try to open, there's something blocking the door.
 * Takeaway: Crowbar remains where you dropped it → persistence revealed.
 
 ### 2. Collect Parts
@@ -48,7 +49,8 @@ might require several iterations of a loop to complete the objectives).
 * Objective: Use persistence to open a new area.
 * Player Actions:
   1. Rush to the crowbar and reach the old barn.
-  2. Break open the door; discover generator parts and alien residue.
+  2. If you reach the barn in the first 20 seconds, you can open the door (after that, a sandbag is dropped by a machine inside the barn, blocking the door).
+  3. Discover generator parts and alien residue.
 * Tease: A faint alien signal is audible near the radio tower.
 
 ### 3. Information Gathering
