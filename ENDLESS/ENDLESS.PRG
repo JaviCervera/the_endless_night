@@ -363,7 +363,7 @@ BEGIN
     END
     z -= _gravity;
     player_sector = m8_sector;
-    debug_data = player_sector;
+    // debug_data = player_sector;
     FRAME;
   END
 END
@@ -485,6 +485,8 @@ BEGIN
 END
 
 PROCESS barn_door()
+PRIVATE
+  seconds_passed;
 BEGIN
   IF (adventure_state <> _open_barn)
     open_barn_door();
@@ -494,13 +496,18 @@ BEGIN
   go_to_flag(23);
   LOOP
     IF (update_action(id, "Open barn door"))
-      IF (get_id(TYPE crowbar) == 0)
-        adventure_state++;
-        open_barn_door();
-        signal(id, s_kill);
-        remove_action_text("Open barn door");
+      seconds_passed = loop_data.num_ticks / _target_fps;
+      IF (seconds_passed > 10)
+        add_banner_text("There is something blocking the door. I can't open it.");
       ELSE
-        add_banner_text("The door is locked.");
+        IF (get_id(TYPE crowbar) == 0)
+          adventure_state++;
+          open_barn_door();
+          signal(id, s_kill);
+          remove_action_text("Open barn door");
+        ELSE
+          add_banner_text("The door is locked.");
+        END
       END
     END
     FRAME;
