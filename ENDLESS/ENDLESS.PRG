@@ -363,7 +363,7 @@ BEGIN
     END
     z -= _gravity;
     player_sector = m8_sector;
-    // debug_data = player_sector;
+    debug_data = player_sector;
     FRAME;
   END
 END
@@ -498,7 +498,7 @@ BEGIN
     IF (update_action(id, "Open barn door"))
       seconds_passed = loop_data.num_ticks / _target_fps;
       IF (seconds_passed > 10)
-        add_banner_text("There is something blocking the door. I can't open it.");
+        add_banner_text("There is something blocking the door.");
       ELSE
         IF (get_id(TYPE crowbar) == 0)
           adventure_state++;
