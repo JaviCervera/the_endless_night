@@ -1,3 +1,6 @@
+-- This tool is meant to be executed with https://github.com/JaviCervera/hal
+-- Usage: Run "hal" from this dir (make sure that hal is compiled and _build dir added to PATH)
+
 import("src/_class.lua")
 import("src/fpg.lua")
 import("src/image.lua")
