@@ -1,7 +1,6 @@
 #include <algorithm>
 #include <climits>
 #include <cstdlib>
-#include <vector>
 #include "camera.h"
 #include "raycaster.h"
 

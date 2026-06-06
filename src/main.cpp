@@ -86,7 +86,7 @@ int main()
 		{
 			const uint8_t id = tilemap.entity_at(x, y);
 			if (id != 0 && id != PLAYER_ID)
-				renderer.sprites.push_back({vec2_t{real_t(x + 0.5f), real_t(y + 0.5f)}, id - 1});
+				renderer.sprites.push_back({vec2_t{real_t(x + 0.5f), real_t(y + 0.5f)}, uint8_t(id - 1)});
 		}
 
 	while (screen_update(backbuffer))
@@ -103,9 +103,9 @@ int main()
 			s_fade = std::max(s_fade - FADE_STEP, 100);
 		pal_set_fade(s_fade, s_fade, s_fade);
 
-		char fps_mgr[16];
-		std::snprintf(fps_mgr, sizeof(fps_mgr), "FPS: %d / %d", screen_current_fps(), screen_target_fps());
-		backbuffer.text(fps_mgr, {VP_X + 4, VP_Y + 4}, 15);
+		//char fps_mgr[16];
+		//std::snprintf(fps_mgr, sizeof(fps_mgr), "FPS: %d / %d", screen_current_fps(), screen_target_fps());
+		//backbuffer.text(fps_mgr, {VP_X + 4, VP_Y + 4}, 15);
 	}
 }
 

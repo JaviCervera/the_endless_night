@@ -17,7 +17,7 @@ struct camera_t;
 struct sprite_t
 {
 	vec2_t pos;			// World position
-	size_t fpg_idx; // FPG map index (0-based) for the sprite texture
+	uint8_t fpg_idx; // FPG map index (0-based) for the sprite texture
 };
 
 struct raycaster_t
@@ -28,11 +28,6 @@ struct raycaster_t
 	void floor(uvec2_t pos, uint8_t floor_type);
 	uint8_t tile(uvec2_t pos) const;
 	uint8_t floor(uvec2_t pos) const;
-
-	// Bounds-checked-index-free accessors for use in hot inner loops (DDA, floor
-	// pixel loop) where the caller has already verified (x, y) is in range.
-	uint8_t tile_unsafe(int x, int y) const;
-	uint8_t floor_unsafe(int x, int y) const;
 
 	// Renders into the given viewport sub-region. Pass viewport_t{} for full backbuffer.
 	// detail controls interlaced rendering: 2 = full (default), 0 = even columns/rows only,
@@ -54,9 +49,15 @@ struct raycaster_t
 	real_t fog_end = real_t(16);
 #endif
 
+private:
 	// Reused across frames to avoid per-frame heap allocation.
 	mutable std::vector<real_t> z_buf;
 	mutable std::vector<size_t> sp_order;
+
+	// Bounds-checked-index-free accessors for use in hot inner loops (DDA, floor
+	// pixel loop) where the caller has already verified (x, y) is in range.
+	uint8_t tile_unsafe(int x, int y) const;
+	uint8_t floor_unsafe(int x, int y) const;
 };
 
 inline void raycaster_t::tile(uvec2_t pos, uint8_t wall_type)
