@@ -357,8 +357,8 @@ void raycaster_t::render(const camera_t &cam, pixmap_t &backbuffer, viewport_t v
 		sp_order[i] = i;
 	std::sort(sp_order.begin(), sp_order.end(), [&](size_t a, size_t b)
 						{
-              const real_t da = (sprites[a].pos.x - cam.pos.x) * (sprites[a].pos.x - cam.pos.x) + (sprites[a].pos.x - cam.pos.x) * (sprites[a].pos.x - cam.pos.x);
-              const real_t db = (sprites[b].pos.x - cam.pos.x) * (sprites[b].pos.x - cam.pos.x) + (sprites[b].pos.x - cam.pos.x) * (sprites[b].pos.x - cam.pos.x);
+              const real_t da = (sprites[a].pos.x - cam.pos.x) * (sprites[a].pos.x - cam.pos.x) + (sprites[a].pos.y - cam.pos.y) * (sprites[a].pos.y - cam.pos.y);
+              const real_t db = (sprites[b].pos.x - cam.pos.x) * (sprites[b].pos.x - cam.pos.x) + (sprites[b].pos.y - cam.pos.y) * (sprites[b].pos.y - cam.pos.y);
               return da > db; });
 
 	const real_t inv_det = real_t(1) / (cam.plane.x * cam.dir.y - cam.dir.x * cam.plane.y);

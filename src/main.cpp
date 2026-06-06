@@ -57,9 +57,9 @@ int main()
 	backbuffer.rectfill({0, VP_Y + VP_H + 2}, {SCREEN_WIDTH, SCREEN_HEIGHT - VP_Y - VP_H - 2}, 18);
 	backbuffer.rect({2, 2}, {SCREEN_WIDTH - 4, VP_Y - 6}, 28);
 	backbuffer.rectfill({3, 3}, {SCREEN_WIDTH - 6, VP_Y - 8}, 2);*/
-	backbuffer.text("Something strange has happened in the", {5, 5}, 15);
-	backbuffer.text("fields.", {5, 15}, 15);
-	backbuffer.text("Let's go take a look.", {5, 25}, 15);
+	//backbuffer.text("Something strange has happened in the", {5, 5}, 15);
+	//backbuffer.text("fields.", {5, 15}, 15);
+	//backbuffer.text("Let's go take a look.", {5, 25}, 15);
 
 	vec2_t player_pos{real_t(0.5f), real_t(0.5f)};
 	for (uint32_t y = 0; y < tilemap.map_size.y; ++y)
@@ -72,9 +72,11 @@ int main()
 	auto cam = camera_t{player_pos, vec2_t{real_t(0.0f), real_t(1.0f)}, vec2_t{real_t(0.66f), real_t(0.0f)}};
 
 	auto renderer = raycaster_t{{tilemap.map_size.x, tilemap.map_size.y}, fpg};
+#if FOG_ENABLED
 	renderer.fog_color = pal_find_closest(0, 0, 0);
 	renderer.fog_start = real_t(0);
 	renderer.fog_end = real_t(8);
+#endif
 	for (uint32_t x = 0; x < tilemap.map_size.x; ++x)
 		for (uint32_t y = 0; y < tilemap.map_size.y; ++y)
 		{
