@@ -394,9 +394,9 @@ void raycaster_t::render(const camera_t &cam, pixmap_t &backbuffer, viewport_t v
 		// Sprite bottom is anchored to the floor at this distance; grows upward
 		const int floor_screen_y = vp_y + vp_h2 + tile_screen_h / 2;
 		const int draw_y0 = std::max(vp_y, floor_screen_y - sp_h);
-		const int draw_y1 = std::min(vp_y + vp_h - 1, floor_screen_y);
+		const int draw_y1 = std::min(vp_y + vp_h, floor_screen_y);
 		const int draw_x0 = std::max(vp_x, screen_x - sp_w / 2);
-		const int draw_x1 = std::min(vp_x + vp_w - 1, screen_x + sp_w / 2);
+		const int draw_x1 = std::min(vp_x + vp_w, screen_x + sp_w / 2);
 
 		if (draw_x0 >= draw_x1 || draw_y0 >= draw_y1)
 			continue;
