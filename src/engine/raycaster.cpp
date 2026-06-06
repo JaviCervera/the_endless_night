@@ -371,7 +371,11 @@ void raycaster_t::render(const camera_t &cam, pixmap_t &backbuffer, viewport_t v
 		const real_t transform_x = inv_det * (cam.dir.y * sp_x - cam.dir.x * sp_y);
 		const real_t transform_y = inv_det * (-cam.plane.y * sp_x + cam.plane.x * sp_y);
 
-		if (transform_y <= real_t(0))
+		// Near-plane cull: tiny positive transform_y blows up tile_screen_h and
+		// screen_x (divide-by-near-zero), making the sprite cover the viewport and
+		// pass the z-buffer test against every wall. Happens with sprites that are
+		// almost perpendicular to the view direction (just barely in front).
+		if (transform_y < real_t(0.05f))
 			continue;
 
 		const pixmap_t *tex = fpg->map(sp.fpg_idx);
