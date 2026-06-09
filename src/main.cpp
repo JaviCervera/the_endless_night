@@ -9,10 +9,11 @@
 #include "engine/raycaster.h"
 #include "game/input.h"
 #include "game/player.h"
+#include "game/banner.h"
 
 #define SCREEN_WIDTH 320
 #define SCREEN_HEIGHT 200
-#define TARGET_FPS 20
+#define TARGET_FPS 12
 #define PLAYER_ID 9
 
 int main()
@@ -59,6 +60,8 @@ int main()
 	// backbuffer.text("Let's go take a look.", {5, 25}, 15);
 
 	auto player = player_t{tilemap, real_t(3.0f / TARGET_FPS), real_t(2.0f / TARGET_FPS), real_t(0.25f)};
+	auto banner = banner_t{};
+	banner.show("Something strange has happened in the fields to the south, but the path is closed.");
 	vec2_t player_pos{real_t(0.5f), real_t(0.5f)};
 	for (uint32_t y = 0; y < tilemap.map_size.y; ++y)
 		for (uint32_t x = 0; x < tilemap.map_size.x; ++x)
@@ -91,6 +94,10 @@ int main()
 	{
 		player.update(input_calculate());
 		renderer.render(player.cam, backbuffer, VIEWPORT);
+
+		banner.update();
+		backbuffer.rectfill({0, 0}, {SCREEN_WIDTH, VP_Y - 2}, 0);
+		banner.draw(backbuffer);
 
 		// Space: fade to white (200) over 1 second; release: fade back to normal (100).
 		static int s_fade = 100;
