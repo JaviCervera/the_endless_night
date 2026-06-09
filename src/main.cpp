@@ -1,6 +1,5 @@
 #include <iostream>
 #include <allegro.h>
-#include "engine/camera.h"
 #include "engine/fpg.h"
 #include "engine/pal.h"
 #include "engine/pixmap.h"
@@ -8,14 +7,13 @@
 #include "engine/tilemap.h"
 #include "engine/viewport.h"
 #include "engine/raycaster.h"
+#include "game/input.h"
 #include "game/player.h"
 
 #define SCREEN_WIDTH 320
 #define SCREEN_HEIGHT 200
 #define TARGET_FPS 20
 #define PLAYER_ID 9
-
-static tilemap_t tilemap;
 
 int main()
 {
@@ -36,7 +34,7 @@ int main()
 		return -1;
 	}
 
-	tilemap = load_tilemap("assets/town.tma");
+	auto tilemap = load_tilemap("assets/town.tma");
 	if (tilemap.tiles.empty())
 	{
 		std::cout << "Can't load tilemap" << std::endl;
@@ -91,7 +89,7 @@ int main()
 
 	while (screen_update(backbuffer))
 	{
-		player.update();
+		player.update(input_calculate());
 		renderer.render(player.cam, backbuffer, VIEWPORT);
 
 		// Space: fade to white (200) over 1 second; release: fade back to normal (100).

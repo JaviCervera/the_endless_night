@@ -26,7 +26,7 @@ raycaster_t::raycaster_t(uvec2_t map_size, const fpg_t &fpg)
 	};
 }
 
-void raycaster_t::render(const camera_t &cam, pixmap_t &backbuffer, viewport_t vp, int detail) const
+void raycaster_t::render(const camera_t &cam, pixmap_t &backbuffer, viewport_t vp, int detail)
 {
 	static_assert(TEX_SIZE == (1 << TEX_BITS), "TEX_BITS must equal log2(TEX_SIZE)");
 

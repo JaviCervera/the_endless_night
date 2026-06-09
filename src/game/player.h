@@ -1,8 +1,8 @@
 #pragma once
 
 #include "../engine/camera.h"
-#include "../engine/screen.h"
 #include "../engine/tilemap.h"
+#include "input.h"
 
 struct player_t
 {
@@ -27,21 +27,21 @@ struct player_t
 		cam.pos = pos;
 	}
 
-	void update()
+	void update(const input_t &input)
 	{
 		auto wall_at = [this](real_t px, real_t py) -> bool
 		{
-			const int x = int(px);
-			const int y = int(py);
+			const auto x = static_cast<int>(px);
+			const auto y = static_cast<int>(py);
 			if (x < 0 || x >= static_cast<int>(tilemap->map_size.x) || y < 0 || y >= static_cast<int>(tilemap->map_size.y))
 				return true;
 			return tilemap->tile_at(static_cast<uint32_t>(x), static_cast<uint32_t>(y)) != 0;
 		};
 
-		if (screen_key(SCREEN_KEY_UP))
+		if (input.forward != 0)
 		{
-			const real_t new_x = cam.pos.x + cam.dir.x * move_speed;
-			const real_t new_y = cam.pos.y + cam.dir.y * move_speed;
+			const auto new_x = cam.pos.x + cam.dir.x * move_speed * input.forward;
+			const auto new_y = cam.pos.y + cam.dir.y * move_speed * input.forward;
 			if (!wall_at(new_x + radius, cam.pos.y + radius) && !wall_at(new_x + radius, cam.pos.y - radius) &&
 					!wall_at(new_x - radius, cam.pos.y + radius) && !wall_at(new_x - radius, cam.pos.y - radius))
 				cam.pos.x = new_x;
@@ -49,34 +49,16 @@ struct player_t
 					!wall_at(cam.pos.x - radius, new_y + radius) && !wall_at(cam.pos.x - radius, new_y - radius))
 				cam.pos.y = new_y;
 		}
-		if (screen_key(SCREEN_KEY_DOWN))
+		if (input.turn != 0)
 		{
-			const real_t new_x = cam.pos.x - cam.dir.x * move_speed;
-			const real_t new_y = cam.pos.y - cam.dir.y * move_speed;
-			if (!wall_at(new_x + radius, cam.pos.y + radius) && !wall_at(new_x + radius, cam.pos.y - radius) &&
-					!wall_at(new_x - radius, cam.pos.y + radius) && !wall_at(new_x - radius, cam.pos.y - radius))
-				cam.pos.x = new_x;
-			if (!wall_at(cam.pos.x + radius, new_y + radius) && !wall_at(cam.pos.x + radius, new_y - radius) &&
-					!wall_at(cam.pos.x - radius, new_y + radius) && !wall_at(cam.pos.x - radius, new_y - radius))
-				cam.pos.y = new_y;
-		}
-		if (screen_key(SCREEN_KEY_RIGHT))
-		{
-			const real_t old_dir_x = cam.dir.x;
-			const real_t old_plane_x = cam.plane.x;
-			cam.dir.x = cam.dir.x * real_cos(-rot_speed) - cam.dir.y * real_sin(-rot_speed);
-			cam.dir.y = old_dir_x * real_sin(-rot_speed) + cam.dir.y * real_cos(-rot_speed);
-			cam.plane.x = cam.plane.x * real_cos(-rot_speed) - cam.plane.y * real_sin(-rot_speed);
-			cam.plane.y = old_plane_x * real_sin(-rot_speed) + cam.plane.y * real_cos(-rot_speed);
-		}
-		if (screen_key(SCREEN_KEY_LEFT))
-		{
-			const real_t old_dir_x = cam.dir.x;
-			const real_t old_plane_x = cam.plane.x;
-			cam.dir.x = cam.dir.x * real_cos(rot_speed) - cam.dir.y * real_sin(rot_speed);
-			cam.dir.y = old_dir_x * real_sin(rot_speed) + cam.dir.y * real_cos(rot_speed);
-			cam.plane.x = cam.plane.x * real_cos(rot_speed) - cam.plane.y * real_sin(rot_speed);
-			cam.plane.y = old_plane_x * real_sin(rot_speed) + cam.plane.y * real_cos(rot_speed);
+			const auto old_dir_x = cam.dir.x;
+			const auto old_plane_x = cam.plane.x;
+			const auto c = real_cos(rot_speed * -input.turn);
+			const auto s = real_sin(rot_speed * -input.turn);
+			cam.dir.x = cam.dir.x * c - cam.dir.y * s;
+			cam.dir.y = old_dir_x * s + cam.dir.y * c;
+			cam.plane.x = cam.plane.x * c - cam.plane.y * s;
+			cam.plane.y = old_plane_x * s + cam.plane.y * c;
 		}
 	}
 };

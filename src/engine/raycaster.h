@@ -32,7 +32,7 @@ struct raycaster_t
 	// Renders into the given viewport sub-region. Pass viewport_t{} for full backbuffer.
 	// detail controls interlaced rendering: 2 = full (default), 0 = even columns/rows only,
 	// 1 = odd columns/rows only. Combining alternating frames gives a full image at half cost.
-	void render(const camera_t &cam, pixmap_t &backbuffer, viewport_t vp = {}, int detail = 2) const;
+	void render(const camera_t &cam, pixmap_t &backbuffer, viewport_t vp = {}, int detail = 2);
 
 	const fpg_t *fpg;
 	uvec2_t map_size;
@@ -51,8 +51,8 @@ struct raycaster_t
 
 private:
 	// Reused across frames to avoid per-frame heap allocation.
-	mutable std::vector<real_t> z_buf;
-	mutable std::vector<size_t> sp_order;
+	std::vector<real_t> z_buf;
+	std::vector<size_t> sp_order;
 
 	// Bounds-checked-index-free accessors for use in hot inner loops (DDA, floor
 	// pixel loop) where the caller has already verified (x, y) is in range.
