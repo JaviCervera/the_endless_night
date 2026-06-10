@@ -1,4 +1,5 @@
 #include <iostream>
+#include <memory>
 #include <allegro.h>
 #include "engine/fpg.h"
 #include "engine/pal.h"
@@ -10,10 +11,15 @@
 #include "game/input.h"
 #include "game/player.h"
 #include "game/banner.h"
+#include "game/action_text.h"
+#include "game/farmer.h"
 
 #define SCREEN_WIDTH 320
 #define SCREEN_HEIGHT 200
-#define TARGET_FPS 12
+#define TARGET_FPS 20
+
+#define FARMER1_ID 7
+#define FARMER2_ID 8
 #define PLAYER_ID 9
 
 int main()
@@ -61,43 +67,68 @@ int main()
 
 	auto player = player_t{tilemap, real_t(3.0f / TARGET_FPS), real_t(2.0f / TARGET_FPS), real_t(0.25f)};
 	auto banner = banner_t{};
+	auto action_text = action_text_t{};
 	banner.show("Something strange has happened in the fields to the south, but the path is closed.");
-	vec2_t player_pos{real_t(0.5f), real_t(0.5f)};
-	for (uint32_t y = 0; y < tilemap.map_size.y; ++y)
-		for (uint32_t x = 0; x < tilemap.map_size.x; ++x)
-			if (tilemap.entity_at(x, y) == PLAYER_ID)
-			{
-				player.position(vec2_t{real_t(x + 0.5f), real_t(y + 0.5f)});
-			}
 
-	auto renderer = raycaster_t{{tilemap.map_size.x, tilemap.map_size.y}, fpg};
+	auto raycaster = raycaster_t{{tilemap.map_size.x, tilemap.map_size.y}, fpg};
 #if FOG_ENABLED
-	renderer.fog_color = pal_find_closest(0, 0, 0);
-	renderer.fog_start = real_t(0);
-	renderer.fog_end = real_t(8);
+	raycaster.fog_color = pal_find_closest(0, 0, 0);
+	raycaster.fog_start = real_t(0);
+	raycaster.fog_end = real_t(8);
 #endif
 	for (uint32_t x = 0; x < tilemap.map_size.x; ++x)
+	{
 		for (uint32_t y = 0; y < tilemap.map_size.y; ++y)
 		{
-			renderer.tile({x, y}, tilemap.tile_at(x, y));
-			renderer.floor({x, y}, tilemap.floor_at(x, y));
+			raycaster.tile({x, y}, tilemap.tile_at(x, y));
+			raycaster.floor({x, y}, tilemap.floor_at(x, y));
 		}
+	}
+
+	std::vector<std::unique_ptr<actor_t>> actors;
 	for (uint32_t y = 0; y < tilemap.map_size.y; ++y)
 		for (uint32_t x = 0; x < tilemap.map_size.x; ++x)
 		{
 			const uint8_t id = tilemap.entity_at(x, y);
-			if (id != 0 && id != PLAYER_ID)
-				renderer.sprites.push_back({vec2_t{real_t(x + 0.5f), real_t(y + 0.5f)}, uint8_t(id - 1)});
+			switch (id)
+			{
+			case PLAYER_ID:
+				player.position(vec2_t{real_t(x + 0.5f), real_t(y + 0.5f)});
+				break;
+			case FARMER1_ID:
+			case FARMER2_ID:
+			{
+				auto farmer = std::make_unique<farmer_t>();
+				farmer->pos = vec2_t{real_t(x + 0.5f), real_t(y + 0.5f)};
+				farmer->fpg_idx = uint8_t(id - 1);
+				actors.push_back(std::move(farmer));
+				break;
+			}
+			default:
+				if (id != 0)
+				{
+					auto actor = std::make_unique<actor_t>();
+					actor->pos = vec2_t{real_t(x + 0.5f), real_t(y + 0.5f)};
+					actor->fpg_idx = uint8_t(id - 1);
+					actors.push_back(std::move(actor));
+				}
+				break;
+			}
 		}
 
 	while (screen_update(backbuffer))
 	{
-		player.update(input_calculate());
-		renderer.render(player.cam, backbuffer, VIEWPORT);
+		const auto input = input_calculate();
+		player.update(input);
+		action_text.update(actors, player.cam.pos, input);
+		raycaster.render(player.cam, actors, backbuffer, VIEWPORT);
 
 		banner.update();
 		backbuffer.rectfill({0, 0}, {SCREEN_WIDTH, VP_Y - 2}, 0);
 		banner.draw(backbuffer);
+
+		backbuffer.rectfill({0, VP_Y + VP_H}, {SCREEN_WIDTH, SCREEN_HEIGHT}, 0);
+		action_text.draw(backbuffer);
 
 		// Space: fade to white (200) over 1 second; release: fade back to normal (100).
 		static int s_fade = 100;
