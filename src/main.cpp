@@ -18,9 +18,10 @@
 #define SCREEN_HEIGHT 200
 #define TARGET_FPS 20
 
-#define FARMER1_ID 7
-#define FARMER2_ID 8
-#define PLAYER_ID 9
+#define CROWBAR_ID 6
+#define FARMER1_ID 8
+#define FARMER2_ID 9
+#define PLAYER_ID 10
 
 int main()
 {
