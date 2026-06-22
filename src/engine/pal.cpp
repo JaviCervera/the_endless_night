@@ -3,7 +3,14 @@
 #include <allegro.h>
 #include "pal.h"
 
-std::array<uint8_t, 256 * 3> _pal;
+static std::array<uint8_t, 256 * 3> _pal;
+
+static int _fade_from[3] = {100, 100, 100};
+static int _fade_to[3] = {100, 100, 100};
+static int _fade_cur[3] = {100, 100, 100};
+static int _fade_step = 0;
+static int _fade_steps = 0;
+static bool _fade_active = false;
 
 bool pal_load(const char *filename)
 {
@@ -56,6 +63,10 @@ palcolor_t pal_find_closest(uint8_t r, uint8_t g, uint8_t b)
 
 void pal_set_fade(int r_pct, int g_pct, int b_pct)
 {
+	_fade_cur[0] = r_pct;
+	_fade_cur[1] = g_pct;
+	_fade_cur[2] = b_pct;
+
 	PALETTE palette;
 	for (int i = 0; i < 256; ++i)
 	{
@@ -67,4 +78,52 @@ void pal_set_fade(int r_pct, int g_pct, int b_pct)
 		palette[i].b = (b_pct <= 100) ? (b * b_pct / 100) : (b + (63 - b) * (b_pct - 100) / 100);
 	}
 	set_palette(palette);
+}
+
+void pal_start_fade(int target_r, int target_g, int target_b, int steps)
+{
+	_fade_from[0] = _fade_cur[0];
+	_fade_from[1] = _fade_cur[1];
+	_fade_from[2] = _fade_cur[2];
+	_fade_to[0] = target_r;
+	_fade_to[1] = target_g;
+	_fade_to[2] = target_b;
+	_fade_step = 0;
+	_fade_steps = steps;
+	_fade_active = true;
+
+	if (steps <= 0)
+	{
+		pal_set_fade(target_r, target_g, target_b);
+		_fade_active = false;
+	}
+}
+
+bool pal_update_fade()
+{
+	if (!_fade_active)
+		return false;
+
+	_fade_step++;
+	if (_fade_step >= _fade_steps)
+	{
+		_fade_cur[0] = _fade_to[0];
+		_fade_cur[1] = _fade_to[1];
+		_fade_cur[2] = _fade_to[2];
+		_fade_active = false;
+	}
+	else
+	{
+		_fade_cur[0] = _fade_from[0] + (_fade_to[0] - _fade_from[0]) * _fade_step / _fade_steps;
+		_fade_cur[1] = _fade_from[1] + (_fade_to[1] - _fade_from[1]) * _fade_step / _fade_steps;
+		_fade_cur[2] = _fade_from[2] + (_fade_to[2] - _fade_from[2]) * _fade_step / _fade_steps;
+	}
+
+	pal_set_fade(_fade_cur[0], _fade_cur[1], _fade_cur[2]);
+	return _fade_active;
+}
+
+bool pal_fade_active()
+{
+	return _fade_active;
 }

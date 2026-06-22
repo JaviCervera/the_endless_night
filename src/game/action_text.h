@@ -6,24 +6,29 @@
 #include <allegro.h>
 #include "actor.h"
 #include "input.h"
+#include "game_state.h"
 #include "../engine/pixmap.h"
 
 struct action_text_t
 {
-	void update(const std::vector<std::unique_ptr<actor_t>> &actors, vec2_t player_pos, const input_t &input)
+	actor_t *update(const std::vector<std::unique_ptr<actor_t>> &actors, vec2_t player_pos, const input_t &input, game_state_t &game)
 	{
 		m_text.clear();
 		m_target = nullptr;
-		real_t best_dsq = real_t::large();
 
+		if (game.player_blocked)
+		{
+			m_text = "...";
+			return nullptr;
+		}
+
+		real_t best_dsq = real_t::large();
 		for (auto &actor : actors)
 		{
-			if (!actor)
+			if (!actor || actor->dead)
 				continue;
-
 			if (!actor->can_show_action(player_pos))
 				continue;
-
 			const auto dsq = actor->distance_sq(player_pos);
 			const auto max_dsq = actor->action_distance * actor->action_distance;
 			if (dsq <= max_dsq && dsq < best_dsq)
@@ -35,7 +40,12 @@ struct action_text_t
 		}
 
 		if (input.action && m_target)
+		{
 			m_target->on_action_pressed();
+			return m_target;
+		}
+
+		return nullptr;
 	}
 
 	void draw(pixmap_t &backbuffer) const
@@ -43,8 +53,8 @@ struct action_text_t
 		if (m_text.empty())
 			return;
 
-		const int text_w = text_length(font, m_text.c_str());
-		const int x = std::max(0, (320 - text_w) / 2);
+		int text_w = text_length(font, m_text.c_str());
+		int x = std::max(0, (320 - text_w) / 2);
 		backbuffer.text(m_text.c_str(), {static_cast<uint32_t>(x), 190u}, 15);
 	}
 

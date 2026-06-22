@@ -3,6 +3,7 @@
 #include "../engine/camera.h"
 #include "../engine/tilemap.h"
 #include "input.h"
+#include "game_state.h"
 
 struct player_t
 {
@@ -27,8 +28,11 @@ struct player_t
 		cam.pos = pos;
 	}
 
-	void update(const input_t &input)
+	void update(const input_t &input, const game_state_t &game)
 	{
+		if (game.player_blocked)
+			return;
+
 		auto wall_at = [this](real_t px, real_t py) -> bool
 		{
 			const auto x = static_cast<int>(px);

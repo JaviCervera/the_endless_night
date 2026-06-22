@@ -5,13 +5,14 @@
 #include <vector>
 #include <allegro.h>
 #include "../engine/pixmap.h"
+#include "game_state.h"
 
 struct banner_t
 {
 	static constexpr int LINE_HEIGHT = 8;
 	static constexpr int MAX_LINE_WIDTH = 300;
 	static constexpr int LINES_PER_PAGE = 2;
-	static constexpr int TICKS_PER_PAGE = 5 * 20; // 5 seconds * desired FPS
+	static constexpr int TICKS_PER_PAGE = 3 * 20; // 3 seconds at 20 FPS
 
 	void show(const std::string &text)
 	{
@@ -91,6 +92,10 @@ struct banner_t
 		m_current_line = 0;
 		m_timer = 0;
 	}
+
+	void reset() { clear(); }
+
+	game_state_t *game = nullptr;
 
 private:
 	std::vector<std::string> m_lines;
