@@ -43,24 +43,25 @@ bool screen_update(const pixmap_t &pixmap)
 	auto *bitmap = *reinterpret_cast<BITMAP **>(const_cast<pixmap_t *>(&pixmap));
 	blit(bitmap, screen, 0, 0, 0, 0, bitmap->w, bitmap->h);
 
-	const auto target_time = _prev_time + _frame_ticks;
-	const auto now = clock();
-	const auto elapsed_ms = (now - _prev_time) * 1000 / CLOCKS_PER_SEC;
-	if (static_cast<int>(elapsed_ms) < _frame_time)
-		rest(static_cast<unsigned>(_frame_time - elapsed_ms));
+	// Spin-wait instead of rest() to avoid interfering with
+	// Allegro's timer-driven sound mixing (rest() yields the CPU
+	// and can cause audio buffer underruns on DOS).
+	while (static_cast<int>((clock() - _prev_time) * 1000 / CLOCKS_PER_SEC) < _frame_time)
+		;
 
-	// Use ideal target time so small sleep overshoots self-correct next frame,
+	const auto post_wait = clock();
+	// Use ideal target time so small overshoots self-correct next frame,
 	// but clamp to never fall more than one frame behind actual time.
-	const clock_t post_sleep = clock();
-	_prev_time = std::max(target_time, post_sleep - _frame_ticks);
+	const auto target_time = _prev_time + _frame_ticks;
+	_prev_time = std::max(target_time, post_wait - _frame_ticks);
 
 	// Count FPS after the sleep so we measure completed frames.
 	++_frame_count;
-	if ((post_sleep - _fps_time) * 1000 / CLOCKS_PER_SEC >= 1000)
+	if ((post_wait - _fps_time) * 1000 / CLOCKS_PER_SEC >= 1000)
 	{
 		_current_fps = _frame_count;
 		_frame_count = 0;
-		_fps_time = post_sleep;
+		_fps_time = post_wait;
 	}
 
 	return true;
