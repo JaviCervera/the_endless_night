@@ -51,7 +51,7 @@ struct player_t
 					continue;
 				const auto dx = px - s->pos.x;
 				const auto dy = py - s->pos.y;
-				if (dx*dx + dy*dy < real_t(0.25f))
+				if (dx*dx + dy*dy < real_t(0.26f))
 					return true;
 			}
 			return false;
