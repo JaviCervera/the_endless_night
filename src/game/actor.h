@@ -11,6 +11,21 @@ struct actor_t : public sprite_t
 	bool dead = false;
 	std::vector<std::string> dialog_lines;
 
+	inline static std::vector<const actor_t*> all;
+
+	actor_t() { all.push_back(this); }
+	actor_t(const actor_t &) = delete;
+	~actor_t() override
+	{
+		for (auto it = all.begin(); it != all.end(); ++it)
+			if (*it == this)
+			{
+				all.erase(it);
+				break;
+			}
+	}
+	actor_t &operator=(const actor_t &) = delete;
+
 	virtual void on_action_pressed() {}
 	virtual bool can_show_action(vec2_t /*player_pos*/) const { return true; }
 

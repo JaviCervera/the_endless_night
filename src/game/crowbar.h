@@ -13,6 +13,7 @@ struct crowbar_t : public actor_t
 		action_text = "Take crowbar";
 		action_distance = real_t(1.5f);
 		fpg_idx = 5;
+		collidable = false;
 	}
 
 	void animate()
