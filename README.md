@@ -117,16 +117,16 @@ might require several iterations of a loop to complete the objectives).
 ## Map
 
 ```
-   Radio Tower  Church (REJECTED)
+   Radio Tower  Harvest
       ▲           ▲
       │           │
- Barn ◄── Village ──► Mechanic’s Workshop ──► Harvest
+ Barn ◄── Village ──► Mechanic’s Workshop
                │
            Mothership Field
 
 ```
 
-## IDEAS
+## IDEAS
 
 + The path to the mothership is blocked by vines. You have to find herbicide (on the harvest) and put them on the vines, which will cause them to not appear on the next loops. ACCEPTED.
 + The time distortion could be stronger close to the mothership. Your actions when you are near it could be recorded, and on each loop, you could see your ghost with the actions you did on the last few loops (for example, last four loops). You could achieve victory by by performing a certain action in sync with your past selves. If all four do the action within a certain time window, the EMP pulse is activated (enable electricity on a pylon?). ACCEPTED.

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <ctime>
 #include "../engine/vec2.h"
 
 struct crowbar_t;
@@ -19,7 +20,7 @@ struct game_state_t
 
 	vec2_t player_end_pos;
 
-	int loop_ticks = 0;
+	clock_t loop_start_clock = 0;
 	int num_loop_in_state = 1;
 	int last_loop_state = 1;
 

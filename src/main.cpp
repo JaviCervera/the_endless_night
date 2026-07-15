@@ -33,6 +33,11 @@
 
 static game_state_t g_game;
 
+static int loop_elapsed_ticks()
+{
+	return int((clock() - g_game.loop_start_clock) * TARGET_FPS / CLOCKS_PER_SEC);
+}
+
 static const char *state_names[] = {
 	"",
 	"The Awakening",
@@ -241,7 +246,7 @@ int main()
 				if (!pal_fade_active())
 				{
 					spawn_entities(tilemap, fpg, actors, player);
-					g_game.loop_ticks = 0;
+					g_game.loop_start_clock = clock();
 
 					if (g_game.adventure_state == 1 && g_game.num_loop_in_state == 1)
 						banner.show("What was that sound? It came from outside...");
@@ -290,7 +295,7 @@ int main()
 
 			if (humming_voice >= 0)
 			{
-				int remaining = LOOP_FRAMES - g_game.loop_ticks;
+				int remaining = LOOP_FRAMES - loop_elapsed_ticks();
 				int freq = humming_sound->freq;
 				if (remaining < 80)
 				{
@@ -324,7 +329,8 @@ int main()
 			raycaster.render(player.cam, actors, backbuffer, VIEWPORT);
 
 			{
-				int secs_left = (LOOP_FRAMES - g_game.loop_ticks) / TARGET_FPS;
+				int secs_left = (LOOP_FRAMES - loop_elapsed_ticks()) / TARGET_FPS;
+				if (secs_left < 0) secs_left = 0;
 				char dbg[64];
 				std::snprintf(dbg, sizeof(dbg), "%d FPS", screen_current_fps());
 				backbuffer.text(dbg, {uint32_t(VP_X + 4), uint32_t(VP_Y + 4)}, 15);
@@ -338,8 +344,7 @@ int main()
 			banner.draw(backbuffer);
 			action_text.draw(backbuffer);
 
-			g_game.loop_ticks++;
-			if (g_game.loop_ticks >= LOOP_FRAMES)
+			if (loop_elapsed_ticks() >= LOOP_FRAMES)
 			{
 				g_game.phase = game_state_t::PHASE_FINISHING;
 				g_game.finish_ticks = 0;
@@ -374,7 +379,7 @@ int main()
 
 			if (humming_voice >= 0)
 			{
-				int remaining = LOOP_FRAMES - g_game.loop_ticks;
+				int remaining = LOOP_FRAMES - loop_elapsed_ticks();
 				int freq = humming_sound->freq;
 				if (remaining < 80)
 				{
@@ -417,7 +422,7 @@ int main()
 				}
 
 				g_game.num_loop_in_state++;
-				g_game.loop_ticks = 0;
+				g_game.loop_start_clock = clock();
 
 				g_game.phase = game_state_t::PHASE_INTRO;
 				g_game.intro_sub = 0;
