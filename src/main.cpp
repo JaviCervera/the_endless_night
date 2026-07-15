@@ -17,6 +17,8 @@
 #include "game/farmer.h"
 #include "game/barn_worker.h"
 #include "game/crowbar.h"
+#define BARN_DOOR_OPEN_WINDOW 200
+#include "game/barn_door.h"
 
 #define SCREEN_WIDTH 320
 #define SCREEN_HEIGHT 200
@@ -27,9 +29,10 @@
 #define FARMER1_ID 8
 #define FARMER2_ID 9
 #define PLAYER_ID 10
-#define BARN_DOOR_ID 12
+#define VINE_ID 12
+#define BARN_DOOR_ID 2
 
-#define LOOP_FRAMES 720
+#define LOOP_FRAMES 600
 
 static game_state_t g_game;
 
@@ -44,9 +47,9 @@ static const char *state_names[] = {
 	"Collect Parts",
 };
 
-static void spawn_entities(const tilemap_t &tilemap, const fpg_t &fpg,
+static void spawn_entities(tilemap_t &tilemap, const fpg_t &fpg,
 													 std::vector<std::unique_ptr<actor_t>> &actors,
-													 player_t &player)
+													 player_t &player, raycaster_t &raycaster)
 {
 	actors.clear();
 	g_game.crowbar_alive = false;
@@ -83,7 +86,7 @@ static void spawn_entities(const tilemap_t &tilemap, const fpg_t &fpg,
 			}
 			case CROWBAR_ID:
 			{
-				if (g_game.adventure_state == 1)
+				if (g_game.adventure_state == 1 && !g_game.barn_doors_open)
 				{
 					auto crowbar = std::make_unique<crowbar_t>(&g_game);
 					crowbar->pos = vec2_t{real_t(x + 0.5f), real_t(y + 0.5f)};
@@ -92,6 +95,18 @@ static void spawn_entities(const tilemap_t &tilemap, const fpg_t &fpg,
 					g_game.crowbar_ptr = crowbar.get();
 					g_game.crowbar_alive = true;
 					actors.push_back(std::move(crowbar));
+				}
+				break;
+			}
+			case BARN_DOOR_ID:
+			{
+				if (!g_game.barn_doors_open)
+				{
+					auto door = std::make_unique<barn_door_t>(&g_game, &tilemap, &raycaster);
+					door->pos = vec2_t{real_t(x + 0.5f), real_t(y + 0.5f)};
+					door->tile_x = x;
+					door->tile_y = y;
+					actors.push_back(std::move(door));
 				}
 				break;
 			}
@@ -245,7 +260,7 @@ int main()
 				pal_update_fade();
 				if (!pal_fade_active())
 				{
-					spawn_entities(tilemap, fpg, actors, player);
+					spawn_entities(tilemap, fpg, actors, player, raycaster);
 					g_game.loop_start_clock = clock();
 
 					if (g_game.adventure_state == 1 && g_game.num_loop_in_state == 1)

@@ -24,6 +24,12 @@ struct game_state_t
 	int num_loop_in_state = 1;
 	int last_loop_state = 1;
 
+	void advance_state()
+	{
+		adventure_state++;
+		num_loop_in_state = 0;
+	}
+
 	int phase = PHASE_INTRO;
 	int intro_timer = 0;
 	int intro_sub = 0;
@@ -32,4 +38,5 @@ struct game_state_t
 
 	bool crowbar_alive = false;
 	crowbar_t *crowbar_ptr = nullptr;
+	bool barn_doors_open = false;
 };

@@ -47,7 +47,7 @@ I'd like a feeling of unease with a distant hum of the mothership. When the rese
 If we were doing a straight progression from start to end, the loops would be divided as follows (but in reality the player
 might require several iterations of a loop to complete the objectives).
 
-### 1. The Awakening
+### 1. º
 
 * Objective: Introduce the loop & persistence mechanic.
 * Player Actions:
