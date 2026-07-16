@@ -17,8 +17,6 @@ struct farmer_t : public actor_t
 	{
 		if (game->num_loop_in_state > 1)
 			dialog_lines.push_back("I have the feeling that I have done this before...");
-		dialog_lines.push_back("Something strange has happened in the fields");
-		dialog_lines.push_back("to the south, but the path is closed.");
-		dialog_lines.push_back("A shimmering light comes from there.");
+		dialog_lines.push_back("Something strange has happened in the fields to the south, but the path is closed.");
 	}
 };

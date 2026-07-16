@@ -49,7 +49,7 @@ struct barn_door_t : public actor_t
 		int elapsed = int((clock() - game->loop_start_clock) * 20 / CLOCKS_PER_SEC);
 		if (elapsed >= BARN_DOOR_OPEN_WINDOW)
 		{
-			dialog_lines.push_back("Something is blocking the door.");
+			dialog_lines.push_back("Something is blocking the door. It was not there before.");
 			return;
 		}
 		game->barn_doors_open = true;

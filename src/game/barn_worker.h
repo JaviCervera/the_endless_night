@@ -17,9 +17,8 @@ struct barn_worker_t : public actor_t
 	{
 		if (game->num_loop_in_state > 1)
 			dialog_lines.push_back("I think there is something odd...");
-		dialog_lines.push_back("A strange machine has landed down there.");
-		dialog_lines.push_back("I work at the barn to the west, but I can't");
-		dialog_lines.push_back("open the door. I have some parts there that");
-		dialog_lines.push_back("might be useful to analyse that humming sound.");
+		dialog_lines.push_back("A machine has landed down there. I work at the barn to the west,"
+			"but I can't open the door. I have some parts there that might be useful"
+			"to analyse that humming sound.");
 	}
 };

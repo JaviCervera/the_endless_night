@@ -459,8 +459,13 @@ void raycaster_t::render(const camera_t &cam, const std::vector<std::unique_ptr<
 		// 32-bit divide: vp_h_one precomputed
 		const int tile_screen_h = std::abs(vp_h_one / transform_y.raw);
 		// Scale sprite proportionally to its texture size relative to TEX_SIZE
-		const int sp_h = tile_screen_h * tex_h / TEX_SIZE;
-		const int sp_w = tile_screen_h * tex_w / TEX_SIZE;
+		int sp_h = tile_screen_h * tex_h / TEX_SIZE;
+		int sp_w = tile_screen_h * tex_w / TEX_SIZE;
+		if (sp.halved)
+		{
+			sp_h /= 2;
+			sp_w /= 2;
+		}
 		if (sp_h == 0 || sp_w == 0)
 			continue;
 

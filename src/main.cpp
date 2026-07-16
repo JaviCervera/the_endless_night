@@ -73,6 +73,7 @@ static void spawn_entities(tilemap_t &tilemap, const fpg_t &fpg,
 				auto farmer = std::make_unique<farmer_t>(&g_game);
 				farmer->pos = vec2_t{real_t(x + 0.5f), real_t(y + 0.5f)};
 				farmer->fpg_idx = uint8_t(id - 1);
+				farmer->halved = true;
 				actors.push_back(std::move(farmer));
 				break;
 			}
@@ -81,6 +82,7 @@ static void spawn_entities(tilemap_t &tilemap, const fpg_t &fpg,
 				auto worker = std::make_unique<barn_worker_t>(&g_game);
 				worker->pos = vec2_t{real_t(x + 0.5f), real_t(y + 0.5f)};
 				worker->fpg_idx = uint8_t(id - 1);
+				worker->halved = true;
 				actors.push_back(std::move(worker));
 				break;
 			}
