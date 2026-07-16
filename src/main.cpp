@@ -371,10 +371,6 @@ int main()
 		{
 			if (g_game.finish_ticks == 0)
 			{
-				actors.clear();
-				g_game.crowbar_ptr = nullptr;
-				banner.reset();
-
 				pal_start_fade(200, 200, 200, 20);
 			}
 
@@ -423,6 +419,10 @@ int main()
 
 			if (!pal_fade_active())
 			{
+				actors.clear();
+				g_game.crowbar_ptr = nullptr;
+				banner.reset();
+
 				pal_set_fade(100, 100, 100);
 
 				g_game.player_end_pos = player.cam.pos;
