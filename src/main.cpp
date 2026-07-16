@@ -17,6 +17,7 @@
 #include "game/farmer.h"
 #include "game/barn_worker.h"
 #include "game/crowbar.h"
+#include "game/generator.h"
 #define BARN_DOOR_OPEN_WINDOW 200
 #include "game/barn_door.h"
 
@@ -30,6 +31,7 @@
 #define FARMER2_ID 9
 #define PLAYER_ID 10
 #define VINE_ID 12
+#define GENERATOR_ID 13
 #define BARN_DOOR_ID 2
 
 #define LOOP_FRAMES 600
@@ -54,6 +56,8 @@ static void spawn_entities(tilemap_t &tilemap, const fpg_t &fpg,
 	actors.clear();
 	g_game.crowbar_alive = false;
 	g_game.crowbar_ptr = nullptr;
+	g_game.generator_alive = false;
+	g_game.generator_ptr = nullptr;
 
 	for (uint32_t y = 0; y < tilemap.map_size.y; ++y)
 		for (uint32_t x = 0; x < tilemap.map_size.x; ++x)
@@ -92,12 +96,23 @@ static void spawn_entities(tilemap_t &tilemap, const fpg_t &fpg,
 				{
 					auto crowbar = std::make_unique<crowbar_t>(&g_game);
 					crowbar->pos = vec2_t{real_t(x + 0.5f), real_t(y + 0.5f)};
-					if (g_game.player_last_picked_object == 1 && g_game.num_loop_in_state > 1)
+					if (g_game.crowbar_picked && g_game.num_loop_in_state > 1)
 						crowbar->pos = g_game.player_end_pos;
 					g_game.crowbar_ptr = crowbar.get();
 					g_game.crowbar_alive = true;
 					actors.push_back(std::move(crowbar));
 				}
+				break;
+			}
+			case GENERATOR_ID:
+			{
+				auto gen = std::make_unique<generator_t>(&g_game);
+				gen->pos = vec2_t{real_t(x + 0.5f), real_t(y + 0.5f)};
+				if (g_game.generator_picked && g_game.num_loop_in_state > 1)
+					gen->pos = g_game.player_end_pos;
+				g_game.generator_ptr = gen.get();
+				g_game.generator_alive = true;
+				actors.push_back(std::move(gen));
 				break;
 			}
 			case BARN_DOOR_ID:
@@ -281,6 +296,8 @@ int main()
 
 			if (g_game.crowbar_ptr)
 				g_game.crowbar_ptr->animate();
+			if (g_game.generator_ptr)
+				g_game.generator_ptr->animate();
 
 			auto activated = action_text.update(actors, player.cam.pos, input, g_game);
 			if (activated)
@@ -337,6 +354,8 @@ int main()
 				{
 					if (it->get() == g_game.crowbar_ptr)
 						g_game.crowbar_ptr = nullptr;
+					if (it->get() == g_game.generator_ptr)
+						g_game.generator_ptr = nullptr;
 					it = actors.erase(it);
 				}
 				else
@@ -421,6 +440,7 @@ int main()
 			{
 				actors.clear();
 				g_game.crowbar_ptr = nullptr;
+				g_game.generator_ptr = nullptr;
 				banner.reset();
 
 				pal_set_fade(100, 100, 100);

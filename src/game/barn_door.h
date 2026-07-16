@@ -20,7 +20,6 @@ struct barn_door_t : public actor_t
 			: game{game}, tilemap{tilemap}, raycaster{raycaster}
 	{
 		action_text = "Open barn door";
-		action_distance = real_t(1.5f);
 		collidable = false;
 		all.push_back(this);
 	}
@@ -41,7 +40,7 @@ struct barn_door_t : public actor_t
 
 	void on_action_pressed() override
 	{
-		if (game->player_last_picked_object != 1)
+		if (!game->crowbar_picked)
 		{
 			dialog_lines.push_back("I need something to pry this open.");
 			return;

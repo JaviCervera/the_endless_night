@@ -4,6 +4,7 @@
 #include "../engine/vec2.h"
 
 struct crowbar_t;
+struct generator_t;
 
 struct game_state_t
 {
@@ -15,7 +16,8 @@ struct game_state_t
 	};
 
 	int adventure_state = 1;
-	int player_last_picked_object = 0;
+	bool crowbar_picked = false;
+	bool generator_picked = false;
 	bool player_blocked = false;
 
 	vec2_t player_end_pos;
@@ -38,5 +40,7 @@ struct game_state_t
 
 	bool crowbar_alive = false;
 	crowbar_t *crowbar_ptr = nullptr;
+	bool generator_alive = false;
+	generator_t *generator_ptr = nullptr;
 	bool barn_doors_open = false;
 };

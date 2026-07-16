@@ -11,7 +11,6 @@ struct crowbar_t : public actor_t
 	crowbar_t(game_state_t *game) : game{game}
 	{
 		action_text = "Take crowbar";
-		action_distance = real_t(1.5f);
 		fpg_idx = 5;
 		collidable = false;
 	}
@@ -30,11 +29,11 @@ struct crowbar_t : public actor_t
 
 	void on_action_pressed() override
 	{
-		if (game->player_last_picked_object != 1)
+		if (!game->crowbar_picked)
 			dialog_lines.push_back("With this I should be able to open the barn.");
 		else
 			dialog_lines.push_back("The crowbar is where I left it!");
-		game->player_last_picked_object = 1;
+		game->crowbar_picked = true;
 		game->crowbar_alive = false;
 		dead = true;
 	}

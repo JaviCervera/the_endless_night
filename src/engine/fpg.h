@@ -76,7 +76,7 @@ inline size_t fpg_t::num_maps() const
 
 inline const pixmap_t *fpg_t::map(size_t index) const
 {
-	if (index > num_maps())
+	if (index >= num_maps())
 	{
 		return nullptr;
 	}

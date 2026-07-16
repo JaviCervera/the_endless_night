@@ -10,7 +10,6 @@ struct farmer_t : public actor_t
 	farmer_t(game_state_t *game) : game{game}
 	{
 		action_text = "Talk to farmer";
-		action_distance = real_t(1.5f);
 	}
 
 	void on_action_pressed() override
