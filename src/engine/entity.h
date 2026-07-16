@@ -3,26 +3,27 @@
 #include <vector>
 #include "vec2.h"
 
-struct sprite_t
+struct entity_t
 {
+	bool active = true;
 	vec2_t pos;
 	uint8_t fpg_idx;
 	bool collidable = true;
 	bool halved = false;
 
-	inline static std::vector<const sprite_t*> all;
+	inline static std::vector<const entity_t*> all;
 
-	sprite_t()
+	entity_t()
 	{
 		all.push_back(this);
 	}
 
-	sprite_t(const sprite_t &o) : pos(o.pos), fpg_idx(o.fpg_idx), collidable(o.collidable), halved(o.halved)
+	entity_t(const entity_t &o) : pos(o.pos), fpg_idx(o.fpg_idx), collidable(o.collidable), halved(o.halved)
 	{
 		all.push_back(this);
 	}
 
-	virtual ~sprite_t()
+	virtual ~entity_t()
 	{
 		for (auto it = all.begin(); it != all.end(); ++it)
 			if (*it == this)
@@ -32,5 +33,5 @@ struct sprite_t
 			}
 	}
 
-	sprite_t &operator=(const sprite_t &) = delete;
+	entity_t &operator=(const entity_t &) = delete;
 };

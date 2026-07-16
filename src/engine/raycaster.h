@@ -12,7 +12,7 @@
 #include "camera.h"
 #include "fpg.h"
 #include "pixmap.h"
-#include "sprite.h"
+#include "entity.h"
 #include "viewport.h"
 
 static constexpr int TEX_SIZE = 64;
@@ -433,7 +433,10 @@ void raycaster_t::render(const camera_t &cam, const std::vector<std::unique_ptr<
 	const real_t inv_det = real_t(1) / (cam.plane.x * cam.dir.y - cam.dir.x * cam.plane.y);
 	for (size_t si = 0; si < num_sprites; ++si)
 	{
-		const sprite_t &sp = *sprites[sp_order[si]];
+		const entity_t &sp = *sprites[sp_order[si]];
+
+		if (!sp.active)
+			continue;
 
 		const real_t sp_x = sp.pos.x - cam.pos.x;
 		const real_t sp_y = sp.pos.y - cam.pos.y;

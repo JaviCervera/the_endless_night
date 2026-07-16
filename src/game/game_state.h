@@ -39,8 +39,6 @@ struct game_state_t
 	int finish_ticks = 0;
 
 	bool crowbar_alive = false;
-	crowbar_t *crowbar_ptr = nullptr;
 	bool generator_alive = false;
-	generator_t *generator_ptr = nullptr;
 	bool barn_doors_open = false;
 };

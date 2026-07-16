@@ -25,7 +25,7 @@ struct action_text_t
 		real_t best_dsq = real_t::large();
 		for (auto &actor : actors)
 		{
-			if (!actor || actor->dead)
+			if (!actor || !actor->active)
 				continue;
 			if (!actor->can_show_action(player_pos))
 				continue;

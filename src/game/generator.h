@@ -17,7 +17,7 @@ struct generator_t : public actor_t
 
 	void animate()
 	{
-		if (dead)
+		if (!active)
 			return;
 		anim_tick++;
 		if (anim_tick >= 3)
@@ -29,9 +29,10 @@ struct generator_t : public actor_t
 
 	void on_action_pressed() override
 	{
-		dialog_lines.push_back("With 4 like this, I can restore the power. A signal is coming from the radio tower to the north...");
+		dialog_lines.push_back("With four like this, I can restore the power.");
+		dialog_lines.push_back("A signal is coming from the radio tower to the north...");
 		game->generator_picked = true;
 		game->generator_alive = false;
-		dead = true;
+		active = false;
 	}
 };

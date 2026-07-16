@@ -57,7 +57,7 @@ struct barn_door_t : public actor_t
 		{
 			d->tilemap->tiles[d->tile_y * d->tilemap->map_size.x + d->tile_x] = 0;
 			d->raycaster->tile({d->tile_x, d->tile_y}, 0);
-			d->dead = true;
+			d->active = false;
 		}
 		dialog_lines.push_back("The barn door creaks open.");
 	}

@@ -2,19 +2,22 @@
 
 #include <string>
 #include <vector>
-#include "../engine/sprite.h"
+#include "../engine/entity.h"
 
-struct actor_t : public sprite_t
+struct actor_t : public entity_t
 {
 	std::string action_text;
 	real_t action_distance = real_t(1.5f);
-	bool dead = false;
 	std::vector<std::string> dialog_lines;
 
-	inline static std::vector<const actor_t*> all;
+	inline static std::vector<actor_t*> all;
 
-	actor_t() { all.push_back(this); }
+	actor_t() {
+		all.push_back(this);
+	}
+
 	actor_t(const actor_t &) = delete;
+
 	~actor_t() override
 	{
 		for (auto it = all.begin(); it != all.end(); ++it)
@@ -24,14 +27,32 @@ struct actor_t : public sprite_t
 				break;
 			}
 	}
+
 	actor_t &operator=(const actor_t &) = delete;
 
-	virtual void on_action_pressed() {}
-	virtual bool can_show_action(vec2_t /*player_pos*/) const { return true; }
+	virtual void on_action_pressed()
+	{
+	}
+
+	virtual bool can_show_action(vec2_t /*player_pos*/) const
+	{
+		return true;
+	}
 
 	real_t distance_sq(vec2_t player_pos) const
 	{
 		const auto d = pos - player_pos;
 		return d.dot(d);
+	}
+
+	virtual void animate()
+	{
+	}
+
+	static void update_all()
+	{
+		for (auto actor : all)
+			if (actor->active)
+				actor->animate();
 	}
 };

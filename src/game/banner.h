@@ -12,7 +12,7 @@ struct banner_t
 	static constexpr int LINE_HEIGHT = 8;
 	static constexpr int MAX_LINE_WIDTH = 300;
 	static constexpr int LINES_PER_PAGE = 2;
-	static constexpr int TICKS_PER_PAGE = 3 * 20; // 3 seconds at 20 FPS
+	static constexpr int TICKS_PER_PAGE = 3 * 10; // 3 seconds at 20 FPS
 
 	void show(const std::string &text)
 	{

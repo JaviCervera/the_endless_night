@@ -23,7 +23,7 @@
 
 #define SCREEN_WIDTH 320
 #define SCREEN_HEIGHT 200
-#define TARGET_FPS 20
+#define TARGET_FPS 10
 
 #define CROWBAR_ID 6
 #define TREE_ID 11
@@ -34,7 +34,7 @@
 #define GENERATOR_ID 13
 #define BARN_DOOR_ID 2
 
-#define LOOP_FRAMES 600
+#define LOOP_FRAMES 300
 
 static game_state_t g_game;
 
@@ -55,9 +55,7 @@ static void spawn_entities(tilemap_t &tilemap, const fpg_t &fpg,
 {
 	actors.clear();
 	g_game.crowbar_alive = false;
-	g_game.crowbar_ptr = nullptr;
 	g_game.generator_alive = false;
-	g_game.generator_ptr = nullptr;
 
 	for (uint32_t y = 0; y < tilemap.map_size.y; ++y)
 		for (uint32_t x = 0; x < tilemap.map_size.x; ++x)
@@ -96,9 +94,8 @@ static void spawn_entities(tilemap_t &tilemap, const fpg_t &fpg,
 				{
 					auto crowbar = std::make_unique<crowbar_t>(&g_game);
 					crowbar->pos = vec2_t{real_t(x + 0.5f), real_t(y + 0.5f)};
-					if (g_game.crowbar_picked && g_game.num_loop_in_state > 1)
+					if (g_game.crowbar_picked)
 						crowbar->pos = g_game.player_end_pos;
-					g_game.crowbar_ptr = crowbar.get();
 					g_game.crowbar_alive = true;
 					actors.push_back(std::move(crowbar));
 				}
@@ -108,9 +105,8 @@ static void spawn_entities(tilemap_t &tilemap, const fpg_t &fpg,
 			{
 				auto gen = std::make_unique<generator_t>(&g_game);
 				gen->pos = vec2_t{real_t(x + 0.5f), real_t(y + 0.5f)};
-				if (g_game.generator_picked && g_game.num_loop_in_state > 1)
+				if (g_game.generator_picked)
 					gen->pos = g_game.player_end_pos;
-				g_game.generator_ptr = gen.get();
 				g_game.generator_alive = true;
 				actors.push_back(std::move(gen));
 				break;
@@ -293,11 +289,7 @@ int main()
 		else if (g_game.phase == game_state_t::PHASE_PLAYING)
 		{
 			player.update(input, g_game);
-
-			if (g_game.crowbar_ptr)
-				g_game.crowbar_ptr->animate();
-			if (g_game.generator_ptr)
-				g_game.generator_ptr->animate();
+			actor_t::update_all();
 
 			auto activated = action_text.update(actors, player.cam.pos, input, g_game);
 			if (activated)
@@ -348,19 +340,17 @@ int main()
 			}
 			*/
 
+			/*
 			for (auto it = actors.begin(); it != actors.end();)
 			{
 				if ((*it)->dead)
 				{
-					if (it->get() == g_game.crowbar_ptr)
-						g_game.crowbar_ptr = nullptr;
-					if (it->get() == g_game.generator_ptr)
-						g_game.generator_ptr = nullptr;
 					it = actors.erase(it);
 				}
 				else
 					++it;
 			}
+			*/
 
 			raycaster.render(player.cam, actors, backbuffer, VIEWPORT);
 
@@ -439,8 +429,6 @@ int main()
 			if (!pal_fade_active())
 			{
 				actors.clear();
-				g_game.crowbar_ptr = nullptr;
-				g_game.generator_ptr = nullptr;
 				banner.reset();
 
 				pal_set_fade(100, 100, 100);

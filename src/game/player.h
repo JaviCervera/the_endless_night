@@ -2,7 +2,7 @@
 
 #include "../engine/camera.h"
 #include "../engine/tilemap.h"
-#include "../engine/sprite.h"
+#include "../engine/entity.h"
 #include "input.h"
 #include "game_state.h"
 
@@ -45,7 +45,7 @@ struct player_t
 
 		auto entity_at = [this](real_t px, real_t py) -> bool
 		{
-			for (const auto *s : sprite_t::all)
+			for (const auto *s : entity_t::all)
 			{
 				if (!s->collidable)
 					continue;

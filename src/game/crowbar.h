@@ -15,9 +15,9 @@ struct crowbar_t : public actor_t
 		collidable = false;
 	}
 
-	void animate()
+	void animate() override
 	{
-		if (dead)
+		if (!active)
 			return;
 		anim_tick++;
 		if (anim_tick >= 3)
@@ -35,6 +35,6 @@ struct crowbar_t : public actor_t
 			dialog_lines.push_back("The crowbar is where I left it!");
 		game->crowbar_picked = true;
 		game->crowbar_alive = false;
-		dead = true;
+		active = false;
 	}
 };
