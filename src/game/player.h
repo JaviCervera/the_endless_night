@@ -43,31 +43,17 @@ struct player_t
 			return tilemap->tile_at(static_cast<uint32_t>(x), static_cast<uint32_t>(y)) != 0;
 		};
 
-		auto entity_at = [this](real_t px, real_t py) -> bool
-		{
-			for (const auto *s : entity_t::all)
-			{
-				if (!s->collidable)
-					continue;
-				const auto dx = px - s->pos.x;
-				const auto dy = py - s->pos.y;
-				if (dx*dx + dy*dy < (s->halved ? real_t(0.065f) : real_t(0.26f)))
-					return true;
-			}
-			return false;
-		};
-
 		if (input.forward != 0)
 		{
 			const auto new_x = cam.pos.x + cam.dir.x * move_speed * input.forward;
 			const auto new_y = cam.pos.y + cam.dir.y * move_speed * input.forward;
 			if (!wall_at(new_x + radius, cam.pos.y + radius) && !wall_at(new_x + radius, cam.pos.y - radius) &&
 					!wall_at(new_x - radius, cam.pos.y + radius) && !wall_at(new_x - radius, cam.pos.y - radius) &&
-					!entity_at(new_x, cam.pos.y))
+					!entity_t::entity_at(vec2_t(new_x, cam.pos.y)))
 				cam.pos.x = new_x;
 			if (!wall_at(cam.pos.x + radius, new_y + radius) && !wall_at(cam.pos.x + radius, new_y - radius) &&
 					!wall_at(cam.pos.x - radius, new_y + radius) && !wall_at(cam.pos.x - radius, new_y - radius) &&
-					!entity_at(cam.pos.x, new_y))
+					!entity_t::entity_at(vec2_t(cam.pos.x, new_y)))
 				cam.pos.y = new_y;
 		}
 		if (input.turn != 0)
