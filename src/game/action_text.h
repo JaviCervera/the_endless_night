@@ -11,7 +11,7 @@
 
 struct action_text_t
 {
-	actionable_t *update(const std::vector<std::unique_ptr<actionable_t>> &actors, vec2_t player_pos, const input_t &input, game_state_t &game)
+	actionable_t *update(vec2_t player_pos, const input_t &input, game_state_t &game)
 	{
 		m_text.clear();
 		m_target = nullptr;
@@ -23,19 +23,19 @@ struct action_text_t
 		}
 
 		real_t best_dsq = real_t::large();
-		for (auto &actor : actors)
+		for (auto &actionable : actionable_t::all)
 		{
-			if (!actor || !actor->active)
+			if (!actionable || !actionable->active)
 				continue;
-			if (!actor->can_show_action(player_pos))
+			if (!actionable->can_show_action(player_pos))
 				continue;
-			const auto dsq = actor->distance_sq(player_pos);
-			const auto max_dsq = actor->action_distance * actor->action_distance;
+			const auto dsq = actionable->distance_sq(player_pos);
+			const auto max_dsq = actionable->action_distance * actionable->action_distance;
 			if (dsq <= max_dsq && dsq < best_dsq)
 			{
 				best_dsq = dsq;
-				m_text = actor->action_text;
-				m_target = actor.get();
+				m_text = actionable->action_text;
+				m_target = actionable;
 			}
 		}
 

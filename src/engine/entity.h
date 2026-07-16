@@ -56,6 +56,16 @@ struct entity_t
 			delete all.front();
 	}
 
+	static size_t num_entities()
+	{
+		return all.size();
+	}
+
+	static entity_t *get_entity(size_t index)
+	{
+		return (index < all.size()) ? all[index] : nullptr;
+	}
+
 	static entity_t *entity_at(vec2_t point)
 	{
 		for (auto *ent : all)

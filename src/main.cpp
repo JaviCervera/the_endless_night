@@ -50,10 +50,8 @@ static const char *state_names[] = {
 };
 
 static void spawn_entities(tilemap_t &tilemap, const fpg_t &fpg,
-													 std::vector<std::unique_ptr<actionable_t>> &actors,
 													 player_t &player, raycaster_t &raycaster)
 {
-	actors.clear();
 	g_game.crowbar_alive = false;
 	g_game.generator_alive = false;
 
@@ -72,64 +70,58 @@ static void spawn_entities(tilemap_t &tilemap, const fpg_t &fpg,
 			}
 			case FARMER1_ID:
 			{
-				auto farmer = std::make_unique<farmer_t>(&g_game);
+				auto farmer = new farmer_t(&g_game);
 				farmer->pos = vec2_t{real_t(x + 0.5f), real_t(y + 0.5f)};
 				farmer->fpg_idx = uint8_t(id - 1);
 				farmer->halved = true;
-				actors.push_back(std::move(farmer));
 				break;
 			}
 			case FARMER2_ID:
 			{
-				auto worker = std::make_unique<barn_worker_t>(&g_game);
+				auto worker = new barn_worker_t(&g_game);
 				worker->pos = vec2_t{real_t(x + 0.5f), real_t(y + 0.5f)};
 				worker->fpg_idx = uint8_t(id - 1);
 				worker->halved = true;
-				actors.push_back(std::move(worker));
 				break;
 			}
 			case CROWBAR_ID:
 			{
 				if (g_game.adventure_state == 1 && !g_game.barn_doors_open)
 				{
-					auto crowbar = std::make_unique<crowbar_t>(&g_game);
+					auto crowbar = new crowbar_t(&g_game);
 					crowbar->pos = vec2_t{real_t(x + 0.5f), real_t(y + 0.5f)};
 					if (g_game.crowbar_picked)
 						crowbar->pos = g_game.player_end_pos;
 					g_game.crowbar_alive = true;
-					actors.push_back(std::move(crowbar));
 				}
 				break;
 			}
 			case GENERATOR_ID:
 			{
-				auto gen = std::make_unique<generator_t>(&g_game);
+				auto gen = new generator_t(&g_game);
 				gen->pos = vec2_t{real_t(x + 0.5f), real_t(y + 0.5f)};
 				if (g_game.generator_picked)
 					gen->pos = g_game.player_end_pos;
 				g_game.generator_alive = true;
-				actors.push_back(std::move(gen));
 				break;
 			}
 			case BARN_DOOR_ID:
 			{
 				if (!g_game.barn_doors_open)
 				{
-					auto door = std::make_unique<barn_door_t>(&g_game, &tilemap, &raycaster);
+					auto door = new barn_door_t(&g_game, &tilemap, &raycaster);
 					door->pos = vec2_t{real_t(x + 0.5f), real_t(y + 0.5f)};
 					door->tile_x = x;
 					door->tile_y = y;
-					actors.push_back(std::move(door));
 				}
 				break;
 			}
 			default:
 				if (id != 0)
 				{
-					auto actor = std::make_unique<actionable_t>();
+					auto actor = new entity_t();
 					actor->pos = vec2_t{real_t(x + 0.5f), real_t(y + 0.5f)};
 					actor->fpg_idx = uint8_t(id - 1);
-					actors.push_back(std::move(actor));
 				}
 				break;
 			}
@@ -199,8 +191,6 @@ int main()
 			raycaster.tile({x, y}, tilemap.tile_at(x, y));
 			raycaster.floor({x, y}, tilemap.floor_at(x, y));
 		}
-
-	std::vector<std::unique_ptr<actionable_t>> actors;
 
 	int footsteps_voice = -1;
 	int humming_voice = -1;
@@ -273,7 +263,8 @@ int main()
 				pal_update_fade();
 				if (!pal_fade_active())
 				{
-					spawn_entities(tilemap, fpg, actors, player, raycaster);
+					entity_t::clear_all();
+					spawn_entities(tilemap, fpg, player, raycaster);
 					g_game.loop_start_clock = clock();
 
 					if (g_game.adventure_state == 1 && g_game.num_loop_in_state == 1)
@@ -291,7 +282,7 @@ int main()
 			player.update(input, g_game);
 			entity_t::update_all();
 
-			auto activated = action_text.update(actors, player.cam.pos, input, g_game);
+			auto activated = action_text.update(player.cam.pos, input, g_game);
 			if (activated)
 			{
 				std::string combined;
@@ -352,7 +343,7 @@ int main()
 			}
 			*/
 
-			raycaster.render(player.cam, actors, backbuffer, VIEWPORT);
+			raycaster.render(player.cam, backbuffer, VIEWPORT);
 
 			{
 				int secs_left = (LOOP_FRAMES - loop_elapsed_ticks()) / TARGET_FPS;
@@ -411,7 +402,7 @@ int main()
 				voice_set_frequency(humming_voice, freq);
 			}
 
-			raycaster.render(player.cam, actors, backbuffer, VIEWPORT);
+			raycaster.render(player.cam, backbuffer, VIEWPORT);
 
 			{
 				char dbg[64];
@@ -428,7 +419,7 @@ int main()
 
 			if (!pal_fade_active())
 			{
-				actors.clear();
+				entity_t::clear_all();
 				banner.reset();
 
 				pal_set_fade(100, 100, 100);
