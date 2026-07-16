@@ -11,7 +11,7 @@ struct entity_t
 	bool collidable = true;
 	bool halved = false;
 
-	inline static std::vector<const entity_t*> all;
+	inline static std::vector<entity_t*> all;
 
 	entity_t()
 	{
@@ -34,4 +34,21 @@ struct entity_t
 	}
 
 	entity_t &operator=(const entity_t &) = delete;
+
+	virtual void update()
+	{
+	}
+
+	real_t distance_sq(vec2_t point) const
+	{
+		const auto d = pos - point;
+		return d.dot(d);
+	}
+
+	static void update_all()
+	{
+		for (auto entity : all)
+			if (entity->active)
+				entity->update();
+	}
 };

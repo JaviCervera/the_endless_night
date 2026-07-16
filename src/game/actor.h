@@ -38,21 +38,4 @@ struct actor_t : public entity_t
 	{
 		return true;
 	}
-
-	real_t distance_sq(vec2_t player_pos) const
-	{
-		const auto d = pos - player_pos;
-		return d.dot(d);
-	}
-
-	virtual void animate()
-	{
-	}
-
-	static void update_all()
-	{
-		for (auto actor : all)
-			if (actor->active)
-				actor->animate();
-	}
 };

@@ -15,10 +15,8 @@ struct crowbar_t : public actor_t
 		collidable = false;
 	}
 
-	void animate() override
+	void update() override
 	{
-		if (!active)
-			return;
 		anim_tick++;
 		if (anim_tick >= 3)
 		{

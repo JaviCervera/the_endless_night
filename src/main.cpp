@@ -289,7 +289,7 @@ int main()
 		else if (g_game.phase == game_state_t::PHASE_PLAYING)
 		{
 			player.update(input, g_game);
-			actor_t::update_all();
+			entity_t::update_all();
 
 			auto activated = action_text.update(actors, player.cam.pos, input, g_game);
 			if (activated)
