@@ -4,14 +4,14 @@
 #include <string>
 #include <vector>
 #include <allegro.h>
-#include "actor.h"
+#include "actionable.h"
 #include "input.h"
 #include "game_state.h"
 #include "../engine/pixmap.h"
 
 struct action_text_t
 {
-	actor_t *update(const std::vector<std::unique_ptr<actor_t>> &actors, vec2_t player_pos, const input_t &input, game_state_t &game)
+	actionable_t *update(const std::vector<std::unique_ptr<actionable_t>> &actors, vec2_t player_pos, const input_t &input, game_state_t &game)
 	{
 		m_text.clear();
 		m_target = nullptr;
@@ -62,5 +62,5 @@ struct action_text_t
 
 private:
 	std::string m_text;
-	actor_t *m_target = nullptr;
+	actionable_t *m_target = nullptr;
 };

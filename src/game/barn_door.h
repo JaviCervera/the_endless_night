@@ -2,12 +2,12 @@
 
 #include <ctime>
 #include <vector>
-#include "actor.h"
+#include "actionable.h"
 #include "game_state.h"
 #include "../engine/tilemap.h"
 #include "../engine/raycaster.h"
 
-struct barn_door_t : public actor_t
+struct barn_door_t : public actionable_t
 {
 	game_state_t *game;
 	tilemap_t *tilemap;

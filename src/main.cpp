@@ -50,7 +50,7 @@ static const char *state_names[] = {
 };
 
 static void spawn_entities(tilemap_t &tilemap, const fpg_t &fpg,
-													 std::vector<std::unique_ptr<actor_t>> &actors,
+													 std::vector<std::unique_ptr<actionable_t>> &actors,
 													 player_t &player, raycaster_t &raycaster)
 {
 	actors.clear();
@@ -126,7 +126,7 @@ static void spawn_entities(tilemap_t &tilemap, const fpg_t &fpg,
 			default:
 				if (id != 0)
 				{
-					auto actor = std::make_unique<actor_t>();
+					auto actor = std::make_unique<actionable_t>();
 					actor->pos = vec2_t{real_t(x + 0.5f), real_t(y + 0.5f)};
 					actor->fpg_idx = uint8_t(id - 1);
 					actors.push_back(std::move(actor));
@@ -200,7 +200,7 @@ int main()
 			raycaster.floor({x, y}, tilemap.floor_at(x, y));
 		}
 
-	std::vector<std::unique_ptr<actor_t>> actors;
+	std::vector<std::unique_ptr<actionable_t>> actors;
 
 	int footsteps_voice = -1;
 	int humming_voice = -1;

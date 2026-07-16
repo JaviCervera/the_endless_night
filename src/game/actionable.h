@@ -4,21 +4,21 @@
 #include <vector>
 #include "../engine/entity.h"
 
-struct actor_t : public entity_t
+struct actionable_t : public entity_t
 {
 	std::string action_text;
 	real_t action_distance = real_t(1.5f);
 	std::vector<std::string> dialog_lines;
 
-	inline static std::vector<actor_t*> all;
+	inline static std::vector<actionable_t*> all;
 
-	actor_t() {
+	actionable_t() {
 		all.push_back(this);
 	}
 
-	actor_t(const actor_t &) = delete;
+	actionable_t(const actionable_t &) = delete;
 
-	~actor_t() override
+	~actionable_t() override
 	{
 		for (auto it = all.begin(); it != all.end(); ++it)
 			if (*it == this)
@@ -28,7 +28,7 @@ struct actor_t : public entity_t
 			}
 	}
 
-	actor_t &operator=(const actor_t &) = delete;
+	actionable_t &operator=(const actionable_t &) = delete;
 
 	virtual void on_action_pressed()
 	{

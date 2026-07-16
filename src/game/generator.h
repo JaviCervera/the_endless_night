@@ -1,9 +1,9 @@
 #pragma once
 
-#include "actor.h"
+#include "actionable.h"
 #include "game_state.h"
 
-struct generator_t : public actor_t
+struct generator_t : public actionable_t
 {
 	game_state_t *game;
 	int anim_tick = 0;

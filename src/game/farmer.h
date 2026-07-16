@@ -1,9 +1,9 @@
 #pragma once
 
-#include "actor.h"
+#include "actionable.h"
 #include "game_state.h"
 
-struct farmer_t : public actor_t
+struct farmer_t : public actionable_t
 {
 	game_state_t *game;
 
