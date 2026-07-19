@@ -2,20 +2,24 @@
 
 #include "actionable.h"
 #include "entity_ids.h"
-#include "game_state.h"
+#include "player.h"
 
 struct generator_t : public actionable_t
 {
-	game_state_t *game;
-	int anim_tick = 0;
-
-	generator_t(game_state_t *game, vec2_t pos) : 	actionable_t{GENERATOR_NAME, pos, GENERATOR_ID}, game{game}
+	generator_t(player_t &player, vec2_t pos) : actionable_t{GENERATOR_NAME, pos, GENERATOR_ID}, player{&player}
 	{
 		collidable = false;
 		action_text = "Take power generator";
-		if (game->generator_picked)
-			pos = game->player_end_pos;
-		game->generator_alive = true;
+		if (already_picked)
+		{
+			this->pos = spawn_pos;
+		}
+	}
+
+	~generator_t()
+	{
+		if (was_picked())
+			spawn_pos = player->cam.pos;
 	}
 
 	void update() override
@@ -32,8 +36,24 @@ struct generator_t : public actionable_t
 	{
 		dialog_lines.push_back("With four like this, I can restore the power.");
 		dialog_lines.push_back("A signal is coming from the radio tower to the north...");
-		game->generator_picked = true;
-		game->generator_alive = false;
+		pick();
+	}
+
+	bool was_picked() const
+	{
+		return !active;
+	}
+
+private:
+	inline static auto already_picked = false;
+	inline static auto spawn_pos = vec2_t{real_t(0.0f), real_t(0.0f)};
+
+	player_t *player;
+	int anim_tick = 0;
+
+	void pick()
+	{
+		already_picked = true;
 		active = false;
 	}
 };

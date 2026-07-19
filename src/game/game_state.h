@@ -3,9 +3,6 @@
 #include <ctime>
 #include "../engine/vec2.h"
 
-struct crowbar_t;
-struct generator_t;
-
 struct game_state_t
 {
 	enum phase_t
@@ -16,10 +13,7 @@ struct game_state_t
 	};
 
 	int adventure_state = 1;
-	bool generator_picked = false;
 	bool player_blocked = false;
-
-	vec2_t player_end_pos;
 
 	clock_t loop_start_clock = 0;
 	int num_loop_in_state = 1;
@@ -36,6 +30,4 @@ struct game_state_t
 	int intro_sub = 0;
 
 	int finish_ticks = 0;
-
-	bool generator_alive = false;
 };

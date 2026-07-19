@@ -42,8 +42,6 @@ static const char *state_names[] = {
 static void spawn_entities(tilemap_t &tilemap, const fpg_t &fpg,
 													 player_t &player, raycaster_t &raycaster)
 {
-	g_game.generator_alive = false;
-
 	for (uint32_t y = 0; y < tilemap.map_size.y; ++y)
 		for (uint32_t x = 0; x < tilemap.map_size.x; ++x)
 		{
@@ -75,7 +73,7 @@ static void spawn_entities(tilemap_t &tilemap, const fpg_t &fpg,
 			}
 			case GENERATOR_ID:
 			{
-				new generator_t(&g_game, pos);
+				new generator_t(player, pos);
 				break;
 			}
 			case BARN_DOOR_ID:
@@ -390,8 +388,6 @@ int main()
 				banner.reset();
 
 				pal_set_fade(100, 100, 100);
-
-				g_game.player_end_pos = player.cam.pos;
 
 				if (footsteps_voice >= 0)
 				{
