@@ -9,6 +9,7 @@
 #include "engine/tilemap.h"
 #include "engine/viewport.h"
 #include "engine/raycaster.h"
+#include "game/entity_ids.h"
 #include "game/input.h"
 #include "game/player.h"
 #include "game/banner.h"
@@ -18,22 +19,11 @@
 #include "game/barn_worker.h"
 #include "game/crowbar.h"
 #include "game/generator.h"
-#define BARN_DOOR_OPEN_WINDOW 200
 #include "game/barn_door.h"
 
 #define SCREEN_WIDTH 320
 #define SCREEN_HEIGHT 200
 #define TARGET_FPS 10
-
-#define CROWBAR_ID 6
-#define TREE_ID 11
-#define FARMER1_ID 8
-#define FARMER2_ID 9
-#define PLAYER_ID 10
-#define VINE_ID 12
-#define GENERATOR_ID 13
-#define BARN_DOOR_ID 2
-
 #define LOOP_FRAMES 300
 
 static game_state_t g_game;
@@ -44,84 +34,59 @@ static int loop_elapsed_ticks()
 }
 
 static const char *state_names[] = {
-	"",
-	"The Awakening",
-	"Collect Parts",
+		"",
+		"The Awakening",
+		"Collect Parts",
 };
 
 static void spawn_entities(tilemap_t &tilemap, const fpg_t &fpg,
 													 player_t &player, raycaster_t &raycaster)
 {
-	g_game.crowbar_alive = false;
 	g_game.generator_alive = false;
 
 	for (uint32_t y = 0; y < tilemap.map_size.y; ++y)
 		for (uint32_t x = 0; x < tilemap.map_size.x; ++x)
 		{
 			const uint8_t id = tilemap.entity_at(x, y);
+			const vec2_t pos = vec2_t{real_t(x + 0.5f), real_t(y + 0.5f)};
 			switch (id)
 			{
 			case PLAYER_ID:
 			{
-				player.position(vec2_t{real_t(x + 0.5f), real_t(y + 0.5f)});
+				player.position(pos);
 				player.cam.dir = vec2_t{real_t(0.0f), real_t(1.0f)};
 				player.cam.plane = vec2_t{real_t(0.66f), real_t(0.0f)};
 				break;
 			}
-			case FARMER1_ID:
+			case FARMER_ID:
 			{
-				auto farmer = new farmer_t(&g_game);
-				farmer->pos = vec2_t{real_t(x + 0.5f), real_t(y + 0.5f)};
-				farmer->fpg_idx = uint8_t(id - 1);
-				farmer->halved = true;
+				new farmer_t(&g_game, pos);
 				break;
 			}
-			case FARMER2_ID:
+			case BARN_WORKER_ID:
 			{
-				auto worker = new barn_worker_t(&g_game);
-				worker->pos = vec2_t{real_t(x + 0.5f), real_t(y + 0.5f)};
-				worker->fpg_idx = uint8_t(id - 1);
-				worker->halved = true;
+				new barn_worker_t(&g_game, pos);
 				break;
 			}
 			case CROWBAR_ID:
 			{
-				if (g_game.adventure_state == 1 && !g_game.barn_doors_open)
-				{
-					auto crowbar = new crowbar_t(&g_game);
-					crowbar->pos = vec2_t{real_t(x + 0.5f), real_t(y + 0.5f)};
-					if (g_game.crowbar_picked)
-						crowbar->pos = g_game.player_end_pos;
-					g_game.crowbar_alive = true;
-				}
+				new crowbar_t(player, pos);
 				break;
 			}
 			case GENERATOR_ID:
 			{
-				auto gen = new generator_t(&g_game);
-				gen->pos = vec2_t{real_t(x + 0.5f), real_t(y + 0.5f)};
-				if (g_game.generator_picked)
-					gen->pos = g_game.player_end_pos;
-				g_game.generator_alive = true;
+				new generator_t(&g_game, pos);
 				break;
 			}
 			case BARN_DOOR_ID:
 			{
-				if (!g_game.barn_doors_open)
-				{
-					auto door = new barn_door_t(&g_game, &tilemap, &raycaster);
-					door->pos = vec2_t{real_t(x + 0.5f), real_t(y + 0.5f)};
-					door->tile_x = x;
-					door->tile_y = y;
-				}
+				new barn_door_t(&g_game, &tilemap, &raycaster, x, y);
 				break;
 			}
 			default:
 				if (id != 0)
 				{
-					auto actor = new entity_t();
-					actor->pos = vec2_t{real_t(x + 0.5f), real_t(y + 0.5f)};
-					actor->fpg_idx = uint8_t(id - 1);
+					new entity_t("", pos, id);
 				}
 				break;
 			}
@@ -288,7 +253,8 @@ int main()
 				std::string combined;
 				for (auto &line : activated->dialog_lines)
 				{
-					if (!combined.empty()) combined += " ";
+					if (!combined.empty())
+						combined += " ";
 					combined += line;
 				}
 				if (!combined.empty())
@@ -347,7 +313,8 @@ int main()
 
 			{
 				int secs_left = (LOOP_FRAMES - loop_elapsed_ticks()) / TARGET_FPS;
-				if (secs_left < 0) secs_left = 0;
+				if (secs_left < 0)
+					secs_left = 0;
 				char dbg[64];
 				std::snprintf(dbg, sizeof(dbg), "%d FPS", screen_current_fps());
 				backbuffer.text(dbg, {uint32_t(VP_X + 4), uint32_t(VP_Y + 4)}, 15);

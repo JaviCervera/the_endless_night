@@ -16,7 +16,6 @@ struct game_state_t
 	};
 
 	int adventure_state = 1;
-	bool crowbar_picked = false;
 	bool generator_picked = false;
 	bool player_blocked = false;
 
@@ -38,7 +37,5 @@ struct game_state_t
 
 	int finish_ticks = 0;
 
-	bool crowbar_alive = false;
 	bool generator_alive = false;
-	bool barn_doors_open = false;
 };

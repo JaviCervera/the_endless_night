@@ -5,18 +5,24 @@
 
 struct entity_t
 {
+	std::string name;
 	bool active = true;
 	vec2_t pos;
-	uint8_t fpg_idx;
+	uint8_t fpg_id;
 	bool collidable = true;
 	bool halved = false;
 
-	entity_t()
+	entity_t(std::string name, vec2_t pos, uint8_t fpg_id) : name(name), pos(pos), fpg_id(fpg_id)
 	{
 		all.push_back(this);
 	}
 
-	entity_t(const entity_t &o) : pos(o.pos), fpg_idx(o.fpg_idx), collidable(o.collidable), halved(o.halved)
+	entity_t(const entity_t &o)
+			: name(o.name),
+				pos(o.pos),
+				fpg_id(o.fpg_id),
+				collidable(o.collidable),
+				halved(o.halved)
 	{
 		all.push_back(this);
 	}
@@ -74,12 +80,38 @@ struct entity_t
 				continue;
 			const auto dx = point.x - ent->pos.x;
 			const auto dy = point.y - ent->pos.y;
-			if (dx*dx + dy*dy < (ent->halved ? real_t(0.065f) : real_t(0.26f)))
+			if (dx * dx + dy * dy < (ent->halved ? real_t(0.065f) : real_t(0.26f)))
 				return ent;
 		}
 		return nullptr;
 	}
 
+	static size_t num_entities_with_name(const std::string &name)
+	{
+		size_t count = 0;
+		for (auto *ent : all)
+		{
+			if (ent->name == name)
+				count++;
+		}
+		return count;
+	}
+
+	static entity_t *entity_with_name(const std::string &name, size_t index = 0)
+	{
+		size_t current_index = 0;
+		for (auto *ent : all)
+		{
+			if (ent->name == name)
+			{
+				if (current_index == index)
+					return ent;
+				current_index++;
+			}
+		}
+		return nullptr;
+	}
+
 private:
-	inline static std::vector<entity_t*> all;
+	inline static std::vector<entity_t *> all;
 };

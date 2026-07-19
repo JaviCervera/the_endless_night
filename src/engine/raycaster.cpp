@@ -345,8 +345,7 @@ void raycaster_t::render(const camera_t &cam, pixmap_t &backbuffer, viewport_t v
 							const entity_t *ent_b = entity_t::get_entity(b);
               const real_t da = (ent_a->pos.x - cam.pos.x) * (ent_a->pos.x - cam.pos.x) + (ent_a->pos.y - cam.pos.y) * (ent_a->pos.y - cam.pos.y);
               const real_t db = (ent_b->pos.x - cam.pos.x) * (ent_b->pos.x - cam.pos.x) + (ent_b->pos.y - cam.pos.y) * (ent_b->pos.y - cam.pos.y);
-              return da > db;
-						});
+              return da > db; });
 
 	const real_t inv_det = real_t(1) / (cam.plane.x * cam.dir.y - cam.dir.x * cam.plane.y);
 	for (size_t idx = 0; idx < num_entities; ++idx)
@@ -368,7 +367,7 @@ void raycaster_t::render(const camera_t &cam, pixmap_t &backbuffer, viewport_t v
 		if (transform_y < real_t(0.05f))
 			continue;
 
-		const pixmap_t *tex = fpg->map(ent->fpg_idx);
+		const pixmap_t *tex = fpg->map(ent->fpg_id - 1);
 		if (!tex)
 			continue;
 
