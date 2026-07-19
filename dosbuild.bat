@@ -34,7 +34,7 @@ set DJDIR=%DJGPP_ROOT%
 
 set ALLEGRO_DIR=.\lib\allegro
 
-set SOURCES=src/main.cpp src/engine/pal.cpp src/engine/pixmap.cpp src/engine/mode7.cpp src/engine/raycaster.cpp src/engine/screen.cpp
+set SOURCES=src/main.cpp src/engine/pal.cpp src/engine/pixmap.cpp src/engine/raycaster.cpp src/engine/screen.cpp
 
 set CXXFLAGS=-std=gnu++17 -march=i486 -O2 -funroll-loops -ffast-math -fomit-frame-pointer
 set CXXFLAGS=%CXXFLAGS% -fno-exceptions -fno-rtti
