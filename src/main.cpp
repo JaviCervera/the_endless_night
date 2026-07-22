@@ -1,6 +1,5 @@
 #include <cstdio>
 #include <iostream>
-#include <memory>
 #include <allegro.h>
 #include "engine/fpg.h"
 #include "engine/pal.h"
@@ -15,81 +14,12 @@
 #include "game/banner.h"
 #include "game/action_text.h"
 #include "game/game_state.h"
-#include "game/farmer.h"
-#include "game/barn_worker.h"
-#include "game/crowbar.h"
-#include "game/generator.h"
-#include "game/barn_door.h"
+#include "game/intro_controller.h"
+#include "game/game_controller.h"
 
 #define SCREEN_WIDTH 320
 #define SCREEN_HEIGHT 200
 #define TARGET_FPS 10
-#define LOOP_FRAMES 300
-
-static game_state_t g_game;
-
-static int loop_elapsed_ticks()
-{
-	return int((clock() - g_game.loop_start_clock) * TARGET_FPS / CLOCKS_PER_SEC);
-}
-
-static const char *state_names[] = {
-		"",
-		"The Awakening",
-		"Collect Parts",
-};
-
-static void spawn_entities(tilemap_t &tilemap, const fpg_t &fpg,
-													 player_t &player, raycaster_t &raycaster)
-{
-	for (uint32_t y = 0; y < tilemap.map_size.y; ++y)
-		for (uint32_t x = 0; x < tilemap.map_size.x; ++x)
-		{
-			const uint8_t id = tilemap.entity_at(x, y);
-			const vec2_t pos = vec2_t{real_t(x + 0.5f), real_t(y + 0.5f)};
-			switch (id)
-			{
-			case PLAYER_ID:
-			{
-				player.position(pos);
-				player.cam.dir = vec2_t{real_t(0.0f), real_t(1.0f)};
-				player.cam.plane = vec2_t{real_t(0.66f), real_t(0.0f)};
-				break;
-			}
-			case FARMER_ID:
-			{
-				new farmer_t(&g_game, pos);
-				break;
-			}
-			case BARN_WORKER_ID:
-			{
-				new barn_worker_t(&g_game, pos);
-				break;
-			}
-			case CROWBAR_ID:
-			{
-				new crowbar_t(player, pos);
-				break;
-			}
-			case GENERATOR_ID:
-			{
-				new generator_t(player, pos);
-				break;
-			}
-			case BARN_DOOR_ID:
-			{
-				new barn_door_t(&g_game, &tilemap, &raycaster, x, y);
-				break;
-			}
-			default:
-				if (id != 0)
-				{
-					new entity_t("", pos, id);
-				}
-				break;
-			}
-		}
-}
 
 int main()
 {
@@ -139,7 +69,6 @@ int main()
 
 	auto player = player_t{tilemap, real_t(3.0f / TARGET_FPS), real_t(2.0f / TARGET_FPS), real_t(0.25f)};
 	auto banner = banner_t{};
-	banner.game = &g_game;
 	auto action_text = action_text_t{};
 
 	auto raycaster = raycaster_t{{tilemap.map_size.x, tilemap.map_size.y}, fpg};
@@ -157,256 +86,29 @@ int main()
 
 	int footsteps_voice = -1;
 	int humming_voice = -1;
-	bool first_start = true;
+
+	game_state_t game;
+	intro_controller_t intro{&game, &backbuffer};
+	game_controller_t game_ctrl{&game, &backbuffer, &player, &banner, &action_text,
+															&raycaster, &tilemap, &fpg, VIEWPORT,
+															footsteps_sound, humming_sound,
+															&footsteps_voice, &humming_voice};
+	controller_t *current_controller = &intro;
 
 	while (screen_update(backbuffer))
 	{
 		const auto input = input_calculate();
 
-		if (g_game.phase == game_state_t::PHASE_INTRO)
+		current_controller->update(input);
+
+		if (game.phase == game_state_t::PHASE_INTRO && current_controller != &intro)
 		{
-			if (g_game.intro_sub == 0)
-			{
-				if (first_start)
-				{
-					first_start = false;
-					g_game.intro_timer = 36;
-					g_game.intro_sub = 2;
-				}
-				else
-				{
-					if (!pal_fade_active())
-						pal_start_fade(0, 0, 0, 2);
-					g_game.intro_sub = 1;
-				}
-			}
-
-			if (g_game.intro_sub == 1)
-			{
-				pal_update_fade();
-				if (!pal_fade_active())
-				{
-					g_game.intro_timer = 36;
-					pal_start_fade(100, 100, 100, 12);
-					g_game.intro_sub = 2;
-				}
-			}
-
-			if (g_game.intro_sub == 2)
-			{
-				backbuffer.fill(0);
-
-				char buf[64];
-				int si = g_game.adventure_state;
-				const char *sn = (si >= 0 && si < 3) ? state_names[si] : "";
-				std::snprintf(buf, sizeof(buf), "CHAPTER %d: %s", si, sn);
-				int tw = text_length(font, buf);
-				backbuffer.text(buf, {static_cast<uint32_t>((SCREEN_WIDTH - tw) / 2), 100u}, 15);
-
-				if (g_game.num_loop_in_state > 1 && g_game.intro_timer <= 24)
-				{
-					char lb[32];
-					std::snprintf(lb, sizeof(lb), "Loop %d", g_game.num_loop_in_state);
-					int lw = text_length(font, lb);
-					backbuffer.text(lb, {static_cast<uint32_t>((SCREEN_WIDTH - lw) / 2), 115u}, 15);
-				}
-
-				pal_update_fade();
-
-				g_game.intro_timer--;
-				if (g_game.intro_timer <= 0)
-				{
-					g_game.intro_sub = 3;
-				}
-			}
-
-			if (g_game.intro_sub == 3)
-			{
-				backbuffer.fill(0);
-				pal_update_fade();
-				if (!pal_fade_active())
-				{
-					entity_t::clear_all();
-					spawn_entities(tilemap, fpg, player, raycaster);
-					g_game.loop_start_clock = clock();
-
-					if (g_game.adventure_state == 1 && g_game.num_loop_in_state == 1)
-						banner.show("What was that sound? It came from outside...");
-
-					g_game.phase = game_state_t::PHASE_PLAYING;
-
-					if (humming_sound)
-						humming_voice = play_sample(humming_sound, 64, 128, humming_sound->freq, 1);
-				}
-			}
+			intro.reset();
+			current_controller = &intro;
 		}
-		else if (g_game.phase == game_state_t::PHASE_PLAYING)
+		else if (game.phase != game_state_t::PHASE_INTRO && current_controller != &game_ctrl)
 		{
-			player.update(input, g_game);
-			entity_t::update_all();
-
-			auto activated = action_text.update(player.cam.pos, input, g_game);
-			if (activated)
-			{
-				std::string combined;
-				for (auto &line : activated->dialog_lines)
-				{
-					if (!combined.empty())
-						combined += " ";
-					combined += line;
-				}
-				if (!combined.empty())
-					banner.show(combined);
-				activated->dialog_lines.clear();
-			}
-
-			banner.update();
-
-			bool moving = !g_game.player_blocked && input.forward != 0;
-			if (moving && footsteps_sound)
-			{
-				if (footsteps_voice < 0 || !voice_check(footsteps_voice))
-					footsteps_voice = play_sample(footsteps_sound, 255, 128, 1000, 0);
-			}
-			else if (!moving && footsteps_voice >= 0)
-			{
-				voice_stop(footsteps_voice);
-				footsteps_voice = -1;
-			}
-
-			if (humming_voice >= 0)
-			{
-				int remaining = LOOP_FRAMES - loop_elapsed_ticks();
-				int freq = humming_sound->freq;
-				if (remaining < 80)
-				{
-					int t = 80 - remaining;
-					freq = freq + t * (freq / 320);
-				}
-				voice_set_frequency(humming_voice, freq);
-			}
-
-			/*
-			{
-				real_t fog_angle = real_t(g_game.loop_ticks) * real_t(0.08727f);
-				auto s = real_sin(fog_angle);
-				int green = int(real_abs(s) * real_t(80));
-				raycaster.ceiling_color = pal_find_closest(0, uint8_t(green * 64 / 100), 0);
-			}
-			*/
-
-			/*
-			for (auto it = actors.begin(); it != actors.end();)
-			{
-				if ((*it)->dead)
-				{
-					it = actors.erase(it);
-				}
-				else
-					++it;
-			}
-			*/
-
-			raycaster.render(player.cam, backbuffer, VIEWPORT);
-
-			{
-				int secs_left = (LOOP_FRAMES - loop_elapsed_ticks()) / TARGET_FPS;
-				if (secs_left < 0)
-					secs_left = 0;
-				char dbg[64];
-				std::snprintf(dbg, sizeof(dbg), "%d FPS", screen_current_fps());
-				backbuffer.text(dbg, {uint32_t(VP_X + 4), uint32_t(VP_Y + 4)}, 15);
-				std::snprintf(dbg, sizeof(dbg), "%02d:%02d", secs_left / 60, secs_left % 60);
-				backbuffer.text(dbg, {uint32_t(VP_X + 4), uint32_t(VP_Y + 14)}, 15);
-			}
-
-			backbuffer.rectfill({0, VP_Y + VP_H}, {SCREEN_WIDTH, SCREEN_HEIGHT}, 0);
-			backbuffer.rectfill({0, 0}, {SCREEN_WIDTH, VP_Y - 2}, 0);
-
-			banner.draw(backbuffer);
-			action_text.draw(backbuffer);
-
-			if (loop_elapsed_ticks() >= LOOP_FRAMES)
-			{
-				g_game.phase = game_state_t::PHASE_FINISHING;
-				g_game.finish_ticks = 0;
-			}
-		}
-		else if (g_game.phase == game_state_t::PHASE_FINISHING)
-		{
-			if (g_game.finish_ticks == 0)
-			{
-				pal_start_fade(200, 200, 200, 20);
-			}
-
-			g_game.finish_ticks++;
-
-			player.update(input, g_game);
-
-			bool moving = !g_game.player_blocked && input.forward != 0;
-			if (moving && footsteps_sound)
-			{
-				if (footsteps_voice < 0 || !voice_check(footsteps_voice))
-					footsteps_voice = play_sample(footsteps_sound, 255, 128, 1000, 0);
-			}
-			else if (!moving && footsteps_voice >= 0)
-			{
-				voice_stop(footsteps_voice);
-				footsteps_voice = -1;
-			}
-
-			if (humming_voice >= 0)
-			{
-				int remaining = LOOP_FRAMES - loop_elapsed_ticks();
-				int freq = humming_sound->freq;
-				if (remaining < 80)
-				{
-					int t = 80 - remaining;
-					freq = freq + t * (freq / 320);
-				}
-				voice_set_frequency(humming_voice, freq);
-			}
-
-			raycaster.render(player.cam, backbuffer, VIEWPORT);
-
-			{
-				char dbg[64];
-				std::snprintf(dbg, sizeof(dbg), "%d FPS", screen_current_fps());
-				backbuffer.text(dbg, {uint32_t(VP_X + 4), uint32_t(VP_Y + 4)}, 15);
-				std::snprintf(dbg, sizeof(dbg), "00:00");
-				backbuffer.text(dbg, {uint32_t(VP_X + 4), uint32_t(VP_Y + 14)}, 15);
-			}
-
-			backbuffer.rectfill({0, VP_Y + VP_H}, {SCREEN_WIDTH, SCREEN_HEIGHT}, 0);
-			backbuffer.rectfill({0, 0}, {SCREEN_WIDTH, VP_Y - 2}, 0);
-
-			pal_update_fade();
-
-			if (!pal_fade_active())
-			{
-				entity_t::clear_all();
-				banner.reset();
-
-				pal_set_fade(100, 100, 100);
-
-				if (footsteps_voice >= 0)
-				{
-					voice_stop(footsteps_voice);
-					footsteps_voice = -1;
-				}
-				if (humming_voice >= 0)
-				{
-					voice_stop(humming_voice);
-					humming_voice = -1;
-				}
-
-				g_game.num_loop_in_state++;
-				g_game.loop_start_clock = clock();
-
-				g_game.phase = game_state_t::PHASE_INTRO;
-				g_game.intro_sub = 0;
-				g_game.intro_timer = 0;
-			}
+			current_controller = &game_ctrl;
 		}
 	}
 
