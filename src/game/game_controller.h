@@ -16,12 +16,15 @@
 #include "../engine/pal.h"
 #include "../engine/screen.h"
 #include "../engine/entity.h"
+#include "herbicide.h"
 #include "entity_ids.h"
 #include "farmer.h"
 #include "barn_worker.h"
 #include "crowbar.h"
 #include "generator.h"
 #include "barn_door.h"
+#include "plant.h"
+#include "station_key.h"
 
 #define LOOP_FRAMES 300
 #define TARGET_FPS 10
@@ -260,6 +263,15 @@ private:
 					break;
 				case BARN_DOOR_ID:
 					new barn_door_t(game, tilemap, raycaster, x, y);
+					break;
+				case PLANT_ID:
+					new plant_t(pos);
+					break;
+				case HERBICIDE_ID:
+					new herbicide_t(pos);
+					break;
+				case KEY_ID:
+					new station_key_t(pos);
 					break;
 				default:
 					if (id != 0)

@@ -22,19 +22,9 @@ struct generator_t : public actionable_t
 			spawn_pos = player->cam.pos;
 	}
 
-	void update() override
-	{
-		anim_tick++;
-		if (anim_tick >= 3)
-		{
-			anim_tick = 0;
-			fpg_id = (fpg_id == GENERATOR_ID) ? (GENERATOR_ID + 1) : GENERATOR_ID;
-		}
-	}
-
 	void on_action_pressed() override
 	{
-		dialog_lines.push_back("With four like this, I can restore the power.");
+		dialog_lines.push_back("With four like this, I could restore the power.");
 		dialog_lines.push_back("A signal is coming from the radio tower to the north...");
 		pick();
 	}
@@ -49,7 +39,6 @@ private:
 	inline static auto spawn_pos = vec2_t{real_t(0.0f), real_t(0.0f)};
 
 	player_t *player;
-	int anim_tick = 0;
 
 	void pick()
 	{

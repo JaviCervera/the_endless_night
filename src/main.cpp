@@ -1,4 +1,3 @@
-#include <cstdio>
 #include <iostream>
 #include <allegro.h>
 #include "engine/fpg.h"
@@ -8,7 +7,6 @@
 #include "engine/tilemap.h"
 #include "engine/viewport.h"
 #include "engine/raycaster.h"
-#include "game/entity_ids.h"
 #include "game/input.h"
 #include "game/player.h"
 #include "game/banner.h"
