@@ -268,7 +268,7 @@ private:
 					new plant_t(pos);
 					break;
 				case HERBICIDE_ID:
-					new herbicide_t(pos);
+					new herbicide_t(game->num_loop_in_state, pos);
 					break;
 				case KEY_ID:
 					new station_key_t(pos);
