@@ -7,13 +7,13 @@
 #include "../engine/pixmap.h"
 #include "../engine/pal.h"
 
-	struct intro_controller_t : public controller_t
-	{
-		intro_controller_t(game_state_t *game, pixmap_t *backbuffer)
-				: game{game}, backbuffer{backbuffer} {}
+struct intro_controller_t : public controller_t
+{
+	intro_controller_t(game_state_t *game, pixmap_t *backbuffer)
+			: game{game}, backbuffer{backbuffer} {}
 
-		game_state_t *game;
-		pixmap_t *backbuffer;
+	game_state_t *game;
+	pixmap_t *backbuffer;
 
 	int intro_timer = 0;
 	int intro_sub = 0;
@@ -61,9 +61,11 @@
 			char buf[64];
 			int si = game->adventure_state;
 			static const char *state_names[] = {
-				"",
-				"The Awakening",
-				"Collect Parts",
+					"",
+					"The Awakening",
+					"First Generator (The Barn)",
+					"Second Generator (The Radio Station)",
+					"Third Generator (The Mechanic's Workshop)",
 			};
 			const char *sn = (si >= 0 && si < 3) ? state_names[si] : "";
 			std::snprintf(buf, sizeof(buf), "CHAPTER %d: %s", si, sn);
