@@ -8,7 +8,7 @@ struct farmer_t : public actionable_t
 {
 	game_state_t *game;
 
-	farmer_t(game_state_t *game, vec2_t pos) : 	actionable_t{FARMER_NAME, pos, FARMER_ID}, game{game}
+	farmer_t(game_state_t *game, vec2_t pos) : actionable_t{FARMER_NAME, pos, FARMER_ID}, game{game}
 	{
 		halved = true;
 		action_text = "Talk to farmer";

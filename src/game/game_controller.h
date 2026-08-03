@@ -29,34 +29,34 @@
 #define LOOP_FRAMES 300
 #define TARGET_FPS 10
 
-	struct game_controller_t : public controller_t
-	{
-		game_controller_t(game_state_t *game, pixmap_t *backbuffer,
-											player_t *player, banner_t *banner, action_text_t *action_text,
-											raycaster_t *raycaster, tilemap_t *tilemap, const fpg_t *fpg,
-											viewport_t viewport,
-											SAMPLE *footsteps_sound, SAMPLE *humming_sound,
-											int *footsteps_voice, int *humming_voice)
-				: game{game}, backbuffer{backbuffer}, player{player},
-					banner{banner}, action_text{action_text},
-					raycaster{raycaster}, tilemap{tilemap}, fpg{fpg},
-					viewport{viewport}, footsteps_sound{footsteps_sound},
-					humming_sound{humming_sound}, footsteps_voice{footsteps_voice},
-					humming_voice{humming_voice} {}
+struct game_controller_t : public controller_t
+{
+	game_controller_t(game_state_t *game, pixmap_t *backbuffer,
+										player_t *player, banner_t *banner, action_text_t *action_text,
+										raycaster_t *raycaster, tilemap_t *tilemap, const fpg_t *fpg,
+										viewport_t viewport,
+										SAMPLE *footsteps_sound, SAMPLE *humming_sound,
+										int *footsteps_voice, int *humming_voice)
+			: game{game}, backbuffer{backbuffer}, player{player},
+				banner{banner}, action_text{action_text},
+				raycaster{raycaster}, tilemap{tilemap}, fpg{fpg},
+				viewport{viewport}, footsteps_sound{footsteps_sound},
+				humming_sound{humming_sound}, footsteps_voice{footsteps_voice},
+				humming_voice{humming_voice} {}
 
-		game_state_t *game;
-		pixmap_t *backbuffer;
-		player_t *player;
-		banner_t *banner;
-		action_text_t *action_text;
-		raycaster_t *raycaster;
-		tilemap_t *tilemap;
-		const fpg_t *fpg;
-		viewport_t viewport;
-		SAMPLE *footsteps_sound;
-		SAMPLE *humming_sound;
-		int *footsteps_voice;
-		int *humming_voice;
+	game_state_t *game;
+	pixmap_t *backbuffer;
+	player_t *player;
+	banner_t *banner;
+	action_text_t *action_text;
+	raycaster_t *raycaster;
+	tilemap_t *tilemap;
+	const fpg_t *fpg;
+	viewport_t viewport;
+	SAMPLE *footsteps_sound;
+	SAMPLE *humming_sound;
+	int *footsteps_voice;
+	int *humming_voice;
 
 	bool started = false;
 	int finish_ticks = 0;
