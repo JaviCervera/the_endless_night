@@ -27,6 +27,7 @@
 #include "station_door.h"
 #include "station_key.h"
 #include "vine.h"
+#include "tree_note.h"
 
 #define LOOP_FRAMES 300
 #define TARGET_FPS 10
@@ -283,6 +284,9 @@ private:
 					break;
 				case VINE_ID:
 					new vine_t(game, pos);
+					break;
+				case TREE_NOTE_ID:
+					new tree_note_t(game, pos);
 					break;
 				default:
 					if (id != 0)

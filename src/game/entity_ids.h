@@ -12,6 +12,7 @@
 #define PLANT_ID 20
 #define HERBICIDE_ID 21
 #define KEY_ID 24
+#define TREE_NOTE_ID 25
 
 #define BARN_DOOR_NAME "barn_door"
 #define CROWBAR_NAME "crowbar"
@@ -25,3 +26,4 @@
 #define PLANT_NAME "plant"
 #define HERBICIDE_NAME "herbicide"
 #define KEY_NAME "key"
+#define TREE_NOTE_NAME "tree_note"
