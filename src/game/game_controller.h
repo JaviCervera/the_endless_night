@@ -24,6 +24,7 @@
 #include "generator.h"
 #include "barn_door.h"
 #include "plant.h"
+#include "station_door.h"
 #include "station_key.h"
 #include "vine.h"
 
@@ -239,6 +240,7 @@ private:
 	void spawn_entities()
 	{
 		game->herbicide_held = false;
+		game->station_key_held = false;
 
 		for (uint32_t y = 0; y < tilemap->map_size.y; ++y)
 			for (uint32_t x = 0; x < tilemap->map_size.x; ++x)
@@ -273,8 +275,11 @@ private:
 				case HERBICIDE_ID:
 					new herbicide_t(game, pos);
 					break;
+				case STATION_DOOR_ID:
+					new station_door_t(game, pos);
+					break;
 				case KEY_ID:
-					new station_key_t(pos);
+					new station_key_t(game, pos);
 					break;
 				case VINE_ID:
 					new vine_t(game, pos);

@@ -15,6 +15,8 @@ struct game_state_t
 	bool player_blocked = false;
 	bool herbicide_held = false;
 	bool vines_cleared = false;
+	bool station_key_held = false;
+	bool station_door_opened = false;
 
 	clock_t loop_start_clock = 0;
 	int num_loop_in_state = 1;
