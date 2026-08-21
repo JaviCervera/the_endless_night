@@ -51,7 +51,6 @@ struct barn_door_t : public actionable_t
 		}
 		open_doors();
 		dialog_lines.push_back("The barn door creaks open.");
-		game->advance_state();
 	}
 
 private:

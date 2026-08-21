@@ -58,27 +58,10 @@ struct intro_controller_t : public controller_t
 		{
 			backbuffer->fill(0);
 
-			char buf[64];
-			int si = game->adventure_state;
-			static const char *state_names[] = {
-					"",
-					"The Awakening",
-					"First Generator (The Barn)",
-					"Second Generator (The Radio Station)",
-					"Third Generator (The Mechanic's Workshop)",
-			};
-			const char *sn = (si >= 0 && si < 3) ? state_names[si] : "";
-			std::snprintf(buf, sizeof(buf), "CHAPTER %d: %s", si, sn);
-			int tw = text_length(font, buf);
-			backbuffer->text(buf, {static_cast<uint32_t>((backbuffer->size().x - tw) / 2), 100u}, 15);
-
-			if (game->num_loop_in_state > 1 && intro_timer <= 24)
-			{
-				char lb[32];
-				std::snprintf(lb, sizeof(lb), "Loop %d", game->num_loop_in_state);
-				int lw = text_length(font, lb);
-				backbuffer->text(lb, {static_cast<uint32_t>((backbuffer->size().x - lw) / 2), 115u}, 15);
-			}
+			char loop_text[32];
+			std::snprintf(loop_text, sizeof(loop_text), "Loop %d", game->num_loop);
+			int loop_text_width = text_length(font, loop_text);
+			backbuffer->text(loop_text, {static_cast<uint32_t>((backbuffer->size().x - loop_text_width) / 2), 100u}, 15);
 
 			pal_update_fade();
 

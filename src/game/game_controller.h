@@ -70,7 +70,7 @@ struct game_controller_t : public controller_t
 			entity_t::clear_all();
 			spawn_entities();
 			game->loop_start_clock = clock();
-			if (game->adventure_state == 1 && game->num_loop_in_state == 1)
+			if (game->num_loop == 1)
 				banner->show("What was that sound? It came from outside...");
 			if (humming_sound)
 				*humming_voice = play_sample(humming_sound, 64, 128, humming_sound->freq, 1);
@@ -222,7 +222,7 @@ struct game_controller_t : public controller_t
 					*humming_voice = -1;
 				}
 
-				game->num_loop_in_state++;
+				game->num_loop++;
 				game->loop_start_clock = clock();
 
 				game->phase = game_state_t::PHASE_INTRO;

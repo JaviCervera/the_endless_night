@@ -11,7 +11,7 @@ struct herbicide_t : public actionable_t
 		halved = true;
 		collidable = false;
 		action_text = "Take herbicide";
-		if (game->vines_cleared || game->num_loop_in_state % 2 != 0)
+		if (game->vines_cleared || game->num_loop % 2 != 0)
 			active = false;
 	}
 

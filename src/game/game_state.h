@@ -11,7 +11,6 @@ struct game_state_t
 		PHASE_FINISHING = 2,
 	};
 
-	int adventure_state = 1;
 	bool player_blocked = false;
 	bool herbicide_held = false;
 	bool vines_cleared = false;
@@ -19,13 +18,7 @@ struct game_state_t
 	bool station_door_opened = false;
 
 	clock_t loop_start_clock = 0;
-	int num_loop_in_state = 1;
-
-	void advance_state()
-	{
-		adventure_state++;
-		num_loop_in_state = 0;
-	}
+	int num_loop = 1;
 
 	int phase = PHASE_INTRO;
 };
