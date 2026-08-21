@@ -25,6 +25,7 @@
 #include "barn_door.h"
 #include "plant.h"
 #include "station_key.h"
+#include "vine.h"
 
 #define LOOP_FRAMES 300
 #define TARGET_FPS 10
@@ -237,6 +238,8 @@ private:
 
 	void spawn_entities()
 	{
+		game->herbicide_held = false;
+
 		for (uint32_t y = 0; y < tilemap->map_size.y; ++y)
 			for (uint32_t x = 0; x < tilemap->map_size.x; ++x)
 			{
@@ -268,10 +271,13 @@ private:
 					new plant_t(pos);
 					break;
 				case HERBICIDE_ID:
-					new herbicide_t(game->num_loop_in_state, pos);
+					new herbicide_t(game, pos);
 					break;
 				case KEY_ID:
 					new station_key_t(pos);
+					break;
+				case VINE_ID:
+					new vine_t(game, pos);
 					break;
 				default:
 					if (id != 0)
