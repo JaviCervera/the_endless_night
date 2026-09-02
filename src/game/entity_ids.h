@@ -11,6 +11,7 @@
 #define STATION_DOOR_ID 19
 #define PLANT_ID 20
 #define HERBICIDE_ID 21
+#define WORKSHOP_DOOR_ID 23
 #define KEY_ID 24
 #define TREE_NOTE_ID 25
 
@@ -25,5 +26,6 @@
 #define STATION_DOOR_NAME "station_door"
 #define PLANT_NAME "plant"
 #define HERBICIDE_NAME "herbicide"
+#define WORKSHOP_DOOR_NAME "workshop_door"
 #define KEY_NAME "key"
 #define TREE_NOTE_NAME "tree_note"

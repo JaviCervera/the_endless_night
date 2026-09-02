@@ -28,6 +28,7 @@
 #include "station_key.h"
 #include "vine.h"
 #include "tree_note.h"
+#include "workshop_door.h"
 
 #define LOOP_FRAMES 300
 #define TARGET_FPS 10
@@ -287,6 +288,9 @@ private:
 					break;
 				case TREE_NOTE_ID:
 					new tree_note_t(game, pos);
+					break;
+				case WORKSHOP_DOOR_ID:
+					new workshop_door_t(game, pos);
 					break;
 				default:
 					if (id != 0)
