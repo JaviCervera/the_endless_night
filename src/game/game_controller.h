@@ -233,6 +233,23 @@ struct game_controller_t : public controller_t
 		}
 	}
 
+	void pause_humming()
+	{
+		if (*humming_voice >= 0)
+		{
+			voice_stop(*humming_voice);
+			*humming_voice = -1;
+		}
+	}
+
+	void resume_humming()
+	{
+		if (humming_sound)
+		{
+			*humming_voice = play_sample(humming_sound, 64, 128, humming_sound->freq, 1);
+		}
+	}
+
 private:
 	int loop_elapsed_ticks()
 	{

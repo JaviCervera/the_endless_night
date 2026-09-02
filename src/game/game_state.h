@@ -9,7 +9,10 @@ struct game_state_t
 		PHASE_INTRO = 0,
 		PHASE_PLAYING = 1,
 		PHASE_FINISHING = 2,
+		PHASE_WORKSHOP_MINIGAME = 3,
 	};
+
+	static constexpr int TARGET_FPS = 10;
 
 	bool player_blocked = false;
 	bool herbicide_held = false;
@@ -19,7 +22,13 @@ struct game_state_t
 	bool tree_note_read = false;
 
 	clock_t loop_start_clock = 0;
+	int saved_elapsed_ticks = 0;
 	int num_loop = 1;
 
 	int phase = PHASE_INTRO;
+
+	int elapsed_ticks() const
+	{
+		return int((clock() - loop_start_clock) * TARGET_FPS / CLOCKS_PER_SEC);
+	}
 };

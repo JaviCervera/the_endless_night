@@ -17,10 +17,12 @@ struct workshop_door_t : public actionable_t
 	{
 		if (!game->tree_note_read)
 		{
-			dialog_lines.push_back("I don't know the code to the door");
+			dialog_lines.push_back("I don't know the code");
 			return;
 		}
-		dialog_lines.push_back("1982! What a year!");
+
+		game->saved_elapsed_ticks = game->elapsed_ticks();
+		game->phase = game_state_t::PHASE_WORKSHOP_MINIGAME;
 	}
 
 private:

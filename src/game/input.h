@@ -8,6 +8,7 @@ struct input_t
 	int8_t forward = 0;
 	int8_t turn = 0;
 	bool action = false; // Edge-triggered: true only on the frame space is first pressed
+	bool exit_minigame = false; // Edge-triggered: true only on the frame X is first pressed
 };
 
 input_t input_calculate()
@@ -26,6 +27,11 @@ input_t input_calculate()
 	const bool space = screen_key(SCREEN_KEY_SPACE);
 	input.action = space && !prev_space;
 	prev_space = space;
+
+	static bool prev_x = false;
+	const bool x_key = screen_key(SCREEN_KEY_X);
+	input.exit_minigame = x_key && !prev_x;
+	prev_x = x_key;
 
 	return input;
 }

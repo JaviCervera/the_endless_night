@@ -86,6 +86,8 @@ bool screen_key(int key_code)
 		return key[KEY_RIGHT] != 0;
 	case SCREEN_KEY_SPACE:
 		return key[KEY_SPACE] != 0;
+	case SCREEN_KEY_X:
+		return key[KEY_X] != 0;
 	default:
 		return false;
 	}
