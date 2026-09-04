@@ -23,7 +23,7 @@ struct tree_note_t : public actionable_t
 		}
 
 		game->tree_note_read = true;
-		dialog_lines.push_back("\"I keep forgetting the access code the the workshop. I better write it down: 1982 - Ted the mechanic\"");
+		dialog_lines.push_back("\"I keep forgetting the access code to the workshop. I better write it down: 1982 - Ted the mechanic\"");
 	}
 
 private:

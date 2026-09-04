@@ -65,8 +65,52 @@ struct game_controller_t : public controller_t
 	bool started = false;
 	int finish_ticks = 0;
 
+	enum minigame_fade_state_t { FADE_NONE, FADE_OUT_TO_MINIGAME, FADE_IN_FROM_MINIGAME };
+	minigame_fade_state_t minigame_fade_state = FADE_NONE;
+
 	void update(const input_t &input) override
 	{
+		// Handle fade OUT to minigame
+		if (game->request_workshop_minigame && minigame_fade_state == FADE_NONE)
+		{
+			pal_start_fade(0, 0, 0, 4);
+			pause_humming();
+			minigame_fade_state = FADE_OUT_TO_MINIGAME;
+			game->request_workshop_minigame = false;
+		}
+
+		if (minigame_fade_state == FADE_OUT_TO_MINIGAME)
+		{
+			pal_update_fade();
+			if (!pal_fade_active())
+			{
+				game->phase = game_state_t::PHASE_WORKSHOP_MINIGAME;
+				minigame_fade_state = FADE_NONE;
+			}
+		}
+
+		// Handle fade IN from minigame
+		if (game->returning_from_workshop_minigame && minigame_fade_state == FADE_NONE)
+		{
+			pal_start_fade(100, 100, 100, 4);
+			resume_humming();
+			minigame_fade_state = FADE_IN_FROM_MINIGAME;
+			game->returning_from_workshop_minigame = false;
+		}
+
+		if (minigame_fade_state == FADE_IN_FROM_MINIGAME)
+		{
+			pal_update_fade();
+			if (!pal_fade_active())
+			{
+				minigame_fade_state = FADE_NONE;
+			}
+		}
+
+		// Safety: never render raycaster in minigame phase
+		if (game->phase == game_state_t::PHASE_WORKSHOP_MINIGAME)
+			return;
+
 		if (!started)
 		{
 			entity_t::clear_all();
@@ -79,9 +123,9 @@ struct game_controller_t : public controller_t
 			started = true;
 		}
 
-		if (game->phase == game_state_t::PHASE_PLAYING)
-		{
-			player->update(input, *game);
+if (game->phase == game_state_t::PHASE_PLAYING)
+	{
+		player->update(input, *game);
 			entity_t::update_all();
 
 			auto activated = action_text->update(player->cam.pos, input, *game);

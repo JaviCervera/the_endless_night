@@ -27,6 +27,10 @@ struct game_state_t
 
 	int phase = PHASE_INTRO;
 
+	// Minigame transition signals
+	bool request_workshop_minigame = false;
+	bool returning_from_workshop_minigame = false;
+
 	int elapsed_ticks() const
 	{
 		return int((clock() - loop_start_clock) * TARGET_FPS / CLOCKS_PER_SEC);

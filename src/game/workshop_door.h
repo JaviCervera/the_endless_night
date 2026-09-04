@@ -22,7 +22,7 @@ struct workshop_door_t : public actionable_t
 		}
 
 		game->saved_elapsed_ticks = game->elapsed_ticks();
-		game->phase = game_state_t::PHASE_WORKSHOP_MINIGAME;
+		game->request_workshop_minigame = true;
 	}
 
 private:

@@ -89,9 +89,9 @@ int main()
 	game_state_t game;
 	intro_controller_t intro{&game, &backbuffer};
 	game_controller_t game_ctrl{&game, &backbuffer, &player, &banner, &action_text,
-															&raycaster, &tilemap, &fpg, VIEWPORT,
-															footsteps_sound, humming_sound,
-															&footsteps_voice, &humming_voice};
+														&raycaster, &tilemap, &fpg, VIEWPORT,
+														footsteps_sound, humming_sound,
+														&footsteps_voice, &humming_voice};
 	workshop_minigame_controller_t workshop_minigame{&game, &backbuffer};
 	controller_t *current_controller = &intro;
 
@@ -108,15 +108,12 @@ int main()
 		}
 		else if (game.phase == game_state_t::PHASE_WORKSHOP_MINIGAME && current_controller != &workshop_minigame)
 		{
-			game_ctrl.pause_humming();
 			current_controller = &workshop_minigame;
 		}
 		else if (game.phase != game_state_t::PHASE_INTRO
 				 && game.phase != game_state_t::PHASE_WORKSHOP_MINIGAME
 				 && current_controller != &game_ctrl)
 		{
-			if (current_controller == &workshop_minigame)
-				game_ctrl.resume_humming();
 			current_controller = &game_ctrl;
 		}
 	}
