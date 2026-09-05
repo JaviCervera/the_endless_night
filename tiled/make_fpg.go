@@ -8,8 +8,10 @@ import (
 	"image/draw"
 	"image/jpeg"
 	"image/png"
+	"math"
 	"os"
 	"path/filepath"
+	"regexp"
 	"runtime"
 	"sort"
 	"strings"
@@ -30,13 +32,8 @@ func main() {
 	_, srcFile, _, _ := runtime.Caller(0)
 	scriptDir := filepath.Dir(srcFile)
 	palettePath := filepath.Join(scriptDir, "..", "assets", "div.pal")
-	outputPath := filepath.Join(scriptDir, "..", "assets", "town.fpg")
-
-	files, err := collectTileFiles(scriptDir)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error finding source tiles: %v\n", err)
-		os.Exit(1)
-	}
+	townOutputPath := filepath.Join(scriptDir, "..", "assets", "town.fpg")
+	workshopOutputPath := filepath.Join(scriptDir, "..", "assets", "workshop.fpg")
 
 	pal, err := loadPalette(palettePath)
 	if err != nil {
@@ -44,27 +41,39 @@ func main() {
 		os.Exit(1)
 	}
 
-	images := make([]sourceImage, 0, len(files))
-	for i, name := range files {
-		src, err := loadImage(filepath.Join(scriptDir, name))
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error loading %s: %v\n", name, err)
-			os.Exit(1)
-		}
-
-		images = append(images, sourceImage{
-			name: name,
-			data: src,
-		})
-		fmt.Printf("  [%2d/%d] %s\n", i+1, len(files), name)
-	}
-
-	if err := writeFPG(outputPath, pal, images); err != nil {
-		fmt.Fprintf(os.Stderr, "Error writing %s: %v\n", outputPath, err)
+	// Generate town.fpg
+	townFiles, err := collectTileFiles(scriptDir)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error finding town tiles: %v\n", err)
 		os.Exit(1)
 	}
 
-	fmt.Printf("\nSaved %s\n", outputPath)
+	townImages := loadAndProcessImages(townFiles, scriptDir, pal, false)
+	if err := writeFPG(townOutputPath, pal, townImages); err != nil {
+		fmt.Fprintf(os.Stderr, "Error writing %s: %v\n", townOutputPath, err)
+		os.Exit(1)
+	}
+	fmt.Printf("\nSaved %s\n", townOutputPath)
+
+	// Generate workshop.fpg
+	compFiles, err := collectCompFiles(scriptDir)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error finding comp tiles: %v\n", err)
+		os.Exit(1)
+	}
+
+	workshopImages := loadAndProcessImages(compFiles, scriptDir, pal, true)
+	if err := writeFPG(workshopOutputPath, pal, workshopImages); err != nil {
+		fmt.Fprintf(os.Stderr, "Error writing %s: %v\n", workshopOutputPath, err)
+		os.Exit(1)
+	}
+	fmt.Printf("\nSaved %s\n", workshopOutputPath)
+}
+
+func isNumericFilename(name string) bool {
+	base := strings.TrimSuffix(name, filepath.Ext(name))
+	matched, _ := regexp.MatchString(`^\d+$`, base)
+	return matched
 }
 
 func collectTileFiles(dir string) ([]string, error) {
@@ -80,7 +89,7 @@ func collectTileFiles(dir string) ([]string, error) {
 		}
 		name := entry.Name()
 		lower := strings.ToLower(name)
-		if lower == "tiles.png" {
+		if !isNumericFilename(name) {
 			continue
 		}
 		if strings.HasSuffix(lower, ".jpg") || strings.HasSuffix(lower, ".jpeg") || strings.HasSuffix(lower, ".png") {
@@ -93,6 +102,86 @@ func collectTileFiles(dir string) ([]string, error) {
 		return nil, fmt.Errorf("no .jpg/.png tile images found")
 	}
 	return files, nil
+}
+
+func collectCompFiles(dir string) ([]string, error) {
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		return nil, err
+	}
+
+	var files []string
+	for _, entry := range entries {
+		if entry.IsDir() {
+			continue
+		}
+		name := entry.Name()
+		lower := strings.ToLower(name)
+		if !strings.HasPrefix(lower, "comp_") {
+			continue
+		}
+		if strings.HasSuffix(lower, ".jpg") || strings.HasSuffix(lower, ".jpeg") || strings.HasSuffix(lower, ".png") {
+			files = append(files, name)
+		}
+	}
+
+	sort.Strings(files)
+	return files, nil
+}
+
+func resizeTo32x32(src *image.NRGBA) *image.NRGBA {
+	const targetW = 32
+	const targetH = 32
+	srcW := src.Bounds().Dx()
+	srcH := src.Bounds().Dy()
+	dst := image.NewNRGBA(image.Rect(0, 0, targetW, targetH))
+
+	for y := 0; y < targetH; y++ {
+		for x := 0; x < targetW; x++ {
+			sx := (float64(x)+0.5)*float64(srcW)/float64(targetW) - 0.5
+			sy := (float64(y)+0.5)*float64(srcH)/float64(targetH) - 0.5
+
+			x0 := int(math.Floor(sx))
+			y0 := int(math.Floor(sy))
+			fx := sx - float64(x0)
+			fy := sy - float64(y0)
+
+			c00 := src.NRGBAAt(clamp(x0, 0, srcW-1), clamp(y0, 0, srcH-1))
+			c10 := src.NRGBAAt(clamp(x0+1, 0, srcW-1), clamp(y0, 0, srcH-1))
+			c01 := src.NRGBAAt(clamp(x0, 0, srcW-1), clamp(y0+1, 0, srcH-1))
+			c11 := src.NRGBAAt(clamp(x0+1, 0, srcW-1), clamp(y0+1, 0, srcH-1))
+
+			dst.SetNRGBA(x, y, color.NRGBA{
+				R: uint8(bilerp(float64(c00.R), float64(c10.R), float64(c01.R), float64(c11.R), fx, fy)),
+				G: uint8(bilerp(float64(c00.G), float64(c10.G), float64(c01.G), float64(c11.G), fx, fy)),
+				B: uint8(bilerp(float64(c00.B), float64(c10.B), float64(c01.B), float64(c11.B), fx, fy)),
+				A: uint8(bilerp(float64(c00.A), float64(c10.A), float64(c01.A), float64(c11.A), fx, fy)),
+			})
+		}
+	}
+	return dst
+}
+
+func loadAndProcessImages(files []string, dir string, pal palette, resize bool) []sourceImage {
+	images := make([]sourceImage, 0, len(files))
+	for i, name := range files {
+		src, err := loadImage(filepath.Join(dir, name))
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error loading %s: %v\n", name, err)
+			os.Exit(1)
+		}
+
+		if resize {
+			src = resizeTo32x32(src)
+		}
+
+		images = append(images, sourceImage{
+			name: name,
+			data: src,
+		})
+		fmt.Printf("  [%2d/%d] %s\n", i+1, len(files), name)
+	}
+	return images
 }
 
 func loadPalette(path string) (palette, error) {
@@ -234,5 +323,19 @@ func makeCString(value string, size int) []byte {
 	buf := make([]byte, size)
 	copy(buf, []byte(value))
 	return buf
+}
+
+func bilerp(c00, c10, c01, c11, fx, fy float64) float64 {
+	return (c00*(1-fx)+c10*fx)*(1-fy) + (c01*(1-fx)+c11*fx)*fy
+}
+
+func clamp(v, lo, hi int) int {
+	if v < lo {
+		return lo
+	}
+	if v > hi {
+		return hi
+	}
+	return v
 }
 

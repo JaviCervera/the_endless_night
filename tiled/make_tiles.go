@@ -10,6 +10,7 @@ import (
 	"math"
 	"os"
 	"path/filepath"
+	"regexp"
 	"runtime"
 	"sort"
 	"strings"
@@ -22,6 +23,12 @@ const (
 	rows     = 4
 	maxTiles = cols * rows
 )
+
+func isNumericFilename(name string) bool {
+	base := strings.TrimSuffix(name, filepath.Ext(name))
+	matched, _ := regexp.MatchString(`^\d+$`, base)
+	return matched
+}
 
 func main() {
 	_, srcFile, _, _ := runtime.Caller(0)
@@ -40,7 +47,7 @@ func main() {
 		}
 		name := e.Name()
 		lower := strings.ToLower(name)
-		if lower == "tiles.png" {
+		if !isNumericFilename(name) {
 			continue
 		}
 		if strings.HasSuffix(lower, ".jpg") || strings.HasSuffix(lower, ".jpeg") || strings.HasSuffix(lower, ".png") {
