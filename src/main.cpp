@@ -108,6 +108,7 @@ int main()
 		}
 		else if (game.phase == game_state_t::PHASE_WORKSHOP_MINIGAME && current_controller != &workshop_minigame)
 		{
+			workshop_minigame.reset();
 			current_controller = &workshop_minigame;
 		}
 		else if (game.phase != game_state_t::PHASE_INTRO
