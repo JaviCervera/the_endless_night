@@ -21,6 +21,12 @@ struct workshop_door_t : public actionable_t
 			return;
 		}
 
+		if (game->workshop_completed)
+		{
+			dialog_lines.push_back("I already have the power generator");
+			return;
+		}
+
 		game->saved_elapsed_ticks = game->elapsed_ticks();
 		game->request_workshop_minigame = true;
 	}

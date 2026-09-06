@@ -20,6 +20,7 @@ struct game_state_t
 	bool station_key_held = false;
 	bool station_door_opened = false;
 	bool tree_note_read = false;
+	bool workshop_completed = false;
 
 	clock_t loop_start_clock = 0;
 	int saved_elapsed_ticks = 0;

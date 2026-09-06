@@ -118,6 +118,7 @@ struct workshop_minigame_controller_t : public controller_t
 
 			if (game_won)
 			{
+				game->workshop_completed = true;
 				pal_start_fade(0, 0, 0, 4);
 				state = FADE_OUT;
 			}

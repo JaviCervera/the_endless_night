@@ -18,7 +18,7 @@ struct tree_note_t : public actionable_t
 	{
 		if (game->tree_note_read)
 		{
-			dialog_lines.push_back("I have good memory; I remember the code for the workshop is 1982");
+			dialog_lines.push_back("The code for the workshop door is \"1982\"");
 			return;
 		}
 
