@@ -79,6 +79,7 @@ struct workshop_minigame_controller_t : public controller_t
 			if (!pal_update_fade())
 			{
 				game->loop_start_clock = clock() - (clock_t)(game->saved_elapsed_ticks * CLOCKS_PER_SEC / 10);
+				game->workshop_minigame_won = game_won;
 				game->returning_from_workshop_minigame = true;
 				game->phase = game_state_t::PHASE_PLAYING;
 				state = FADE_IN;

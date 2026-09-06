@@ -30,6 +30,7 @@ struct game_state_t
 	// Minigame transition signals
 	bool request_workshop_minigame = false;
 	bool returning_from_workshop_minigame = false;
+	bool workshop_minigame_won = false;
 
 	int elapsed_ticks() const
 	{

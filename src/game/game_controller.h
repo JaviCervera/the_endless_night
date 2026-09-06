@@ -103,6 +103,12 @@ struct game_controller_t : public controller_t
 			pal_update_fade();
 			if (!pal_fade_active())
 			{
+				if (game->workshop_minigame_won)
+					banner->show("I got a power generator!");
+				else
+					banner->show("I should have paid more attention at school");
+				game->workshop_minigame_won = false;
+				
 				minigame_fade_state = FADE_NONE;
 			}
 		}
