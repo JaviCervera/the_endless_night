@@ -8,6 +8,7 @@
 #define PLAYER_ID 10
 #define VINE_ID 12
 #define GENERATOR_ID 13
+#define RADIO_STATION_ID 15
 #define STATION_DOOR_ID 19
 #define PLANT_ID 20
 #define HERBICIDE_ID 21
@@ -23,6 +24,7 @@
 #define PLAYER_NAME "player"
 #define VINE_NAME "vine"
 #define GENERATOR_NAME "generator"
+#define RADIO_STATION_NAME "radio_station"
 #define STATION_DOOR_NAME "station_door"
 #define PLANT_NAME "plant"
 #define HERBICIDE_NAME "herbicide"
