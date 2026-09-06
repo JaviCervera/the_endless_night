@@ -21,7 +21,13 @@ struct workshop_door_t : public actionable_t
 			return;
 		}
 
-		if (game->workshop_completed)
+		if (game->carried_generator != game_state_t::CARRIED_NONE)
+		{
+			dialog_lines.push_back("I am already carrying a generator");
+			return;
+		}
+
+		if (game->generator_placed[2])
 		{
 			dialog_lines.push_back("I already have the power generator");
 			return;

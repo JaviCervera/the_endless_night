@@ -14,6 +14,13 @@ struct game_state_t
 
 	static constexpr int TARGET_FPS = 10;
 
+	enum carried_generator_t { CARRIED_NONE = -1, CARRIED_GENERATOR_T = 0, CARRIED_RADIO = 1, CARRIED_WORKSHOP = 2 };
+	carried_generator_t carried_generator = CARRIED_NONE;
+
+	bool generator_placed[3] = {false, false, false};
+	int tower_generator[4] = {-1, -1, -1, -1};
+	int num_generators_placed = 0;
+
 	bool player_blocked = false;
 	bool herbicide_held = false;
 	bool vines_cleared = false;

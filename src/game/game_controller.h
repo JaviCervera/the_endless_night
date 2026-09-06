@@ -313,6 +313,14 @@ private:
 		game->herbicide_held = false;
 		game->station_key_held = false;
 
+		game->carried_generator = game_state_t::CARRIED_NONE;
+		if (!game->generator_placed[1])
+			radio_station_t::reset_picked();
+		if (!game->generator_placed[2])
+			game->workshop_completed = false;
+
+		int power_tower_count = 0;
+
 		for (uint32_t y = 0; y < tilemap->map_size.y; ++y)
 			for (uint32_t x = 0; x < tilemap->map_size.x; ++x)
 			{
@@ -335,7 +343,8 @@ private:
 					new crowbar_t(*player, pos);
 					break;
 				case GENERATOR_ID:
-					new generator_t(*player, pos);
+					if (!game->generator_placed[0])
+						new generator_t(*player, pos, game);
 					break;
 				case BARN_DOOR_ID:
 					new barn_door_t(game, tilemap, raycaster, x, y);
@@ -356,10 +365,10 @@ private:
 					new vine_t(game, pos);
 					break;
 				case RADIO_STATION_ID:
-					new radio_station_t(pos);
+					new radio_station_t(pos, game);
 					break;
 				case POWER_TOWER_ID:
-					new power_tower_t(pos);
+					new power_tower_t(pos, power_tower_count++, game);
 					break;
 				case TREE_NOTE_ID:
 					new tree_note_t(game, pos);
