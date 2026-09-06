@@ -30,6 +30,7 @@
 #include "tree_note.h"
 #include "workshop_door.h"
 #include "radio_station.h"
+#include "power_tower.h"
 
 #define LOOP_FRAMES 300
 #define TARGET_FPS 10
@@ -109,7 +110,7 @@ struct game_controller_t : public controller_t
 				else
 					banner->show("I should have paid more attention at school");
 				game->workshop_minigame_won = false;
-				
+
 				minigame_fade_state = FADE_NONE;
 			}
 		}
@@ -356,6 +357,9 @@ private:
 					break;
 				case RADIO_STATION_ID:
 					new radio_station_t(pos);
+					break;
+				case POWER_TOWER_ID:
+					new power_tower_t(pos);
 					break;
 				case TREE_NOTE_ID:
 					new tree_note_t(game, pos);
