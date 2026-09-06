@@ -32,11 +32,17 @@ int main()
 		return -1;
 	}
 
-	const fpg_t fpg = fpg_t::load("assets/town.fpg");
+	const fpg_t fpg = fpg_t::load("assets/town.fpg", true);
 	if (fpg.num_maps() == 0)
 	{
 		std::cout << "Can't load fpg" << std::endl;
 		return -1;
+	}
+
+	const fpg_t workshop_fpg = fpg_t::load("assets/workshop.fpg", false);
+	if (workshop_fpg.num_maps() < 8)
+	{
+		std::cout << "Warning: workshop.fpg missing sprites" << std::endl;
 	}
 
 	auto tilemap = load_tilemap("assets/town.tma");
@@ -92,7 +98,7 @@ int main()
 														&raycaster, &tilemap, &fpg, VIEWPORT,
 														footsteps_sound, humming_sound,
 														&footsteps_voice, &humming_voice};
-	workshop_minigame_controller_t workshop_minigame{&game, &backbuffer};
+	workshop_minigame_controller_t workshop_minigame{&game, &backbuffer, &workshop_fpg};
 	controller_t *current_controller = &intro;
 
 	while (screen_update(backbuffer))

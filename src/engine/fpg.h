@@ -7,7 +7,7 @@
 
 struct fpg_t
 {
-	static fpg_t load(const char *filename);
+	static fpg_t load(const char *filename, bool column_cache);
 	size_t num_maps() const;
 	const pixmap_t *map(size_t index) const;
 
@@ -15,7 +15,7 @@ private:
 	std::vector<pixmap_t> m_maps;
 };
 
-inline fpg_t fpg_t::load(const char *filename)
+inline fpg_t fpg_t::load(const char *filename, bool column_cache)
 {
 	auto fpg = fpg_t{};
 	auto input = std::ifstream{filename, std::ios::binary};
@@ -62,7 +62,8 @@ inline fpg_t fpg_t::load(const char *filename)
 					pixmap.pixel(uvec2_t(x, y), color);
 				}
 			}
-			pixmap.build_col_cache();
+			if (column_cache)
+				pixmap.build_col_cache();
 			fpg.m_maps.push_back(std::move(pixmap));
 		}
 	}

@@ -4,6 +4,7 @@
 #include "game_state.h"
 #include "../engine/pixmap.h"
 #include "../engine/pal.h"
+#include "../engine/fpg.h"
 #include <cstdlib>
 #include <cstdio>
 #include <cstring>
@@ -12,13 +13,14 @@ struct workshop_minigame_controller_t : public controller_t
 {
 	enum state_t { FADE_IN, RUNNING, FADE_OUT };
 
-	workshop_minigame_controller_t(game_state_t *game, pixmap_t *backbuffer)
-			: game{game}, backbuffer{backbuffer}, state{FADE_IN}
+	workshop_minigame_controller_t(game_state_t *game, pixmap_t *backbuffer, const fpg_t *workshop_fpg)
+			: game{game}, backbuffer{backbuffer}, workshop_fpg{workshop_fpg}, state{FADE_IN}
 	{
 	}
 
 	game_state_t *game;
 	pixmap_t *backbuffer;
+	const fpg_t *workshop_fpg;
 	state_t state;
 
 	// Minigame data
@@ -33,8 +35,6 @@ struct workshop_minigame_controller_t : public controller_t
 	bool game_won = false;
 	bool minigame_started = false;
 	bool piece_available[8] = {true, true, true, true, true, true, true, true};
-
-	static constexpr const char* piece_names[8] = {"A","B","C","D","E","F","G","H"};
 
 	void reset()
 	{
@@ -70,7 +70,7 @@ struct workshop_minigame_controller_t : public controller_t
 		{
 			if (!pal_fade_active())
 				pal_start_fade(100, 100, 100, 4);
-			
+
 			if (!pal_update_fade())
 				state = RUNNING;
 		}
@@ -151,7 +151,7 @@ private:
 		game_won = false;
 	}
 
-void place_piece()
+	void place_piece()
 	{
 		if (column_heights[current_column] >= 3) return;
 		if (!piece_available[cursor_pos]) return;
@@ -215,7 +215,7 @@ void place_piece()
 		return correct;
 	}
 
-	void render_minigame()
+  void render_minigame()
 	{
 		backbuffer->fill(0);
 
@@ -225,51 +225,56 @@ void place_piece()
 		char timer_str[16];
 		std::snprintf(timer_str, sizeof(timer_str), "%02d:%02d", minutes, seconds);
 		int timer_x = (320 - text_length(font, timer_str)) / 2;
-		backbuffer->text(timer_str, {static_cast<uint32_t>(timer_x), 4}, 15);
+		backbuffer->text(timer_str, uvec2_t(static_cast<uint32_t>(timer_x), 4u), 15);
 
-		// Columns: up to 8 columns, each showing pieces as they are placed + score when complete
-		const int col_x_start = 40;
-		const int col_x_spacing = 30;
+		// Layout constants
+		const int margin = 8;
+		const int col_width = 38;
+		const int col_x_start = margin + col_width / 2;
 		const int col_y_start = 20;
+		const int sprite_size = 32;
+		const int bottom_y = 160;
 
-		// Render up to current_column (inclusive), max 8
+		// Render columns
 		int max_col = current_column < 8 ? current_column + 1 : 8;
 		for (int c = 0; c < max_col; ++c)
 		{
-			int x = col_x_start + c * col_x_spacing;
-			// Completed columns show all 3 pieces; active column shows pieces placed so far
+			int x = col_x_start + c * col_width - sprite_size / 2;
 			int max_row = (c < num_columns) ? 3 : column_heights[c];
-			
+
 			for (int r = 0; r < max_row; ++r)
 			{
 				uint8_t piece = columns[c][r];
-				backbuffer->text(piece_names[piece],
-					{static_cast<uint32_t>(x), static_cast<uint32_t>(col_y_start + r * 10)}, 15);
+				const pixmap_t *spr = workshop_fpg->map(piece);
+				if (spr)
+					backbuffer->blit(*spr, ivec2_t(static_cast<int32_t>(x), static_cast<int32_t>(col_y_start + r * sprite_size)));
 			}
-			
-			// Score ONLY for completed columns (below the 3 pieces)
+
+			// Score for completed columns
 			if (c < num_columns)
 			{
 				char score_str[4];
 				std::snprintf(score_str, sizeof(score_str), "%d", column_scores[c]);
-				backbuffer->text(score_str,
-					{static_cast<uint32_t>(x), static_cast<uint32_t>(col_y_start + 35)}, 15);
+				int score_x = col_x_start + c * col_width - text_length(font, score_str) / 2;
+				backbuffer->text(score_str, uvec2_t(static_cast<uint32_t>(score_x), static_cast<uint32_t>(col_y_start + 3 * sprite_size + 8)), 15);
 			}
 		}
 
-		// Bottom row: 8 pieces A-H (only available ones)
-		const int bottom_y = 160;
-		const int bottom_x_start = 40;
+		// Bottom row: available pieces
 		for (int i = 0; i < 8; ++i)
 		{
 			if (piece_available[i])
 			{
-				backbuffer->text(piece_names[i],
-					{static_cast<uint32_t>(bottom_x_start + i * 20), static_cast<uint32_t>(bottom_y)}, 15);
+				int x = col_x_start + i * col_width - sprite_size / 2;
+				const pixmap_t *spr = workshop_fpg->map(i);
+				if (spr)
+					backbuffer->blit(*spr, ivec2_t(static_cast<int32_t>(x), static_cast<int32_t>(bottom_y)));
 			}
 		}
+
 		// Cursor ^ under selected piece (yellow)
-		backbuffer->text("^",
-			{static_cast<uint32_t>(bottom_x_start + cursor_pos * 20), static_cast<uint32_t>(bottom_y + 10)}, 14);
+		int cursor_x = col_x_start + cursor_pos * col_width;
+		int cursor_y = bottom_y + sprite_size + 4;
+		backbuffer->text("^", uvec2_t(static_cast<uint32_t>(cursor_x - 4), static_cast<uint32_t>(cursor_y)), 14);
 	}
 };
