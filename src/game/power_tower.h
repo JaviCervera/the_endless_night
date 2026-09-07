@@ -14,9 +14,15 @@ struct power_tower_t : public actionable_t
 
 	void on_action_pressed() override
 	{
+		if (game->tower_generator[tower_index] != -1)
+		{
+			dialog_lines.push_back("This tower already has a generator");
+			return;
+		}
+
 		if (game->carried_generator == game_state_t::CARRIED_NONE)
 		{
-			if (game->num_generators_placed == 3 && game->tower_generator[tower_index] == -1)
+			if (game->num_generators_placed == 3)
 			{
 				dialog_lines.push_back("PLACEHOLDER: Last minigame");
 			}
@@ -24,12 +30,6 @@ struct power_tower_t : public actionable_t
 			{
 				dialog_lines.push_back("I need a power generator");
 			}
-			return;
-		}
-
-		if (game->tower_generator[tower_index] != -1)
-		{
-			dialog_lines.push_back("This tower already has a generator");
 			return;
 		}
 
