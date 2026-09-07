@@ -15,6 +15,7 @@
 #include "game/intro_controller.h"
 #include "game/game_controller.h"
 #include "game/workshop_minigame_controller.h"
+#include "game/tower_minigame_controller.h"
 
 #define SCREEN_WIDTH 320
 #define SCREEN_HEIGHT 200
@@ -99,6 +100,7 @@ int main()
 														footsteps_sound, humming_sound,
 														&footsteps_voice, &humming_voice};
 	workshop_minigame_controller_t workshop_minigame{&game, &backbuffer, &workshop_fpg};
+	tower_minigame_controller_t tower_minigame{&game, &backbuffer};
 	controller_t *current_controller = &intro;
 
 	while (screen_update(backbuffer))
@@ -117,8 +119,13 @@ int main()
 			workshop_minigame.reset();
 			current_controller = &workshop_minigame;
 		}
+		else if (game.phase == game_state_t::PHASE_TOWER_MINIGAME && current_controller != &tower_minigame)
+		{
+			current_controller = &tower_minigame;
+		}
 		else if (game.phase != game_state_t::PHASE_INTRO
 				 && game.phase != game_state_t::PHASE_WORKSHOP_MINIGAME
+				 && game.phase != game_state_t::PHASE_TOWER_MINIGAME
 				 && current_controller != &game_ctrl)
 		{
 			current_controller = &game_ctrl;

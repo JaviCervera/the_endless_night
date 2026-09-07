@@ -10,6 +10,7 @@ struct game_state_t
 		PHASE_PLAYING = 1,
 		PHASE_FINISHING = 2,
 		PHASE_WORKSHOP_MINIGAME = 3,
+		PHASE_TOWER_MINIGAME = 4,
 	};
 
 	static constexpr int TARGET_FPS = 10;
@@ -39,6 +40,8 @@ struct game_state_t
 	bool request_workshop_minigame = false;
 	bool returning_from_workshop_minigame = false;
 	bool workshop_minigame_won = false;
+	bool request_tower_minigame = false;
+	bool returning_from_tower_minigame = false;
 
 	int elapsed_ticks() const
 	{

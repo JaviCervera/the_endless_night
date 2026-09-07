@@ -24,7 +24,9 @@ struct power_tower_t : public actionable_t
 		{
 			if (game->num_generators_placed == 3)
 			{
-				dialog_lines.push_back("PLACEHOLDER: Last minigame");
+				game->saved_elapsed_ticks = game->elapsed_ticks();
+				game->request_tower_minigame = true;
+				return;
 			}
 			else
 			{
