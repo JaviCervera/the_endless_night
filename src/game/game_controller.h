@@ -192,29 +192,8 @@ if (game->phase == game_state_t::PHASE_PLAYING)
 
 			banner->update();
 
-			bool moving = !game->player_blocked && input.forward != 0;
-			if (moving && footsteps_sound)
-			{
-				if (*footsteps_voice < 0 || !voice_check(*footsteps_voice))
-					*footsteps_voice = play_sample(footsteps_sound, 255, 128, 1000, 0);
-			}
-			else if (!moving && *footsteps_voice >= 0)
-			{
-				voice_stop(*footsteps_voice);
-				*footsteps_voice = -1;
-			}
-
-			if (*humming_voice >= 0)
-			{
-				int remaining = LOOP_FRAMES - loop_elapsed_ticks();
-				int freq = humming_sound->freq;
-				if (remaining < 80)
-				{
-					int t = 80 - remaining;
-					freq = freq + t * (freq / 320);
-				}
-				voice_set_frequency(*humming_voice, freq);
-			}
+			update_footsteps(input);
+			update_humming();
 
 			raycaster->render(player->cam, *backbuffer, viewport);
 
@@ -240,29 +219,8 @@ if (game->phase == game_state_t::PHASE_PLAYING)
 
 			player->update(input, *game);
 
-			bool moving = !game->player_blocked && input.forward != 0;
-			if (moving && footsteps_sound)
-			{
-				if (*footsteps_voice < 0 || !voice_check(*footsteps_voice))
-					*footsteps_voice = play_sample(footsteps_sound, 255, 128, 1000, 0);
-			}
-			else if (!moving && *footsteps_voice >= 0)
-			{
-				voice_stop(*footsteps_voice);
-				*footsteps_voice = -1;
-			}
-
-			if (*humming_voice >= 0)
-			{
-				int remaining = LOOP_FRAMES - loop_elapsed_ticks();
-				int freq = humming_sound->freq;
-				if (remaining < 80)
-				{
-					int t = 80 - remaining;
-					freq = freq + t * (freq / 320);
-				}
-				voice_set_frequency(*humming_voice, freq);
-			}
+			update_footsteps(input);
+			update_humming();
 
 			raycaster->render(player->cam, *backbuffer, viewport);
 
@@ -277,16 +235,8 @@ if (game->phase == game_state_t::PHASE_PLAYING)
 
 				pal_set_fade(100, 100, 100);
 
-				if (*footsteps_voice >= 0)
-				{
-					voice_stop(*footsteps_voice);
-					*footsteps_voice = -1;
-				}
-				if (*humming_voice >= 0)
-				{
-					voice_stop(*humming_voice);
-					*humming_voice = -1;
-				}
+				stop_footsteps();
+				pause_humming();
 
 				game->num_loop++;
 				game->loop_start_clock = clock();
@@ -337,6 +287,44 @@ private:
 		backbuffer->rectfill({0u, 0u}, {bs.x, uint32_t(viewport.y - 2)}, 0);
 
 		compass.draw(*backbuffer, player->cam, viewport);
+	}
+
+	void update_footsteps(const input_t &input)
+	{
+		const bool moving = !game->player_blocked && input.forward != 0;
+		if (moving && footsteps_sound)
+		{
+			if (*footsteps_voice < 0 || !voice_check(*footsteps_voice))
+				*footsteps_voice = play_sample(footsteps_sound, 255, 128, 1000, 0);
+		}
+		else if (!moving)
+		{
+			stop_footsteps();
+		}
+	}
+
+	void stop_footsteps()
+	{
+		if (*footsteps_voice >= 0)
+		{
+			voice_stop(*footsteps_voice);
+			*footsteps_voice = -1;
+		}
+	}
+
+	void update_humming()
+	{
+		if (*humming_voice < 0)
+			return;
+
+		int remaining = LOOP_FRAMES - loop_elapsed_ticks();
+		int freq = humming_sound->freq;
+		if (remaining < 80)
+		{
+			int t = 80 - remaining;
+			freq = freq + t * (freq / 320);
+		}
+		voice_set_frequency(*humming_voice, freq);
 	}
 
 	void spawn_entities()

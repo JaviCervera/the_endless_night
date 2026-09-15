@@ -38,28 +38,7 @@ struct workshop_minigame_controller_t : public controller_t
 
 	void reset()
 	{
-		// Re-seed random for new solution
-		srand(static_cast<unsigned>(clock()));
-
-		uint8_t pool[8] = {0,1,2,3,4,5,6,7};
-		for (int i = 7; i > 0; --i)
-		{
-			int j = rand() % (i + 1);
-			std::swap(pool[i], pool[j]);
-		}
-		solution[0] = pool[0];
-		solution[1] = pool[1];
-		solution[2] = pool[2];
-
-		std::memset(columns, 0, sizeof(columns));
-		std::memset(column_heights, 0, sizeof(column_heights));
-		std::memset(column_scores, 0, sizeof(column_scores));
-		for (int i = 0; i < 8; ++i) piece_available[i] = true;
-		num_columns = 0;
-		current_column = 0;
-		cursor_pos = 0;
-		timer_ticks = 600;
-		game_won = false;
+		init_minigame();
 		minigame_started = false;
 		state = FADE_IN;
 	}
@@ -102,17 +81,9 @@ struct workshop_minigame_controller_t : public controller_t
 			}
 
 			if (input.menu_left)
-			{
-				int next = cursor_pos;
-				do { next = (next + 7) % 8; } while (!piece_available[next]);
-				cursor_pos = next;
-			}
+				cursor_pos = seek_available(cursor_pos, -1);
 			if (input.menu_right)
-			{
-				int next = cursor_pos;
-				do { next = (next + 1) % 8; } while (!piece_available[next]);
-				cursor_pos = next;
-			}
+				cursor_pos = seek_available(cursor_pos, 1);
 			if (input.action)
 				place_piece();
 
@@ -142,15 +113,33 @@ private:
 		solution[1] = pool[1];
 		solution[2] = pool[2];
 
-		std::memset(columns, 0, sizeof(columns));
-		std::memset(column_heights, 0, sizeof(column_heights));
-		std::memset(column_scores, 0, sizeof(column_scores));
-		for (int i = 0; i < 8; ++i) piece_available[i] = true;
+		clear_columns();
+		restore_pieces();
 		num_columns = 0;
 		current_column = 0;
 		cursor_pos = 0;
 		timer_ticks = 600;
 		game_won = false;
+	}
+
+	void clear_columns()
+	{
+		std::memset(columns, 0, sizeof(columns));
+		std::memset(column_heights, 0, sizeof(column_heights));
+		std::memset(column_scores, 0, sizeof(column_scores));
+	}
+
+	void restore_pieces()
+	{
+		for (int i = 0; i < 8; ++i)
+			piece_available[i] = true;
+	}
+
+	int seek_available(int from, int step)
+	{
+		int next = from;
+		do { next = (next + step + 8) % 8; } while (!piece_available[next]);
+		return next;
 	}
 
 	void place_piece()
@@ -175,28 +164,24 @@ private:
 			if (current_column >= 8)
 			{
 				// All 8 columns filled without win - clear everything and restart
-				std::memset(columns, 0, sizeof(columns));
-				std::memset(column_heights, 0, sizeof(column_heights));
-				std::memset(column_scores, 0, sizeof(column_scores));
+				clear_columns();
 				num_columns = 0;
 				current_column = 0;
 				// Restore all pieces (they were marked unavailable when placed in 8th column)
-				for (int i = 0; i < 8; ++i) piece_available[i] = true;
+				restore_pieces();
 			}
 			else
 			{
 				if (num_columns < 8)
 					num_columns++;
 				// Restore all pieces for next column
-				for (int i = 0; i < 8; ++i) piece_available[i] = true;
+				restore_pieces();
 			}
 		}
 		else
 		{
 			// 1st or 2nd piece: move cursor to next available
-			int next = cursor_pos;
-			do { next = (next + 1) % 8; } while (!piece_available[next]);
-			cursor_pos = next;
+			cursor_pos = seek_available(cursor_pos, 1);
 		}
 	}
 
