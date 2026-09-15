@@ -218,24 +218,7 @@ if (game->phase == game_state_t::PHASE_PLAYING)
 
 			raycaster->render(player->cam, *backbuffer, viewport);
 
-			{
-				int secs_left = (LOOP_FRAMES - loop_elapsed_ticks()) / TARGET_FPS;
-				if (secs_left < 0)
-					secs_left = 0;
-				char dbg[64];
-				std::snprintf(dbg, sizeof(dbg), "%d FPS", screen_current_fps());
-				backbuffer->text(dbg, {uint32_t(viewport.x + 4), uint32_t(viewport.y + 4)}, 15);
-				std::snprintf(dbg, sizeof(dbg), "%02d:%02d", secs_left / 60, secs_left % 60);
-				backbuffer->text(dbg, {uint32_t(viewport.x + 4), uint32_t(viewport.y + 14)}, 15);
-			}
-
-			{
-				auto bs = backbuffer->size();
-				backbuffer->rectfill({0u, uint32_t(viewport.y + viewport.h)}, {bs.x, bs.y}, 0);
-				backbuffer->rectfill({0u, 0u}, {bs.x, uint32_t(viewport.y - 2)}, 0);
-			}
-
-			compass.draw(*backbuffer, player->cam, viewport);
+			draw_hud();
 
 			banner->draw(*backbuffer);
 			action_text->draw(*backbuffer);
@@ -283,21 +266,7 @@ if (game->phase == game_state_t::PHASE_PLAYING)
 
 			raycaster->render(player->cam, *backbuffer, viewport);
 
-			{
-				char dbg[64];
-				std::snprintf(dbg, sizeof(dbg), "%d FPS", screen_current_fps());
-				backbuffer->text(dbg, {uint32_t(viewport.x + 4), uint32_t(viewport.y + 4)}, 15);
-				std::snprintf(dbg, sizeof(dbg), "00:00");
-				backbuffer->text(dbg, {uint32_t(viewport.x + 4), uint32_t(viewport.y + 14)}, 15);
-			}
-
-			{
-				auto bs = backbuffer->size();
-				backbuffer->rectfill({0u, uint32_t(viewport.y + viewport.h)}, {bs.x, bs.y}, 0);
-				backbuffer->rectfill({0u, 0u}, {bs.x, uint32_t(viewport.y - 2)}, 0);
-			}
-
-			compass.draw(*backbuffer, player->cam, viewport);
+			draw_hud();
 
 			pal_update_fade();
 
@@ -349,6 +318,25 @@ private:
 	int loop_elapsed_ticks()
 	{
 		return int((clock() - game->loop_start_clock) * TARGET_FPS / CLOCKS_PER_SEC);
+	}
+
+	void draw_hud()
+	{
+		int secs_left = (LOOP_FRAMES - loop_elapsed_ticks()) / TARGET_FPS;
+		if (secs_left < 0)
+			secs_left = 0;
+
+		char dbg[64];
+		// std::snprintf(dbg, sizeof(dbg), "%d FPS", screen_current_fps());
+		// backbuffer->text(dbg, {uint32_t(viewport.x + 4), uint32_t(viewport.y + 4)}, 15);
+		std::snprintf(dbg, sizeof(dbg), "%02d:%02d", secs_left / 60, secs_left % 60);
+		backbuffer->text(dbg, {uint32_t(viewport.x + 4), uint32_t(viewport.y + 4)}, 15);
+
+		auto bs = backbuffer->size();
+		backbuffer->rectfill({0u, uint32_t(viewport.y + viewport.h)}, {bs.x, bs.y}, 0);
+		backbuffer->rectfill({0u, 0u}, {bs.x, uint32_t(viewport.y - 2)}, 0);
+
+		compass.draw(*backbuffer, player->cam, viewport);
 	}
 
 	void spawn_entities()
