@@ -8,6 +8,7 @@
 #include "player.h"
 #include "banner.h"
 #include "action_text.h"
+#include "compass.h"
 #include "../engine/pixmap.h"
 #include "../engine/raycaster.h"
 #include "../engine/tilemap.h"
@@ -64,6 +65,7 @@ struct game_controller_t : public controller_t
 	int *footsteps_voice;
 	int *humming_voice;
 
+	compass_t compass;
 	bool started = false;
 	int finish_ticks = 0;
 
@@ -233,6 +235,8 @@ if (game->phase == game_state_t::PHASE_PLAYING)
 				backbuffer->rectfill({0u, 0u}, {bs.x, uint32_t(viewport.y - 2)}, 0);
 			}
 
+			compass.draw(*backbuffer, player->cam, viewport);
+
 			banner->draw(*backbuffer);
 			action_text->draw(*backbuffer);
 
@@ -292,6 +296,8 @@ if (game->phase == game_state_t::PHASE_PLAYING)
 				backbuffer->rectfill({0u, uint32_t(viewport.y + viewport.h)}, {bs.x, bs.y}, 0);
 				backbuffer->rectfill({0u, 0u}, {bs.x, uint32_t(viewport.y - 2)}, 0);
 			}
+
+			compass.draw(*backbuffer, player->cam, viewport);
 
 			pal_update_fade();
 
