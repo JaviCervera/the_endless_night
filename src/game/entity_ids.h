@@ -10,6 +10,7 @@
 #define GENERATOR_ID 13
 #define RADIO_STATION_ID 15
 #define POWER_TOWER_ID 16
+#define FENCE_ID 18
 #define STATION_DOOR_ID 19
 #define PLANT_ID 20
 #define HERBICIDE_ID 21
@@ -27,6 +28,7 @@
 #define GENERATOR_NAME "generator"
 #define RADIO_STATION_NAME "radio_station"
 #define POWER_TOWER_NAME "power_tower"
+#define FENCE_NAME "fence"
 #define STATION_DOOR_NAME "station_door"
 #define PLANT_NAME "plant"
 #define HERBICIDE_NAME "herbicide"

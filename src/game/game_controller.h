@@ -19,6 +19,7 @@
 #include "../engine/entity.h"
 #include "herbicide.h"
 #include "entity_ids.h"
+#include "fence.h"
 #include "farmer.h"
 #include "barn_worker.h"
 #include "crowbar.h"
@@ -373,6 +374,9 @@ private:
 					break;
 				case HERBICIDE_ID:
 					new herbicide_t(game, pos);
+					break;
+				case FENCE_ID:
+					new fence_t(game, pos);
 					break;
 				case STATION_DOOR_ID:
 					new station_door_t(game, pos);
