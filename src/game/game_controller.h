@@ -239,10 +239,8 @@ if (game->phase == game_state_t::PHASE_PLAYING)
 				stop_footsteps();
 				pause_humming();
 
-				game->num_loop++;
-				game->loop_start_clock = clock();
+				game->advance_loop();
 
-				game->phase = game_state_t::PHASE_INTRO;
 				started = false;
 			}
 		}
@@ -330,15 +328,6 @@ private:
 
 	void spawn_entities()
 	{
-		game->herbicide_held = false;
-		game->station_key_held = false;
-
-		game->carried_generator = game_state_t::CARRIED_NONE;
-		if (!game->generator_placed[1])
-			radio_station_t::reset_picked();
-		if (!game->generator_placed[2])
-			game->workshop_completed = false;
-
 		int power_tower_count = 0;
 
 		for (uint32_t y = 0; y < tilemap->map_size.y; ++y)
@@ -363,7 +352,7 @@ private:
 					new crowbar_t(*player, pos);
 					break;
 				case GENERATOR_ID:
-					if (!game->generator_placed[0])
+					if (!game->generator_placed[game_state_t::CARRIED_BARN_GENERATOR])
 						new generator_t(*player, pos, game);
 					break;
 				case BARN_DOOR_ID:

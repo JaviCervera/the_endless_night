@@ -27,7 +27,7 @@ struct workshop_door_t : public actionable_t
 			return;
 		}
 
-		if (game->generator_placed[2])
+		if (game->generator_placed[game_state_t::CARRIED_WORKSHOP_GENERATOR])
 		{
 			dialog_lines.push_back("I already have the power generator");
 			return;

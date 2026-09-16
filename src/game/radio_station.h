@@ -20,30 +20,16 @@ struct radio_station_t : public actionable_t
 			return;
 		}
 
-		if (game->generator_placed[1])
+		if (game->generator_placed[game_state_t::CARRIED_RADIO_GENERATOR])
 		{
 			dialog_lines.push_back("I already have the power generator");
 			return;
 		}
 
-		if (!already_picked)
-		{
-			dialog_lines.push_back("I got a power generator!");
-			already_picked = true;
-			game->carried_generator = game_state_t::CARRIED_RADIO;
-		}
-		else
-		{
-			dialog_lines.push_back("I already have the power generator");
-		}
-	}
-
-	static void reset_picked()
-	{
-		already_picked = false;
+		dialog_lines.push_back("I got a power generator!");
+		game->carried_generator = game_state_t::CARRIED_RADIO_GENERATOR;
 	}
 
 private:
-	inline static auto already_picked = false;
 	game_state_t *game;
 };

@@ -15,7 +15,7 @@ struct game_state_t
 
 	static constexpr int TARGET_FPS = 10;
 
-	enum carried_generator_t { CARRIED_NONE = -1, CARRIED_GENERATOR_T = 0, CARRIED_RADIO = 1, CARRIED_WORKSHOP = 2 };
+	enum carried_generator_t { CARRIED_NONE = -1, CARRIED_BARN_GENERATOR = 0, CARRIED_RADIO_GENERATOR = 1, CARRIED_WORKSHOP_GENERATOR = 2 };
 	carried_generator_t carried_generator = CARRIED_NONE;
 
 	bool generator_placed[3] = {false, false, false};
@@ -42,6 +42,19 @@ struct game_state_t
 	bool workshop_minigame_won = false;
 	bool request_tower_minigame = false;
 	bool returning_from_tower_minigame = false;
+
+	void advance_loop()
+	{
+		num_loop++;
+
+		herbicide_held = false;
+		station_key_held = false;
+		carried_generator = CARRIED_NONE;
+		if (!generator_placed[CARRIED_WORKSHOP_GENERATOR])
+			workshop_completed = false;
+
+		phase = PHASE_INTRO;
+	}
 
 	int elapsed_ticks() const
 	{

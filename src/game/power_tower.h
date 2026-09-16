@@ -14,7 +14,7 @@ struct power_tower_t : public actionable_t
 
 	void on_action_pressed() override
 	{
-		if (game->tower_generator[tower_index] != -1)
+		if (game->tower_generator[tower_index] != game_state_t::CARRIED_NONE)
 		{
 			dialog_lines.push_back("This tower already has a generator");
 			return;

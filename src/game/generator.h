@@ -52,6 +52,6 @@ private:
 	{
 		already_picked = true;
 		active = false;
-		game->carried_generator = game_state_t::CARRIED_GENERATOR_T;
+		game->carried_generator = game_state_t::CARRIED_BARN_GENERATOR;
 	}
 };

@@ -89,7 +89,7 @@ struct workshop_minigame_controller_t : public controller_t
 
 			if (game_won)
 			{
-				game->carried_generator = game_state_t::CARRIED_WORKSHOP;
+				game->carried_generator = game_state_t::CARRIED_WORKSHOP_GENERATOR;
 				pal_start_fade(0, 0, 0, 4);
 				state = FADE_OUT;
 			}
