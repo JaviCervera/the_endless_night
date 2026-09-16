@@ -12,6 +12,7 @@ struct game_state_t
 		PHASE_FINISHING = 2,
 		PHASE_WORKSHOP_MINIGAME = 3,
 		PHASE_TOWER_MINIGAME = 4,
+		PHASE_MENU = 5,
 	};
 
 	static constexpr int TARGET_FPS = 10;
@@ -50,6 +51,7 @@ struct game_state_t
 	bool request_tower_minigame = false;
 	bool returning_from_tower_minigame = false;
 	bool exit_requested = false;
+	bool start_game_requested = false;
 
 	void advance_loop()
 	{

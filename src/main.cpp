@@ -12,6 +12,7 @@
 #include "game/banner.h"
 #include "game/action_text.h"
 #include "game/game_state.h"
+#include "game/menu_controller.h"
 #include "game/intro_controller.h"
 #include "game/game_controller.h"
 #include "game/workshop_minigame_controller.h"
@@ -44,6 +45,12 @@ int main()
 	if (workshop_fpg.num_maps() < 8)
 	{
 		std::cout << "Warning: workshop.fpg missing sprites" << std::endl;
+	}
+
+	const fpg_t menu_fpg = fpg_t::load("assets/menu.fpg", false);
+	if (menu_fpg.num_maps() < 2)
+	{
+		std::cout << "Warning: menu.fpg missing maps" << std::endl;
 	}
 
 	auto tilemap = load_tilemap("assets/town.tma");
@@ -101,7 +108,10 @@ int main()
 														&footsteps_voice, &humming_voice};
 	workshop_minigame_controller_t workshop_minigame{&game, &backbuffer, &workshop_fpg};
 	tower_minigame_controller_t tower_minigame{&game, &backbuffer};
-	controller_t *current_controller = &intro;
+	menu_controller_t menu_ctrl{&game, &backbuffer, &menu_fpg, VIEWPORT};
+	controller_t *current_controller = &menu_ctrl;
+	game.phase = game_state_t::PHASE_MENU;
+	menu_ctrl.reset();
 
 	while (screen_update(backbuffer))
 	{
@@ -111,6 +121,20 @@ int main()
 
 		if (game.exit_requested)
 			break;
+
+		if (game.start_game_requested)
+		{
+			game.restart_game();
+			game_ctrl.reset();
+
+			tilemap = load_tilemap("assets/town.tma");
+			for (uint32_t x = 0; x < tilemap.map_size.x; ++x)
+				for (uint32_t y = 0; y < tilemap.map_size.y; ++y)
+				{
+					raycaster.tile({x, y}, tilemap.tile_at(x, y));
+					raycaster.floor({x, y}, tilemap.floor_at(x, y));
+				}
+		}
 
 		if (game.phase == game_state_t::PHASE_INTRO && current_controller != &intro)
 		{
@@ -126,9 +150,15 @@ int main()
 		{
 			current_controller = &tower_minigame;
 		}
+		else if (game.phase == game_state_t::PHASE_MENU && current_controller != &menu_ctrl)
+		{
+			menu_ctrl.reset();
+			current_controller = &menu_ctrl;
+		}
 		else if (game.phase != game_state_t::PHASE_INTRO
 				 && game.phase != game_state_t::PHASE_WORKSHOP_MINIGAME
 				 && game.phase != game_state_t::PHASE_TOWER_MINIGAME
+				 && game.phase != game_state_t::PHASE_MENU
 				 && current_controller != &game_ctrl)
 		{
 			current_controller = &game_ctrl;

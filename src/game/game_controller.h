@@ -73,6 +73,7 @@ struct game_controller_t : public controller_t
 
 	bool paused = false;
 	int pause_elapsed_ticks = 0;
+	bool exit_to_menu_fade = false;
 	menu_t pause_menu{"RESUME GAME", "EXIT TO MENU"};
 
 	enum minigame_fade_state_t { FADE_NONE, FADE_OUT_TO_WORKSHOP_MINIGAME, FADE_IN_FROM_WORKSHOP_MINIGAME, FADE_OUT_TO_TOWER_MINIGAME, FADE_IN_FROM_TOWER_MINIGAME };
@@ -82,6 +83,25 @@ struct game_controller_t : public controller_t
 	{
 		if (paused)
 		{
+			if (exit_to_menu_fade)
+			{
+				pal_update_fade();
+
+				raycaster->render(player->cam, *backbuffer, viewport);
+				draw_pause_overlay();
+
+				if (!pal_fade_active())
+				{
+					stop_footsteps();
+					pause_humming();
+
+					game->phase = game_state_t::PHASE_MENU;
+					exit_to_menu_fade = false;
+					paused = false;
+				}
+				return;
+			}
+
 			if (input.cancel)
 			{
 				resume();
@@ -96,7 +116,8 @@ struct game_controller_t : public controller_t
 					return;
 				}
 
-				game->exit_requested = true;
+				pal_start_fade(0, 0, 0, 6);
+				exit_to_menu_fade = true;
 				return;
 			}
 
@@ -283,6 +304,18 @@ if (game->phase == game_state_t::PHASE_PLAYING)
 		}
 	}
 
+	void reset()
+	{
+		started = false;
+		paused = false;
+		pause_elapsed_ticks = 0;
+		exit_to_menu_fade = false;
+		finish_ticks = 0;
+		minigame_fade_state = FADE_NONE;
+		pause_menu.reset();
+		banner->reset();
+	}
+
 	void pause_humming()
 	{
 		if (*humming_voice >= 0)
@@ -317,7 +350,7 @@ private:
 		const char *msg = "PAUSED";
 		const int text_w = text_length(font, msg);
 		backbuffer->text(msg, {uint32_t(viewport.x + (viewport.w - text_w) / 2), uint32_t(viewport.y + viewport.h / 2 - 4)}, 15);
-		pause_menu.draw(*backbuffer, {uint32_t(viewport.x + 8), uint32_t(viewport.y + viewport.h - 32)});
+		pause_menu.draw(*backbuffer, menu_t::lower_left(viewport));
 	}
 
 	void draw_hud()

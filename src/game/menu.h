@@ -3,6 +3,7 @@
 #include <string>
 #include "input.h"
 #include "../engine/pixmap.h"
+#include "../engine/viewport.h"
 
 struct menu_t
 {
@@ -17,6 +18,11 @@ struct menu_t
 	menu_t(std::string option0, std::string option1)
 			: options{option0, option1} {}
 
+	void reset()
+	{
+		selection = 0;
+	}
+
 	bool update(const input_t &input)
 	{
 		if (input.menu_up)
@@ -29,6 +35,11 @@ struct menu_t
 	int selected() const
 	{
 		return selection;
+	}
+
+	static uvec2_t lower_left(viewport_t viewport)
+	{
+		return {uint32_t(viewport.x + 8), uint32_t(viewport.y + viewport.h - 32)};
 	}
 
 	void draw(pixmap_t &backbuffer, uvec2_t pos) const
