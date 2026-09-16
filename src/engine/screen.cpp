@@ -37,9 +37,6 @@ void screen_open(const char *title, uvec2_t size, uint16_t target_fps)
 
 bool screen_update(const pixmap_t &pixmap)
 {
-	if (key[KEY_ESC])
-		return false;
-
 	auto *bitmap = *reinterpret_cast<BITMAP **>(const_cast<pixmap_t *>(&pixmap));
 	blit(bitmap, screen, 0, 0, 0, 0, bitmap->w, bitmap->h);
 
@@ -88,6 +85,10 @@ bool screen_key(int key_code)
 		return key[KEY_SPACE] != 0;
 	case SCREEN_KEY_X:
 		return key[KEY_X] != 0;
+	case SCREEN_KEY_ENTER:
+		return key[KEY_ENTER] != 0;
+	case SCREEN_KEY_ESC:
+		return key[KEY_ESC] != 0;
 	default:
 		return false;
 	}

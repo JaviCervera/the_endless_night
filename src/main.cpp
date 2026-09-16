@@ -109,6 +109,9 @@ int main()
 
 		current_controller->update(input);
 
+		if (game.exit_requested)
+			break;
+
 		if (game.phase == game_state_t::PHASE_INTRO && current_controller != &intro)
 		{
 			intro.reset();

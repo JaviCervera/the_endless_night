@@ -8,6 +8,7 @@
 #include "player.h"
 #include "banner.h"
 #include "action_text.h"
+#include "menu.h"
 #include "compass.h"
 #include "../engine/pixmap.h"
 #include "../engine/raycaster.h"
@@ -70,11 +71,47 @@ struct game_controller_t : public controller_t
 	bool started = false;
 	int finish_ticks = 0;
 
+	bool paused = false;
+	int pause_elapsed_ticks = 0;
+	menu_t pause_menu{"RESUME GAME", "EXIT TO MENU"};
+
 	enum minigame_fade_state_t { FADE_NONE, FADE_OUT_TO_WORKSHOP_MINIGAME, FADE_IN_FROM_WORKSHOP_MINIGAME, FADE_OUT_TO_TOWER_MINIGAME, FADE_IN_FROM_TOWER_MINIGAME };
 	minigame_fade_state_t minigame_fade_state = FADE_NONE;
 
 	void update(const input_t &input) override
 	{
+		if (paused)
+		{
+			if (input.cancel)
+			{
+				resume();
+				return;
+			}
+
+			if (pause_menu.update(input))
+			{
+				if (pause_menu.selected() == 0)
+				{
+					resume();
+					return;
+				}
+
+				game->exit_requested = true;
+				return;
+			}
+
+			raycaster->render(player->cam, *backbuffer, viewport);
+			draw_pause_overlay();
+			return;
+		}
+
+		if (input.cancel && game->phase == game_state_t::PHASE_PLAYING)
+		{
+			paused = true;
+			pause_elapsed_ticks = game->elapsed_ticks();
+			return;
+		}
+
 		// Handle fade OUT to workshop minigame
 		if (game->request_workshop_minigame && minigame_fade_state == FADE_NONE)
 		{
@@ -267,6 +304,20 @@ private:
 	int loop_elapsed_ticks()
 	{
 		return int((clock() - game->loop_start_clock) * TARGET_FPS / CLOCKS_PER_SEC);
+	}
+
+	void resume()
+	{
+		paused = false;
+		game->loop_start_clock = clock() - (clock_t)(pause_elapsed_ticks * CLOCKS_PER_SEC / TARGET_FPS);
+	}
+
+	void draw_pause_overlay()
+	{
+		const char *msg = "PAUSED";
+		const int text_w = text_length(font, msg);
+		backbuffer->text(msg, {uint32_t(viewport.x + (viewport.w - text_w) / 2), uint32_t(viewport.y + viewport.h / 2 - 4)}, 15);
+		pause_menu.draw(*backbuffer, {uint32_t(viewport.x + 8), uint32_t(viewport.y + viewport.h - 32)});
 	}
 
 	void draw_hud()

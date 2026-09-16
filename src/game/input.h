@@ -11,6 +11,10 @@ struct input_t
 	bool exit_minigame = false; // Edge-triggered: true only on the frame X is first pressed
 	bool menu_left = false; // Edge-triggered: true only on the frame left is first pressed
 	bool menu_right = false; // Edge-triggered: true only on the frame right is first pressed
+	bool menu_up = false; // Edge-triggered: true only on the frame up is first pressed
+	bool menu_down = false; // Edge-triggered: true only on the frame down is first pressed
+	bool accept = false; // Edge-triggered: true only on the frame enter is first pressed
+	bool cancel = false; // Edge-triggered: true only on the frame esc is first pressed
 };
 
 input_t input_calculate()
@@ -43,6 +47,25 @@ input_t input_calculate()
 	input.menu_right = right && !prev_right;
 	prev_left = left;
 	prev_right = right;
+
+	static bool prev_up = false;
+	static bool prev_down = false;
+	const bool up = screen_key(SCREEN_KEY_UP);
+	const bool down = screen_key(SCREEN_KEY_DOWN);
+	input.menu_up = up && !prev_up;
+	input.menu_down = down && !prev_down;
+	prev_up = up;
+	prev_down = down;
+
+	static bool prev_enter = false;
+	const bool enter = screen_key(SCREEN_KEY_ENTER);
+	input.accept = enter && !prev_enter;
+	prev_enter = enter;
+
+	static bool prev_esc = false;
+	const bool esc = screen_key(SCREEN_KEY_ESC);
+	input.cancel = esc && !prev_esc;
+	prev_esc = esc;
 
 	return input;
 }

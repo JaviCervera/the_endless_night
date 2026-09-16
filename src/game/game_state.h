@@ -49,6 +49,7 @@ struct game_state_t
 	bool workshop_minigame_won = false;
 	bool request_tower_minigame = false;
 	bool returning_from_tower_minigame = false;
+	bool exit_requested = false;
 
 	void advance_loop()
 	{
