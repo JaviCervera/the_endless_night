@@ -28,7 +28,7 @@ struct barn_door_t : public actionable_t
 	{
 		collidable = false;
 		action_text = "Open barn door";
-		if (doors_opened)
+		if (game->barn_door_opened)
 			open_doors();
 	}
 
@@ -54,8 +54,6 @@ struct barn_door_t : public actionable_t
 	}
 
 private:
-	inline static auto doors_opened = false;
-
 	void open_doors()
 	{
 		const auto num = entity_t::num_entities_with_name(BARN_DOOR_NAME);
@@ -66,7 +64,7 @@ private:
 			d->raycaster->tile({d->tile_x, d->tile_y}, 0);
 			d->active = false;
 		}
-		doors_opened = true;
+		game->barn_door_opened = true;
 	}
 
 	const crowbar_t *get_crowbar() const

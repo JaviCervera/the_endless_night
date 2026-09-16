@@ -1,6 +1,7 @@
 #pragma once
 
 #include <ctime>
+#include "../engine/vec2.h"
 
 struct game_state_t
 {
@@ -30,6 +31,12 @@ struct game_state_t
 	bool tree_note_read = false;
 	bool workshop_completed = false;
 
+	bool barn_door_opened = false;
+	bool crowbar_picked = false;
+	vec2_t crowbar_spawn_pos{real_t(0.0f), real_t(0.0f)};
+	bool barn_generator_picked = false;
+	vec2_t barn_generator_spawn_pos{real_t(0.0f), real_t(0.0f)};
+
 	clock_t loop_start_clock = 0;
 	int saved_elapsed_ticks = 0;
 	int num_loop = 1;
@@ -54,6 +61,11 @@ struct game_state_t
 			workshop_completed = false;
 
 		phase = PHASE_INTRO;
+	}
+
+	void restart_game()
+	{
+		*this = game_state_t{};
 	}
 
 	int elapsed_ticks() const

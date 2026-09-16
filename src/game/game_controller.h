@@ -349,7 +349,7 @@ private:
 					new barn_worker_t(game, pos);
 					break;
 				case CROWBAR_ID:
-					new crowbar_t(*player, pos);
+					new crowbar_t(*player, pos, game);
 					break;
 				case GENERATOR_ID:
 					if (!game->generator_placed[game_state_t::CARRIED_BARN_GENERATOR])

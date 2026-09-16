@@ -11,16 +11,16 @@ struct generator_t : public actionable_t
 	{
 		collidable = false;
 		action_text = "Take power generator";
-		if (already_picked)
+		if (game->barn_generator_picked)
 		{
-			this->pos = spawn_pos;
+			this->pos = game->barn_generator_spawn_pos;
 		}
 	}
 
 	~generator_t()
 	{
 		if (was_picked())
-			spawn_pos = player->cam.pos;
+			game->barn_generator_spawn_pos = player->cam.pos;
 	}
 
 	void on_action_pressed() override
@@ -42,15 +42,12 @@ struct generator_t : public actionable_t
 	}
 
 private:
-	inline static auto already_picked = false;
-	inline static auto spawn_pos = vec2_t{real_t(0.0f), real_t(0.0f)};
-
 	player_t *player;
 	game_state_t *game;
 
 	void pick()
 	{
-		already_picked = true;
+		game->barn_generator_picked = true;
 		active = false;
 		game->carried_generator = game_state_t::CARRIED_BARN_GENERATOR;
 	}

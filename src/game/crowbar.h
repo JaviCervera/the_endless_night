@@ -2,23 +2,24 @@
 
 #include "actionable.h"
 #include "player.h"
+#include "game_state.h"
 
 struct crowbar_t : public actionable_t
 {
-	crowbar_t(player_t &player, vec2_t pos) : actionable_t{CROWBAR_NAME, pos, CROWBAR_ID}, player{&player}
+	crowbar_t(player_t &player, vec2_t pos, game_state_t *game) : actionable_t{CROWBAR_NAME, pos, CROWBAR_ID}, player{&player}, game{game}
 	{
 		collidable = false;
 		action_text = "Take crowbar";
-		if (already_picked)
+		if (game->crowbar_picked)
 		{
-			this->pos = spawn_pos;
+			this->pos = game->crowbar_spawn_pos;
 		}
 	}
 
 	~crowbar_t() override
 	{
 		if (was_picked())
-			spawn_pos = player->cam.pos;
+			game->crowbar_spawn_pos = player->cam.pos;
 	}
 
 	void update() override
@@ -39,7 +40,7 @@ struct crowbar_t : public actionable_t
 
 	void on_action_pressed() override
 	{
-		if (!already_picked)
+		if (!game->crowbar_picked)
 			dialog_lines.push_back("With this I should be able to open the barn.");
 		else
 			dialog_lines.push_back("The crowbar is where I left it!");
@@ -52,15 +53,13 @@ struct crowbar_t : public actionable_t
 	}
 
 private:
-	inline static auto already_picked = false;
-	inline static auto spawn_pos = vec2_t{real_t(0.0f), real_t(0.0f)};
-
 	player_t *player;
+	game_state_t *game;
 	int anim_tick = 0;
 
 	void pick()
 	{
-		already_picked = true;
+		game->crowbar_picked = true;
 		active = false;
 	}
 
