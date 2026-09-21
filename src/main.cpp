@@ -15,6 +15,7 @@
 #include "game/menu_controller.h"
 #include "game/intro_controller.h"
 #include "game/game_controller.h"
+#include "game/ending_controller.h"
 #include "game/workshop_minigame_controller.h"
 #include "game/tower_minigame_controller.h"
 
@@ -48,7 +49,7 @@ int main()
 	}
 
 	const fpg_t menu_fpg = fpg_t::load("assets/menu.fpg", false);
-	if (menu_fpg.num_maps() < 2)
+	if (menu_fpg.num_maps() < 3)
 	{
 		std::cout << "Warning: menu.fpg missing maps" << std::endl;
 	}
@@ -82,6 +83,7 @@ int main()
 
 	auto player = player_t{tilemap, real_t(3.0f / TARGET_FPS), real_t(2.0f / TARGET_FPS), real_t(0.25f)};
 	auto banner = banner_t{};
+	auto ending_banner = banner_t{60}; // 6 seconds per page at 10 FPS
 	auto action_text = action_text_t{};
 
 	auto raycaster = raycaster_t{{tilemap.map_size.x, tilemap.map_size.y}, fpg};
@@ -109,6 +111,7 @@ int main()
 	workshop_minigame_controller_t workshop_minigame{&game, &backbuffer, &workshop_fpg};
 	tower_minigame_controller_t tower_minigame{&game, &backbuffer};
 	menu_controller_t menu_ctrl{&game, &backbuffer, &menu_fpg, VIEWPORT};
+	ending_controller_t ending{&game, &backbuffer, &menu_fpg, &ending_banner, VIEWPORT};
 	controller_t *current_controller = &menu_ctrl;
 	game.phase = game_state_t::PHASE_MENU;
 	menu_ctrl.reset();
@@ -155,10 +158,16 @@ int main()
 			menu_ctrl.reset();
 			current_controller = &menu_ctrl;
 		}
+		else if (game.phase == game_state_t::PHASE_ENDING && current_controller != &ending)
+		{
+			ending.reset();
+			current_controller = &ending;
+		}
 		else if (game.phase != game_state_t::PHASE_INTRO
 				 && game.phase != game_state_t::PHASE_WORKSHOP_MINIGAME
 				 && game.phase != game_state_t::PHASE_TOWER_MINIGAME
 				 && game.phase != game_state_t::PHASE_MENU
+				 && game.phase != game_state_t::PHASE_ENDING
 				 && current_controller != &game_ctrl)
 		{
 			current_controller = &game_ctrl;

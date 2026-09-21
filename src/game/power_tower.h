@@ -46,6 +46,9 @@ struct power_tower_t : public actionable_t
 		game->num_generators_placed++;
 		game->carried_generator = game_state_t::CARRIED_NONE;
 		dialog_lines.push_back("You have placed the generator on the tower");
+
+		if (game->num_generators_placed == 3)
+			game->request_ending = true;
 	}
 
 private:

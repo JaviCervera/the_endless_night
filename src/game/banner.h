@@ -12,7 +12,9 @@ struct banner_t
 	static constexpr int LINE_HEIGHT = 8;
 	static constexpr int MAX_LINE_WIDTH = 300;
 	static constexpr int LINES_PER_PAGE = 2;
-	static constexpr int TICKS_PER_PAGE = 3 * 10; // 3 seconds at 20 FPS
+	static constexpr int TICKS_PER_PAGE = 3 * 10; // 3 seconds at 10 FPS
+
+	banner_t(int ticks_per_page = TICKS_PER_PAGE) : m_ticks_per_page{ticks_per_page} {}
 
 	void show(const std::string &text)
 	{
@@ -51,7 +53,7 @@ struct banner_t
 			m_lines.push_back(line);
 
 		if (!m_lines.empty())
-			m_timer = TICKS_PER_PAGE;
+			m_timer = m_ticks_per_page;
 	}
 
 	void update()
@@ -64,7 +66,7 @@ struct banner_t
 		{
 			m_current_line += LINES_PER_PAGE;
 			if (m_current_line < static_cast<int>(m_lines.size()))
-				m_timer = TICKS_PER_PAGE;
+				m_timer = m_ticks_per_page;
 		}
 	}
 
@@ -101,5 +103,6 @@ private:
 	std::vector<std::string> m_lines;
 	int m_current_line = 0;
 	int m_timer = 0;
+	int m_ticks_per_page = TICKS_PER_PAGE;
 	uvec2_t m_pos{10, 2};
 };

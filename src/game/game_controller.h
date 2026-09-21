@@ -76,7 +76,7 @@ struct game_controller_t : public controller_t
 	bool exit_to_menu_fade = false;
 	menu_t pause_menu{"RESUME GAME", "EXIT TO MENU"};
 
-	enum minigame_fade_state_t { FADE_NONE, FADE_OUT_TO_WORKSHOP_MINIGAME, FADE_IN_FROM_WORKSHOP_MINIGAME, FADE_OUT_TO_TOWER_MINIGAME, FADE_IN_FROM_TOWER_MINIGAME };
+	enum minigame_fade_state_t { FADE_NONE, FADE_OUT_TO_WORKSHOP_MINIGAME, FADE_IN_FROM_WORKSHOP_MINIGAME, FADE_OUT_TO_TOWER_MINIGAME, FADE_IN_FROM_TOWER_MINIGAME, FADE_OUT_TO_ENDING };
 	minigame_fade_state_t minigame_fade_state = FADE_NONE;
 
 	void update(const input_t &input) override
@@ -213,8 +213,27 @@ struct game_controller_t : public controller_t
 			}
 		}
 
-		// Safety: never render raycaster in minigame phases
-		if (game->phase == game_state_t::PHASE_WORKSHOP_MINIGAME || game->phase == game_state_t::PHASE_TOWER_MINIGAME)
+		// Handle fade OUT to ending
+		if (game->request_ending && minigame_fade_state == FADE_NONE)
+		{
+			pal_start_fade(0, 0, 0, 4);
+			pause_humming();
+			minigame_fade_state = FADE_OUT_TO_ENDING;
+			game->request_ending = false;
+		}
+
+		if (minigame_fade_state == FADE_OUT_TO_ENDING)
+		{
+			pal_update_fade();
+			if (!pal_fade_active())
+			{
+				game->phase = game_state_t::PHASE_ENDING;
+				minigame_fade_state = FADE_NONE;
+			}
+		}
+
+		// Safety: never render raycaster in minigame or ending phases
+		if (game->phase == game_state_t::PHASE_WORKSHOP_MINIGAME || game->phase == game_state_t::PHASE_TOWER_MINIGAME || game->phase == game_state_t::PHASE_ENDING)
 			return;
 
 		if (!started)
