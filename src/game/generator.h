@@ -31,7 +31,7 @@ struct generator_t : public actionable_t
 			return;
 		}
 
-		dialog_lines.push_back("With four like this, I could restore the power.");
+		dialog_lines.push_back("With more like this, I could restore the power.");
 		dialog_lines.push_back("A signal is coming from the radio tower to the north...");
 		pick();
 	}
