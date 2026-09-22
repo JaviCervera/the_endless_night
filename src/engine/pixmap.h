@@ -65,7 +65,9 @@ inline void pixmap_t::pixel(uvec2_t pos, palcolor_t color)
 
 inline const palcolor_t *pixmap_t::column(int x) const
 {
-	return m_col_pixels.data() + x * size().y;
+	// Use m_col_h directly: size() recomputes m_col_pixels.size() / m_col_h,
+	// which lowered to a hardware div on every call in the floor loop.
+	return m_col_pixels.data() + static_cast<size_t>(x) * static_cast<size_t>(m_col_h);
 }
 
 inline palcolor_t *pixmap_t::row(int y)

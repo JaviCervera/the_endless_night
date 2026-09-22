@@ -122,7 +122,8 @@ void raycaster_t::render(const camera_t &cam, pixmap_t &backbuffer, viewport_t v
 
 		int prev_cell_x = INT_MIN;
 		int prev_cell_y = INT_MIN;
-		const pixmap_t *tex = nullptr;
+		const palcolor_t *tex_base = nullptr;
+		int tex_h = 0;
 
 		palcolor_t *bb_p = bb_row + vp_x;
 		for (int x = vp_x; x < vp_x + vp_w; ++x, ++bb_p)
@@ -152,10 +153,14 @@ void raycaster_t::render(const camera_t &cam, pixmap_t &backbuffer, viewport_t v
 					floor_type = floor_unsafe(cell_x, cell_y);
 				if (floor_type < 1)
 					floor_type = 1;
-				tex = fpg->map(static_cast<size_t>(floor_type - 1));
+				const pixmap_t *tex = fpg->map(static_cast<size_t>(floor_type - 1));
+				// Cache the column-cache base pointer and height so the pixel
+				// loop only does an imul + add instead of a div per sample.
+				tex_base = tex ? tex->column(0) : nullptr;
+				tex_h = tex ? static_cast<int>(tex->size().y) : 0;
 			}
 
-			if (!tex)
+			if (!tex_base)
 				continue;
 
 			// Texture is sampled at the post-increment floor_x/y, matching the
@@ -163,9 +168,9 @@ void raycaster_t::render(const camera_t &cam, pixmap_t &backbuffer, viewport_t v
 			// also revisiting the cell change logic above.
 			const int tex_x = (floor_x.raw & (real_t::ONE - 1)) >> (real_t::FRAC_BITS - TEX_BITS);
 			const int tex_y = (floor_y.raw & (real_t::ONE - 1)) >> (real_t::FRAC_BITS - TEX_BITS);
-			// Use the column cache directly (one indirection + one index) instead
-			// of tex->pixel() which constructs a uvec2_t and re-does the multiply.
-			*bb_p = tex->column(tex_x)[tex_y];
+			// Use the cached column base directly (one imul + one load) instead
+			// of tex->column() which re-derives the stride every sample.
+			*bb_p = tex_base[tex_x * tex_h + tex_y];
 		}
 	}
 #endif
