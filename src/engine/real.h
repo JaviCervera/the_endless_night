@@ -79,6 +79,39 @@ struct real_t
 		// #endif
 	}
 
+	// Fast Q16.16 reciprocal (1 / *this) for hot paths. On DJGPP/386+ this uses
+	// one 32-bit idivl with a 64-bit dividend (EDX:EAX = 2^32) instead of the
+	// __divdi3 libcall that operator/ emits. Saturates to +/-large() exactly
+	// where operator/ does, so the idivl dividend always fits in int32.
+	real_t recip() const noexcept
+	{
+		if (raw == 0)
+			return large();
+#if defined(__DJGPP__) && defined(__i386__)
+		// Guard exactly matches the int64 path below: 2^32/raw overflows for
+		// raw in {1, 2} and underflows only for raw == -1 (raw == -2 is
+		// exactly INT32_MIN and is representable).
+		const uint32_t abs_raw = (raw >= 0) ? static_cast<uint32_t>(raw) : (0u - static_cast<uint32_t>(raw));
+		if (raw > 0 && abs_raw <= 2u)
+			return large();
+		if (raw < 0 && abs_raw == 1u)
+			return from_raw(-large().raw);
+		int32_t result;
+		__asm__("idivl %3"
+						: "=a"(result)
+						: "d"(1), "a"(0), "rm"(raw)
+						: "cc");
+		return from_raw(result);
+#else
+		const int64_t result64 = (int64_t(ONE) << FRAC_BITS) / int64_t(raw);
+		if (result64 > INT32_MAX)
+			return large();
+		if (result64 < INT32_MIN)
+			return from_raw(-large().raw);
+		return from_raw(static_cast<int32_t>(result64));
+#endif
+	}
+
 	// Scale by a plain integer: operates on raw bits directly (no extra shift).
 	constexpr real_t operator*(int k) const noexcept { return from_raw(raw * k); }
 	constexpr real_t operator/(int k) const noexcept { return from_raw(raw / k); }

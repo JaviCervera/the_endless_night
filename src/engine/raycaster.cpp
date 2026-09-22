@@ -190,8 +190,10 @@ void raycaster_t::render(const camera_t &cam, pixmap_t &backbuffer, viewport_t v
 		int map_x = int(cam.pos.x);
 		int map_y = int(cam.pos.y);
 
-		const real_t delta_dist_x = (ray_dir_x == real_t(0)) ? real_t::large() : real_abs(real_t(1) / ray_dir_x);
-		const real_t delta_dist_y = (ray_dir_y == real_t(0)) ? real_t::large() : real_abs(real_t(1) / ray_dir_y);
+		// recip() is a single 32-bit idivl on DJGPP (and returns large() for
+		// a zero component), replacing two __divdi3 libcalls per column.
+		const real_t delta_dist_x = real_abs(ray_dir_x.recip());
+		const real_t delta_dist_y = real_abs(ray_dir_y.recip());
 
 		int step_x, step_y;
 		real_t side_dist_x, side_dist_y;
