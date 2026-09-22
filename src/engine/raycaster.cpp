@@ -344,15 +344,18 @@ void raycaster_t::render(const camera_t &cam, pixmap_t &backbuffer, viewport_t v
 	// Sprite casting: sort sprites back-to-front, project and draw with Z-buffer test.
 	const size_t num_entities = entity_t::num_entities();
 	ent_order.resize(num_entities);
+	ent_dist.resize(num_entities);
+	// Compute each distance once instead of twice per sort comparison.
 	for (size_t i = 0; i < num_entities; ++i)
+	{
+		const entity_t *ent = entity_t::get_entity(i);
+		const real_t dx = ent->pos.x - cam.pos.x;
+		const real_t dy = ent->pos.y - cam.pos.y;
+		ent_dist[i] = dx * dx + dy * dy;
 		ent_order[i] = i;
+	}
 	std::sort(ent_order.begin(), ent_order.end(), [&](size_t a, size_t b)
-						{
-							const entity_t *ent_a = entity_t::get_entity(a);
-							const entity_t *ent_b = entity_t::get_entity(b);
-              const real_t da = (ent_a->pos.x - cam.pos.x) * (ent_a->pos.x - cam.pos.x) + (ent_a->pos.y - cam.pos.y) * (ent_a->pos.y - cam.pos.y);
-              const real_t db = (ent_b->pos.x - cam.pos.x) * (ent_b->pos.x - cam.pos.x) + (ent_b->pos.y - cam.pos.y) * (ent_b->pos.y - cam.pos.y);
-              return da > db; });
+						{ return ent_dist[a] > ent_dist[b]; });
 
 	const real_t inv_det = real_t(1) / (cam.plane.x * cam.dir.y - cam.dir.x * cam.plane.y);
 	for (size_t idx = 0; idx < num_entities; ++idx)

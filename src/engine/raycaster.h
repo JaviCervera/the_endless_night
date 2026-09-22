@@ -49,6 +49,7 @@ private:
 	// Reused across frames to avoid per-frame heap allocation.
 	std::vector<real_t> z_buf;
 	std::vector<size_t> ent_order;
+	std::vector<real_t> ent_dist;
 
 	// Bounds-checked-index-free accessors for use in hot inner loops (DDA, floor
 	// pixel loop) where the caller has already verified (x, y) is in range.
