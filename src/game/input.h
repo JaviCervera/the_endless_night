@@ -13,7 +13,7 @@ struct input_t
 	bool menu_right = false; // Edge-triggered: true only on the frame right is first pressed
 	bool menu_up = false; // Edge-triggered: true only on the frame up is first pressed
 	bool menu_down = false; // Edge-triggered: true only on the frame down is first pressed
-	bool accept = false; // Edge-triggered: true only on the frame enter is first pressed
+	bool accept = false; // Edge-triggered: true only on the frame enter or space is first pressed
 	bool cancel = false; // Edge-triggered: true only on the frame esc is first pressed
 };
 
@@ -58,7 +58,7 @@ input_t input_calculate()
 	prev_down = down;
 
 	static bool prev_enter = false;
-	const bool enter = screen_key(SCREEN_KEY_ENTER);
+	const bool enter = screen_key(SCREEN_KEY_ENTER) || screen_key(SCREEN_KEY_SPACE);
 	input.accept = enter && !prev_enter;
 	prev_enter = enter;
 
