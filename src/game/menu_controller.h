@@ -81,6 +81,11 @@ struct menu_controller_t : public controller_t
 		case MENU:
 			draw_map(1);
 			draw_menu();
+			if (input.cancel)
+			{
+				game->exit_requested = true;
+				break;
+			}
 			if (menu.update(input))
 			{
 				if (menu.selected() == 0)
