@@ -33,6 +33,7 @@ struct menu_controller_t : public controller_t
 	void reset()
 	{
 		hold_ticks = 0;
+		menu.set_options(t->get("main_menu_start"), t->get("main_menu_exit"));
 		menu.reset();
 		enter_map(played_intro ? 1 : 0);
 	}

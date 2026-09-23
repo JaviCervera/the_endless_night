@@ -16,6 +16,13 @@ namespace
 
 texts_t::texts_t(const char *filename)
 {
+	load(filename);
+}
+
+void texts_t::load(const char *filename)
+{
+	m_texts.clear();
+
 	std::ifstream file{filename};
 	std::string line;
 	bool first_line = true;

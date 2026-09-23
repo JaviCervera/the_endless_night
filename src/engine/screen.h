@@ -14,6 +14,7 @@
 #define SCREEN_KEY_ESC 7
 
 void screen_open(const char *title, uvec2_t size, uint16_t target_fps);
+bool screen_load_font(const char *filename);
 bool screen_update(const pixmap_t &pixmap);
 void screen_close();
 bool screen_key(int key_code);

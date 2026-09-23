@@ -130,13 +130,21 @@ might require several iterations of a loop to complete the objectives).
 
 All text shown to the player lives in `assets/lang/en.ini` (key=value lines;
 `;` or `#` starts a comment). Language files must be saved with DOS (CP 437)
-encoding. `en.ini` is pure ASCII, so it is valid as-is in any editor.
+encoding. `en.ini` is pure ASCII, so it is valid as-is in any editor. Text is
+drawn with the 8x8 CP 437 VGA font (`assets/cp437.fnt`), so the CP 437 accented
+characters and symbols display as expected.
 
-To add a language, copy `en.ini` to e.g. `assets/lang/es.ini`, translate the
+To add a language, copy `en.ini` to e.g. `assets/lang/fr.ini`, translate the
 values (keep printf placeholders such as `%d` intact, and keep the compass
-values to a single letter), then point the `texts_t` instance in `src/main.cpp`
-at the new file. Missing keys are shown as the key name, which makes
-untranslated strings easy to spot. In code, look texts up with `t->get("key")`.
+values to a single letter), then add the language to the startup menu in
+`src/game/lang_controller.h` and map it to the new file. Missing keys are shown
+as the key name, which makes untranslated strings easy to spot. In code, look
+texts up with `t->get("key")`.
+
+At startup the game shows that language menu ("English" / "Español"; the labels
+are hard-coded literals and are not translated) and loads the selected file.
+If the selected file cannot be loaded, the game falls back to English and shows
+an error on the language screen.
 
 ## IDEAS
 

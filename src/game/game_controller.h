@@ -336,6 +336,7 @@ if (game->phase == game_state_t::PHASE_PLAYING)
 		exit_to_menu_fade = false;
 		finish_ticks = 0;
 		minigame_fade_state = FADE_NONE;
+		pause_menu.set_options(t->get("pause_menu_resume"), t->get("pause_menu_exit"));
 		pause_menu.reset();
 		banner->reset();
 	}

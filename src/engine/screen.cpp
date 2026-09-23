@@ -64,6 +64,27 @@ bool screen_update(const pixmap_t &pixmap)
 	return true;
 }
 
+bool screen_load_font(const char *filename)
+{
+	// Allegro's default uformat is 7-bit ASCII, which strips the accents from
+	// CP 437 text. U_ASCII_CP translates bytes through a codepage table; the
+	// identity table keeps each byte as its own font codepoint, which is what
+	// the raw 8x8 CP 437 font file expects.
+	static unsigned short identity[256];
+	for (int i = 0; i < 256; ++i)
+		identity[i] = static_cast<unsigned short>(i);
+
+	set_uformat(U_ASCII_CP);
+	set_ucodepage(identity, nullptr);
+
+	FONT *loaded = load_bios_font(filename, nullptr, nullptr);
+	if (!loaded)
+		return false;
+
+	font = loaded;
+	return true;
+}
+
 void screen_close()
 {
 	allegro_exit();

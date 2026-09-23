@@ -14,6 +14,7 @@ struct game_state_t
 		PHASE_TOWER_MINIGAME = 4,
 		PHASE_MENU = 5,
 		PHASE_ENDING = 6,
+		PHASE_LANG_SELECT = 7,
 	};
 
 	static constexpr int TARGET_FPS = 10;

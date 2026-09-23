@@ -23,6 +23,12 @@ struct menu_t
 		selection = 0;
 	}
 
+	void set_options(const std::string &option0, const std::string &option1)
+	{
+		options[0] = option0;
+		options[1] = option1;
+	}
+
 	bool update(const input_t &input)
 	{
 		if (input.menu_up)

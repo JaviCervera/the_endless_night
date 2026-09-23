@@ -15,16 +15,7 @@ struct compass_t
 	static constexpr int CELL_W = 8;
 	static constexpr int CELLS = 19;
 
-	explicit compass_t(const texts_t *t)
-	{
-		// Cardinal letters at 0/12/24/36, ticks at the intercardinal points.
-		m_pattern.assign(SECTORS, '-');
-		m_pattern[0] = first_letter(t->get("compass_north"));
-		m_pattern[12] = first_letter(t->get("compass_east"));
-		m_pattern[24] = first_letter(t->get("compass_south"));
-		m_pattern[36] = first_letter(t->get("compass_west"));
-		m_pattern[6] = m_pattern[18] = m_pattern[30] = m_pattern[42] = '|';
-	}
+	explicit compass_t(const texts_t *t) : t{t} {}
 
 	void draw(pixmap_t &backbuffer, const camera_t &cam, viewport_t vp) const
 	{
@@ -38,18 +29,40 @@ struct compass_t
 			int idx = (sector + i - center) % SECTORS;
 			if (idx < 0)
 				idx += SECTORS;
-			const char glyph[2] = {m_pattern[static_cast<size_t>(idx)], '\0'};
+			const char glyph[2] = {pattern_char(idx), '\0'};
 			backbuffer.text(glyph, {static_cast<uint32_t>(x0 + i * CELL_W), y}, 15);
 		}
 	}
 
 private:
+	char pattern_char(int idx) const
+	{
+		if (idx % 12 == 0)
+			return first_letter(t->get(cardinal_key(idx)));
+		return (idx % 6 == 0) ? '|' : '-';
+	}
+
+	static const char *cardinal_key(int idx)
+	{
+		switch (idx)
+		{
+		case 0:
+			return "compass_north";
+		case 12:
+			return "compass_east";
+		case 24:
+			return "compass_south";
+		default:
+			return "compass_west";
+		}
+	}
+
 	static char first_letter(const std::string &value)
 	{
 		return value.empty() ? '?' : value[0];
 	}
 
-	std::string m_pattern;
+	const texts_t *t;
 
 	static int heading_sector(const vec2_t &dir)
 	{

@@ -13,6 +13,7 @@
 #include "game/banner.h"
 #include "game/action_text.h"
 #include "game/game_state.h"
+#include "game/lang_controller.h"
 #include "game/menu_controller.h"
 #include "game/intro_controller.h"
 #include "game/game_controller.h"
@@ -36,6 +37,11 @@ int main()
 	real_trig_init();
 	screen_open("The Endless Night", {SCREEN_WIDTH, SCREEN_HEIGHT}, BENCH_UNCAPPED ? 10000 : TARGET_FPS);
 	atexit(screen_close);
+
+	if (!screen_load_font("assets/cp437.fnt"))
+	{
+		std::cout << "Warning: can't load font" << std::endl;
+	}
 
 	if (!pal_load("assets/div.pal"))
 	{
@@ -118,6 +124,7 @@ int main()
 	int humming_voice = -1;
 
 	game_state_t game;
+	lang_controller_t lang{&game, &backbuffer, VIEWPORT, &t};
 	intro_controller_t intro{&game, &backbuffer, &t};
 	game_controller_t game_ctrl{&game, &backbuffer, &player, &banner, &action_text,
 															&raycaster, &tilemap, &fpg, VIEWPORT,
@@ -127,9 +134,9 @@ int main()
 	tower_minigame_controller_t tower_minigame{&game, &backbuffer};
 	menu_controller_t menu_ctrl{&game, &backbuffer, &menu_fpg, VIEWPORT, &t};
 	ending_controller_t ending{&game, &backbuffer, &menu_fpg, &ending_banner, VIEWPORT, &t};
-	controller_t *current_controller = &menu_ctrl;
-	game.phase = game_state_t::PHASE_MENU;
-	menu_ctrl.reset();
+	controller_t *current_controller = &lang;
+	game.phase = game_state_t::PHASE_LANG_SELECT;
+	lang.reset();
 
 	while (screen_update(backbuffer))
 	{
@@ -178,7 +185,7 @@ int main()
 			ending.reset();
 			current_controller = &ending;
 		}
-		else if (game.phase != game_state_t::PHASE_INTRO && game.phase != game_state_t::PHASE_WORKSHOP_MINIGAME && game.phase != game_state_t::PHASE_TOWER_MINIGAME && game.phase != game_state_t::PHASE_MENU && game.phase != game_state_t::PHASE_ENDING && current_controller != &game_ctrl)
+		else if (game.phase != game_state_t::PHASE_INTRO && game.phase != game_state_t::PHASE_WORKSHOP_MINIGAME && game.phase != game_state_t::PHASE_TOWER_MINIGAME && game.phase != game_state_t::PHASE_MENU && game.phase != game_state_t::PHASE_ENDING && game.phase != game_state_t::PHASE_LANG_SELECT && current_controller != &game_ctrl)
 		{
 			current_controller = &game_ctrl;
 		}

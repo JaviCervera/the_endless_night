@@ -9,7 +9,10 @@
 // translations are obvious in-game.
 struct texts_t
 {
+	texts_t() = default;
 	explicit texts_t(const char *filename);
+
+	void load(const char *filename);
 
 	std::string get(const char *key) const;
 
