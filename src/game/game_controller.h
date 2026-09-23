@@ -385,9 +385,9 @@ private:
 			secs_left = 0;
 
 		char dbg[64];
-		std::snprintf(dbg, sizeof(dbg), "%d FPS", screen_current_fps());
-		const int fps_w = text_length(font, dbg);
-		backbuffer->text(dbg, {uint32_t(viewport.x + viewport.w - fps_w - 4), uint32_t(viewport.y + 4)}, 15);
+		// std::snprintf(dbg, sizeof(dbg), "%d FPS", screen_current_fps());
+		// const int fps_w = text_length(font, dbg);
+		// backbuffer->text(dbg, {uint32_t(viewport.x + viewport.w - fps_w - 4), uint32_t(viewport.y + 4)}, 15);
 		std::snprintf(dbg, sizeof(dbg), "%02d:%02d", secs_left / 60, secs_left % 60);
 		backbuffer->text(dbg, {uint32_t(viewport.x + 4), uint32_t(viewport.y + 4)}, 15);
 
