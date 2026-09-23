@@ -6,17 +6,17 @@
 
 struct power_tower_t : public actionable_t
 {
-	power_tower_t(vec2_t pos, int index, game_state_t *game) : actionable_t{POWER_TOWER_NAME, pos, POWER_TOWER_ID}, tower_index(index), game(game)
+	power_tower_t(texts_t *t, vec2_t pos, int index, game_state_t *game) : actionable_t{POWER_TOWER_NAME, pos, POWER_TOWER_ID, t}, tower_index(index), game(game)
 	{
 		collidable = true;
-		action_text = "Place power generator";
+		action_text = t->get("power_tower_action");
 	}
 
 	void on_action_pressed() override
 	{
 		if (game->tower_generator[tower_index] != game_state_t::CARRIED_NONE)
 		{
-			dialog_lines.push_back("This tower already has a generator");
+			dialog_lines.push_back(t->get("power_tower_has_generator"));
 			return;
 		}
 
@@ -30,14 +30,14 @@ struct power_tower_t : public actionable_t
 			}
 			else
 			{
-				dialog_lines.push_back("I need a power generator");
+				dialog_lines.push_back(t->get("power_tower_need_generator"));
 			}
 			return;
 		}
 
 		if (game->generator_placed[game->carried_generator])
 		{
-			dialog_lines.push_back("This generator is already placed");
+			dialog_lines.push_back(t->get("power_tower_already_placed"));
 			return;
 		}
 
@@ -45,7 +45,7 @@ struct power_tower_t : public actionable_t
 		game->tower_generator[tower_index] = game->carried_generator;
 		game->num_generators_placed++;
 		game->carried_generator = game_state_t::CARRIED_NONE;
-		dialog_lines.push_back("You have placed the generator on the tower");
+		dialog_lines.push_back(t->get("power_tower_placed"));
 
 		if (game->num_generators_placed == 3)
 			game->request_ending = true;

@@ -3,16 +3,18 @@
 #include <string>
 #include <vector>
 #include "../engine/entity.h"
+#include "../engine/texts.h"
 
 struct actionable_t : public entity_t
 {
 	std::string action_text;
 	real_t action_distance = real_t(1.5f);
 	std::vector<std::string> dialog_lines;
+	texts_t *t;
 
 	inline static std::vector<actionable_t *> all;
 
-	actionable_t(std::string name, vec2_t pos, uint8_t fpg_id) : entity_t(name, pos, fpg_id)
+	actionable_t(std::string name, vec2_t pos, uint8_t fpg_id, texts_t *t) : entity_t(name, pos, fpg_id), t{t}
 	{
 		all.push_back(this);
 	}

@@ -18,8 +18,8 @@ struct barn_door_t : public actionable_t
 	raycaster_t *raycaster;
 	uint32_t tile_x, tile_y;
 
-	barn_door_t(game_state_t *game, tilemap_t *tilemap, raycaster_t *raycaster, uint32_t tile_x, uint32_t tile_y)
-			: actionable_t{BARN_DOOR_NAME, vec2_t{real_t(tile_x + 0.5f), real_t(tile_y + 0.5f)}, 0},
+	barn_door_t(texts_t *t, game_state_t *game, tilemap_t *tilemap, raycaster_t *raycaster, uint32_t tile_x, uint32_t tile_y)
+			: actionable_t{BARN_DOOR_NAME, vec2_t{real_t(tile_x + 0.5f), real_t(tile_y + 0.5f)}, 0, t},
 				game{game},
 				tilemap{tilemap},
 				raycaster{raycaster},
@@ -27,7 +27,7 @@ struct barn_door_t : public actionable_t
 				tile_y{tile_y}
 	{
 		collidable = false;
-		action_text = "Open barn door";
+		action_text = t->get("barn_door_action");
 		if (game->barn_door_opened)
 			open_doors();
 	}
@@ -40,17 +40,17 @@ struct barn_door_t : public actionable_t
 	{
 		if (!get_crowbar()->was_picked())
 		{
-			dialog_lines.push_back("I need something to pry this open.");
+			dialog_lines.push_back(t->get("barn_door_need_crowbar"));
 			return;
 		}
 		int elapsed = int((clock() - game->loop_start_clock) * 20 / CLOCKS_PER_SEC);
 		if (elapsed >= BARN_DOOR_OPEN_WINDOW)
 		{
-			dialog_lines.push_back("Something is blocking the door. It was not there before.");
+			dialog_lines.push_back(t->get("barn_door_blocked"));
 			return;
 		}
 		open_doors();
-		dialog_lines.push_back("The barn door creaks open.");
+		dialog_lines.push_back(t->get("barn_door_opened"));
 	}
 
 private:

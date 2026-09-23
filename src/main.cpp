@@ -4,6 +4,7 @@
 #include "engine/pal.h"
 #include "engine/pixmap.h"
 #include "engine/screen.h"
+#include "engine/texts.h"
 #include "engine/tilemap.h"
 #include "engine/viewport.h"
 #include "engine/raycaster.h"
@@ -68,6 +69,13 @@ int main()
 		return -1;
 	}
 
+	texts_t t{"assets/lang/en.ini"};
+	if (!t.loaded())
+	{
+		std::cout << "Can't load texts" << std::endl;
+		return -1;
+	}
+
 	SAMPLE *footsteps_sound = nullptr;
 	SAMPLE *humming_sound = nullptr;
 	if (install_sound(DIGI_AUTODETECT, MIDI_NONE, nullptr) == 0)
@@ -91,7 +99,7 @@ int main()
 	auto player = player_t{tilemap, real_t(3.0f / TARGET_FPS), real_t(2.0f / TARGET_FPS), real_t(0.25f)};
 	auto banner = banner_t{};
 	auto ending_banner = banner_t{60}; // 6 seconds per page at 10 FPS
-	auto action_text = action_text_t{};
+	auto action_text = action_text_t{&t};
 
 	auto raycaster = raycaster_t{{tilemap.map_size.x, tilemap.map_size.y}, fpg};
 #if FOG_ENABLED
@@ -110,15 +118,15 @@ int main()
 	int humming_voice = -1;
 
 	game_state_t game;
-	intro_controller_t intro{&game, &backbuffer};
+	intro_controller_t intro{&game, &backbuffer, &t};
 	game_controller_t game_ctrl{&game, &backbuffer, &player, &banner, &action_text,
 															&raycaster, &tilemap, &fpg, VIEWPORT,
 															footsteps_sound, humming_sound,
-															&footsteps_voice, &humming_voice};
+															&footsteps_voice, &humming_voice, &t};
 	workshop_minigame_controller_t workshop_minigame{&game, &backbuffer, &workshop_fpg};
 	tower_minigame_controller_t tower_minigame{&game, &backbuffer};
-	menu_controller_t menu_ctrl{&game, &backbuffer, &menu_fpg, VIEWPORT};
-	ending_controller_t ending{&game, &backbuffer, &menu_fpg, &ending_banner, VIEWPORT};
+	menu_controller_t menu_ctrl{&game, &backbuffer, &menu_fpg, VIEWPORT, &t};
+	ending_controller_t ending{&game, &backbuffer, &menu_fpg, &ending_banner, VIEWPORT, &t};
 	controller_t *current_controller = &menu_ctrl;
 	game.phase = game_state_t::PHASE_MENU;
 	menu_ctrl.reset();

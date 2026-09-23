@@ -6,11 +6,11 @@
 
 struct herbicide_t : public actionable_t
 {
-	herbicide_t(game_state_t *game, vec2_t pos) : actionable_t{HERBICIDE_NAME, pos, HERBICIDE_ID}, game{game}
+	herbicide_t(texts_t *t, game_state_t *game, vec2_t pos) : actionable_t{HERBICIDE_NAME, pos, HERBICIDE_ID, t}, game{game}
 	{
 		halved = true;
 		collidable = false;
-		action_text = "Take herbicide";
+		action_text = t->get("herbicide_action");
 		if (game->vines_cleared || game->num_loop % 2 != 0)
 			active = false;
 	}
@@ -19,7 +19,7 @@ struct herbicide_t : public actionable_t
 	{
 		game->herbicide_held = true;
 		active = false;
-		dialog_lines.push_back("You took the herbicide.");
+		dialog_lines.push_back(t->get("herbicide_taken"));
 	}
 
 private:

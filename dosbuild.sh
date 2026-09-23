@@ -20,7 +20,7 @@ DJGPP_BIN=/opt/djgpp/bin
 CXX="${DJGPP_BIN}/i586-pc-msdosdjgpp-g++"
 ALLEGRO_DIR=./lib/allegro
 
-SOURCES="src/main.cpp src/engine/pal.cpp src/engine/pixmap.cpp src/engine/raycaster.cpp src/engine/screen.cpp"
+SOURCES="src/main.cpp src/engine/pal.cpp src/engine/pixmap.cpp src/engine/raycaster.cpp src/engine/screen.cpp src/engine/texts.cpp"
 
 CXXFLAGS="-std=gnu++17 -march=i486 -O2 -funroll-loops -ffast-math -fomit-frame-pointer"
 CXXFLAGS="${CXXFLAGS} -fno-exceptions -fno-rtti"

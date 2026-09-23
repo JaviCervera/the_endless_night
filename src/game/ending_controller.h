@@ -18,14 +18,15 @@ struct ending_controller_t : public controller_t
 	static constexpr int TITLE_TICKS = 30;   // 3 seconds at 10 FPS
 	static constexpr int CREDITS_TICKS = 30; // 3 seconds at 10 FPS
 
-	ending_controller_t(game_state_t *game, pixmap_t *backbuffer, const fpg_t *menu_fpg, banner_t *banner, viewport_t viewport)
-			: game{game}, backbuffer{backbuffer}, menu_fpg{menu_fpg}, banner{banner}, viewport{viewport} {}
+	ending_controller_t(game_state_t *game, pixmap_t *backbuffer, const fpg_t *menu_fpg, banner_t *banner, viewport_t viewport, texts_t *t)
+			: game{game}, backbuffer{backbuffer}, menu_fpg{menu_fpg}, banner{banner}, viewport{viewport}, t{t} {}
 
 	game_state_t *game;
 	pixmap_t *backbuffer;
 	const fpg_t *menu_fpg;
 	banner_t *banner;
 	viewport_t viewport;
+	texts_t *t;
 
 	state_t state = FADE_IN;
 	int ticks = 0;
@@ -39,7 +40,7 @@ struct ending_controller_t : public controller_t
 		pal_start_fade(100, 100, 100, FADE_STEPS);
 
 		banner->clear();
-		banner->show("The electrical discharge destroys the alien spacecraft. At last, you have closed the cycle of...");
+		banner->show(t->get("ending_banner"));
 	}
 
 	void update(const input_t &input) override
@@ -64,7 +65,7 @@ struct ending_controller_t : public controller_t
 			break;
 
 		case TITLE:
-			draw_centered("THE ENDLESS NIGHT");
+			draw_centered(t->get("ending_title"));
 			if (++ticks >= TITLE_TICKS)
 			{
 				ticks = 0;
@@ -73,7 +74,7 @@ struct ending_controller_t : public controller_t
 			break;
 
 		case CREDITS:
-			draw_centered("A game by Javi \"Jedive\" Cervera");
+			draw_centered(t->get("ending_credits"));
 			if (++ticks >= CREDITS_TICKS)
 				game->phase = game_state_t::PHASE_MENU;
 			break;
@@ -92,13 +93,13 @@ private:
 		banner->draw(*backbuffer);
 	}
 
-	void draw_centered(const char *text)
+	void draw_centered(const std::string &text)
 	{
 		backbuffer->fill(0);
 
 		const auto size = backbuffer->size();
-		const int x = (int(size.x) - text_length(font, text)) / 2;
+		const int x = (int(size.x) - text_length(font, text.c_str())) / 2;
 		const int y = (int(size.y) - text_height(font)) / 2;
-		backbuffer->text(text, uvec2_t{uint32_t(x), uint32_t(y)}, 15);
+		backbuffer->text(text.c_str(), uvec2_t{uint32_t(x), uint32_t(y)}, 15);
 	}
 };

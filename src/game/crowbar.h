@@ -6,10 +6,10 @@
 
 struct crowbar_t : public actionable_t
 {
-	crowbar_t(player_t &player, vec2_t pos, game_state_t *game) : actionable_t{CROWBAR_NAME, pos, CROWBAR_ID}, player{&player}, game{game}
+	crowbar_t(texts_t *t, player_t &player, vec2_t pos, game_state_t *game) : actionable_t{CROWBAR_NAME, pos, CROWBAR_ID, t}, player{&player}, game{game}
 	{
 		collidable = false;
-		action_text = "Take crowbar";
+		action_text = t->get("crowbar_action");
 		if (game->crowbar_picked)
 		{
 			this->pos = game->crowbar_spawn_pos;
@@ -41,9 +41,9 @@ struct crowbar_t : public actionable_t
 	void on_action_pressed() override
 	{
 		if (!game->crowbar_picked)
-			dialog_lines.push_back("With this I should be able to open the barn.");
+			dialog_lines.push_back(t->get("crowbar_taken"));
 		else
-			dialog_lines.push_back("The crowbar is where I left it!");
+			dialog_lines.push_back(t->get("crowbar_already_taken"));
 		pick();
 	}
 

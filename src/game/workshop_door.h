@@ -6,10 +6,10 @@
 
 struct workshop_door_t : public actionable_t
 {
-	workshop_door_t(game_state_t *game, vec2_t pos)
-			: actionable_t{WORKSHOP_DOOR_NAME, pos, 0}, game{game}
+	workshop_door_t(texts_t *t, game_state_t *game, vec2_t pos)
+			: actionable_t{WORKSHOP_DOOR_NAME, pos, 0, t}, game{game}
 	{
-		action_text = "Enter workshop code";
+		action_text = t->get("workshop_door_action");
 		collidable = false;
 	}
 
@@ -17,19 +17,19 @@ struct workshop_door_t : public actionable_t
 	{
 		if (!game->tree_note_read)
 		{
-			dialog_lines.push_back("I don't know the code");
+			dialog_lines.push_back(t->get("workshop_door_unknown_code"));
 			return;
 		}
 
 		if (game->carried_generator != game_state_t::CARRIED_NONE)
 		{
-			dialog_lines.push_back("I am already carrying a generator");
+			dialog_lines.push_back(t->get("workshop_door_already_carrying"));
 			return;
 		}
 
 		if (game->generator_placed[game_state_t::CARRIED_WORKSHOP_GENERATOR])
 		{
-			dialog_lines.push_back("I already have the power generator");
+			dialog_lines.push_back(t->get("workshop_door_already_have"));
 			return;
 		}
 

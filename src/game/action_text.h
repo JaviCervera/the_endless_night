@@ -11,6 +11,8 @@
 
 struct action_text_t
 {
+	explicit action_text_t(texts_t *t) : t{t} {}
+
 	actionable_t *update(vec2_t player_pos, const input_t &input, game_state_t &game)
 	{
 		m_text.clear();
@@ -18,7 +20,7 @@ struct action_text_t
 
 		if (game.player_blocked)
 		{
-			m_text = "...";
+			m_text = t->get("action_blocked");
 			return nullptr;
 		}
 
@@ -61,6 +63,7 @@ struct action_text_t
 	const std::string &text() const { return m_text; }
 
 private:
+	texts_t *t;
 	std::string m_text;
 	actionable_t *m_target = nullptr;
 };

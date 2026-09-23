@@ -6,10 +6,10 @@
 
 struct station_door_t : public actionable_t
 {
-	station_door_t(game_state_t *game, vec2_t pos)
-			: actionable_t{STATION_DOOR_NAME, pos, STATION_DOOR_ID}, game{game}
+	station_door_t(texts_t *t, game_state_t *game, vec2_t pos)
+			: actionable_t{STATION_DOOR_NAME, pos, STATION_DOOR_ID, t}, game{game}
 	{
-		action_text = "Open door";
+		action_text = t->get("station_door_action");
 		if (game->station_door_opened)
 		{
 			active = false;
@@ -21,13 +21,13 @@ struct station_door_t : public actionable_t
 	{
 		if (!game->station_key_held)
 		{
-			dialog_lines.push_back("It's locked");
+			dialog_lines.push_back(t->get("station_door_locked"));
 			return;
 		}
 
 		game->station_door_opened = true;
 		open_doors();
-		dialog_lines.push_back("The door opens");
+		dialog_lines.push_back(t->get("station_door_opened"));
 	}
 
 private:

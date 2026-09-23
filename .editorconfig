@@ -9,3 +9,7 @@ insert_final_newline = true
 [*.{h,c,cpp,txt}]
 indent_size = 2
 indent_style = tab
+
+# Language files are DOS (CP 437), not UTF-8.
+[assets/lang/*.ini]
+charset = unset

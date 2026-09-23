@@ -1,19 +1,20 @@
 #pragma once
 
-#include <cstdio>
 #include <allegro.h>
 #include "controller.h"
 #include "game_state.h"
 #include "../engine/pixmap.h"
 #include "../engine/pal.h"
+#include "../engine/texts.h"
 
 struct intro_controller_t : public controller_t
 {
-	intro_controller_t(game_state_t *game, pixmap_t *backbuffer)
-			: game{game}, backbuffer{backbuffer} {}
+	intro_controller_t(game_state_t *game, pixmap_t *backbuffer, texts_t *t)
+			: game{game}, backbuffer{backbuffer}, t{t} {}
 
 	game_state_t *game;
 	pixmap_t *backbuffer;
+	texts_t *t;
 
 	int intro_timer = 0;
 	int intro_sub = 0;
@@ -48,10 +49,9 @@ struct intro_controller_t : public controller_t
 		{
 			backbuffer->fill(0);
 
-			char loop_text[32];
-			std::snprintf(loop_text, sizeof(loop_text), "Loop %d", game->num_loop);
-			int loop_text_width = text_length(font, loop_text);
-			backbuffer->text(loop_text, {static_cast<uint32_t>((backbuffer->size().x - loop_text_width) / 2), 100u}, 15);
+			const auto loop_text = t->format("loop_banner", game->num_loop);
+			const int loop_text_width = text_length(font, loop_text.c_str());
+			backbuffer->text(loop_text.c_str(), {static_cast<uint32_t>((backbuffer->size().x - loop_text_width) / 2), 100u}, 15);
 
 			pal_update_fade();
 

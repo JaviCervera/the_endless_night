@@ -18,6 +18,7 @@
 #include "../engine/pal.h"
 #include "../engine/screen.h"
 #include "../engine/entity.h"
+#include "../engine/texts.h"
 #include "herbicide.h"
 #include "entity_ids.h"
 #include "fence.h"
@@ -45,19 +46,23 @@ struct game_controller_t : public controller_t
 										raycaster_t *raycaster, tilemap_t *tilemap, const fpg_t *fpg,
 										viewport_t viewport,
 										SAMPLE *footsteps_sound, SAMPLE *humming_sound,
-										int *footsteps_voice, int *humming_voice)
+										int *footsteps_voice, int *humming_voice,
+										texts_t *t)
 			: game{game}, backbuffer{backbuffer}, player{player},
-				banner{banner}, action_text{action_text},
+				banner{banner}, action_text{action_text}, t{t},
 				raycaster{raycaster}, tilemap{tilemap}, fpg{fpg},
 				viewport{viewport}, footsteps_sound{footsteps_sound},
 				humming_sound{humming_sound}, footsteps_voice{footsteps_voice},
-				humming_voice{humming_voice} {}
+				humming_voice{humming_voice},
+				compass{t},
+				pause_menu{t->get("pause_menu_resume"), t->get("pause_menu_exit")} {}
 
 	game_state_t *game;
 	pixmap_t *backbuffer;
 	player_t *player;
 	banner_t *banner;
 	action_text_t *action_text;
+	texts_t *t;
 	raycaster_t *raycaster;
 	tilemap_t *tilemap;
 	const fpg_t *fpg;
@@ -74,7 +79,7 @@ struct game_controller_t : public controller_t
 	bool paused = false;
 	int pause_elapsed_ticks = 0;
 	bool exit_to_menu_fade = false;
-	menu_t pause_menu{"RESUME GAME", "EXIT TO MENU"};
+	menu_t pause_menu;
 
 	enum minigame_fade_state_t { FADE_NONE, FADE_OUT_TO_WORKSHOP_MINIGAME, FADE_IN_FROM_WORKSHOP_MINIGAME, FADE_OUT_TO_TOWER_MINIGAME, FADE_IN_FROM_TOWER_MINIGAME, FADE_OUT_TO_ENDING };
 	minigame_fade_state_t minigame_fade_state = FADE_NONE;
@@ -186,9 +191,9 @@ struct game_controller_t : public controller_t
 			if (!pal_fade_active())
 			{
 				if (game->workshop_minigame_won)
-					banner->show("I got a power generator!");
+					banner->show(t->get("workshop_won_banner"));
 				else
-					banner->show("I should have paid more attention at school");
+					banner->show(t->get("workshop_lost_banner"));
 				game->workshop_minigame_won = false;
 
 				minigame_fade_state = FADE_NONE;
@@ -242,7 +247,7 @@ struct game_controller_t : public controller_t
 			spawn_entities();
 			game->loop_start_clock = clock();
 			if (game->num_loop == 1)
-				banner->show("What was that sound? It came from outside...");
+				banner->show(t->get("loop_start_banner"));
 			if (humming_sound)
 				*humming_voice = play_sample(humming_sound, 64, 128, humming_sound->freq, 1);
 			started = true;
@@ -366,9 +371,9 @@ private:
 
 	void draw_pause_overlay()
 	{
-		const char *msg = "PAUSED";
-		const int text_w = text_length(font, msg);
-		backbuffer->text(msg, {uint32_t(viewport.x + (viewport.w - text_w) / 2), uint32_t(viewport.y + viewport.h / 2 - 4)}, 15);
+		const auto msg = t->get("paused");
+		const int text_w = text_length(font, msg.c_str());
+		backbuffer->text(msg.c_str(), {uint32_t(viewport.x + (viewport.w - text_w) / 2), uint32_t(viewport.y + viewport.h / 2 - 4)}, 15);
 		pause_menu.draw(*backbuffer, menu_t::lower_left(viewport));
 	}
 
@@ -424,8 +429,8 @@ private:
 		int freq = humming_sound->freq;
 		if (remaining < 80)
 		{
-			int t = 80 - remaining;
-			freq = freq + t * (freq / 320);
+			int ramp = 80 - remaining;
+			freq = freq + ramp * (freq / 320);
 		}
 		voice_set_frequency(*humming_voice, freq);
 	}
@@ -447,50 +452,50 @@ private:
 					player->cam.plane = vec2_t{real_t(0.66f), real_t(0.0f)};
 					break;
 				case FARMER_ID:
-					new farmer_t(game, pos);
+					new farmer_t(t, game, pos);
 					break;
 				case BARN_WORKER_ID:
-					new barn_worker_t(game, pos);
+					new barn_worker_t(t, game, pos);
 					break;
 				case CROWBAR_ID:
-					new crowbar_t(*player, pos, game);
+					new crowbar_t(t, *player, pos, game);
 					break;
 				case GENERATOR_ID:
 					if (!game->generator_placed[game_state_t::CARRIED_BARN_GENERATOR])
-						new generator_t(*player, pos, game);
+						new generator_t(t, *player, pos, game);
 					break;
 				case BARN_DOOR_ID:
-					new barn_door_t(game, tilemap, raycaster, x, y);
+					new barn_door_t(t, game, tilemap, raycaster, x, y);
 					break;
 				case PLANT_ID:
-					new plant_t(pos);
+					new plant_t(t, pos);
 					break;
 				case HERBICIDE_ID:
-					new herbicide_t(game, pos);
+					new herbicide_t(t, game, pos);
 					break;
 				case FENCE_ID:
-					new fence_t(game, pos);
+					new fence_t(t, game, pos);
 					break;
 				case STATION_DOOR_ID:
-					new station_door_t(game, pos);
+					new station_door_t(t, game, pos);
 					break;
 				case KEY_ID:
-					new station_key_t(game, pos);
+					new station_key_t(t, game, pos);
 					break;
 				case VINE_ID:
-					new vine_t(game, pos);
+					new vine_t(t, game, pos);
 					break;
 				case RADIO_STATION_ID:
-					new radio_station_t(pos, game);
+					new radio_station_t(t, pos, game);
 					break;
 				case POWER_TOWER_ID:
-					new power_tower_t(pos, power_tower_count++, game);
+					new power_tower_t(t, pos, power_tower_count++, game);
 					break;
 				case TREE_NOTE_ID:
-					new tree_note_t(game, pos);
+					new tree_note_t(t, game, pos);
 					break;
 				case WORKSHOP_DOOR_ID:
-					new workshop_door_t(game, pos);
+					new workshop_door_t(t, game, pos);
 					break;
 				default:
 					if (id != 0)

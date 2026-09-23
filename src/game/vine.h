@@ -6,9 +6,9 @@
 
 struct vine_t : public actionable_t
 {
-	vine_t(game_state_t *game, vec2_t pos) : actionable_t{VINE_NAME, pos, VINE_ID}, game{game}
+	vine_t(texts_t *t, game_state_t *game, vec2_t pos) : actionable_t{VINE_NAME, pos, VINE_ID, t}, game{game}
 	{
-		action_text = "Access field";
+		action_text = t->get("vine_action");
 		if (game->vines_cleared)
 		{
 			active = false;
@@ -18,7 +18,7 @@ struct vine_t : public actionable_t
 
 	void update() override
 	{
-		action_text = game->herbicide_held ? "Kill vines with herbicide" : "Access field";
+		action_text = game->herbicide_held ? t->get("vine_action_herbicide") : t->get("vine_action");
 	}
 
 	void on_action_pressed() override
@@ -26,10 +26,10 @@ struct vine_t : public actionable_t
 		if (game->herbicide_held)
 		{
 			game->vines_cleared = true;
-			dialog_lines.push_back("Nothing seems to happen.");
+			dialog_lines.push_back(t->get("vine_herbicide_used"));
 			return;
 		}
-		dialog_lines.push_back("The vines block the way");
+		dialog_lines.push_back(t->get("vine_blocked"));
 	}
 
 private:

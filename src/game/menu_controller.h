@@ -15,13 +15,15 @@ struct menu_controller_t : public controller_t
 	static constexpr int HOLD_TICKS = 30;
 	static constexpr int FADE_STEPS = 6;
 
-	menu_controller_t(game_state_t *game, pixmap_t *backbuffer, const fpg_t *menu_fpg, viewport_t viewport)
-			: game{game}, backbuffer{backbuffer}, menu_fpg{menu_fpg}, viewport{viewport}, menu{"START GAME", "EXIT TO DOS"} {}
+	menu_controller_t(game_state_t *game, pixmap_t *backbuffer, const fpg_t *menu_fpg, viewport_t viewport, texts_t *t)
+			: game{game}, backbuffer{backbuffer}, menu_fpg{menu_fpg}, viewport{viewport},
+				t{t}, menu{t->get("main_menu_start"), t->get("main_menu_exit")} {}
 
 	game_state_t *game;
 	pixmap_t *backbuffer;
 	const fpg_t *menu_fpg;
 	viewport_t viewport;
+	texts_t *t;
 	menu_t menu;
 
 	state_t state = MAP1_FADE_IN;

@@ -7,10 +7,10 @@
 
 struct generator_t : public actionable_t
 {
-	generator_t(player_t &player, vec2_t pos, game_state_t *game) : actionable_t{GENERATOR_NAME, pos, GENERATOR_ID}, player{&player}, game{game}
+	generator_t(texts_t *t, player_t &player, vec2_t pos, game_state_t *game) : actionable_t{GENERATOR_NAME, pos, GENERATOR_ID, t}, player{&player}, game{game}
 	{
 		collidable = false;
-		action_text = "Take power generator";
+		action_text = t->get("generator_action");
 		if (game->barn_generator_picked)
 		{
 			this->pos = game->barn_generator_spawn_pos;
@@ -27,12 +27,12 @@ struct generator_t : public actionable_t
 	{
 		if (game->carried_generator != game_state_t::CARRIED_NONE)
 		{
-			dialog_lines.push_back("I am already carrying a generator");
+			dialog_lines.push_back(t->get("generator_already_carrying"));
 			return;
 		}
 
-		dialog_lines.push_back("With more like this, I could restore the power.");
-		dialog_lines.push_back("A signal is coming from the radio tower to the north...");
+		dialog_lines.push_back(t->get("generator_taken"));
+		dialog_lines.push_back(t->get("generator_signal"));
 		pick();
 	}
 

@@ -5,7 +5,7 @@
 
 struct plant_t : public actionable_t
 {
-	plant_t(vec2_t pos) : actionable_t{PLANT_NAME, pos, PLANT_ID}
+	plant_t(texts_t *t, vec2_t pos) : actionable_t{PLANT_NAME, pos, PLANT_ID, t}
 	{
 		halved = true;
 		collidable = false;
