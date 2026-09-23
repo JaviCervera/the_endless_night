@@ -15,9 +15,11 @@ struct lang_controller_t : public controller_t
 	static constexpr const char *EN_FILE = "assets/lang/en.ini";
 	static constexpr const char *ES_FILE = "assets/lang/es.ini";
 
-	lang_controller_t(game_state_t *game, pixmap_t *backbuffer, viewport_t viewport, texts_t *t)
+	lang_controller_t(game_state_t *game, pixmap_t *backbuffer, viewport_t viewport, texts_t *t,
+										SAMPLE *select_sound, SAMPLE *accept_sound)
 			: game{game}, backbuffer{backbuffer}, viewport{viewport}, t{t},
-				menu{"English", "Espa\xA4ol"} {} // \xA4 is 'ñ' in CP 437
+				// \xA4 is 'ñ' in CP 437
+				menu{"English", "Espa\xA4ol", select_sound, accept_sound} {}
 
 	void reset()
 	{

@@ -46,6 +46,7 @@ struct game_controller_t : public controller_t
 										raycaster_t *raycaster, tilemap_t *tilemap, const fpg_t *fpg,
 										viewport_t viewport,
 										SAMPLE *footsteps_sound, SAMPLE *humming_sound,
+										SAMPLE *select_sound, SAMPLE *accept_sound,
 										int *footsteps_voice, int *humming_voice,
 										texts_t *t)
 			: game{game}, backbuffer{backbuffer}, player{player},
@@ -55,7 +56,7 @@ struct game_controller_t : public controller_t
 				humming_sound{humming_sound}, footsteps_voice{footsteps_voice},
 				humming_voice{humming_voice},
 				compass{t},
-				pause_menu{t->get("pause_menu_resume"), t->get("pause_menu_exit")} {}
+				pause_menu{t->get("pause_menu_resume"), t->get("pause_menu_exit"), select_sound, accept_sound} {}
 
 	game_state_t *game;
 	pixmap_t *backbuffer;

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <allegro.h>
 #include "input.h"
 #include "../engine/pixmap.h"
 #include "../engine/viewport.h"
@@ -15,8 +16,10 @@ struct menu_t
 	static constexpr palcolor_t COLOR_UNSELECTED = 8;
 	static constexpr palcolor_t COLOR_SELECTED_MARKER = 22;
 
-	menu_t(std::string option0, std::string option1)
-			: options{option0, option1} {}
+	menu_t(std::string option0, std::string option1,
+				 SAMPLE *select_sound = nullptr, SAMPLE *accept_sound = nullptr)
+			: options{option0, option1}, select_sound{select_sound},
+				accept_sound{accept_sound} {}
 
 	void reset()
 	{
@@ -31,11 +34,27 @@ struct menu_t
 
 	bool update(const input_t &input)
 	{
+		int next = selection;
 		if (input.menu_up)
-			selection = 0;
+			next = 0;
 		if (input.menu_down)
-			selection = OPTION_COUNT - 1;
-		return input.accept;
+			next = OPTION_COUNT - 1;
+
+		if (next != selection)
+		{
+			selection = next;
+			if (select_sound)
+				play_sample(select_sound, 255, 128, 1000, 0);
+		}
+
+		if (input.accept)
+		{
+			if (accept_sound)
+				play_sample(accept_sound, 255, 128, 1000, 0);
+			return true;
+		}
+
+		return false;
 	}
 
 	int selected() const
@@ -64,4 +83,6 @@ struct menu_t
 private:
 	std::string options[OPTION_COUNT];
 	int selection = 0;
+	SAMPLE *select_sound;
+	SAMPLE *accept_sound;
 };
