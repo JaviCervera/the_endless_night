@@ -141,7 +141,7 @@ int main()
 															footsteps_sound, humming_sound,
 															select_sound, accept_sound,
 															&footsteps_voice, &humming_voice, &t};
-	workshop_minigame_controller_t workshop_minigame{&game, &backbuffer, &workshop_fpg};
+	workshop_minigame_controller_t workshop_minigame{&game, &backbuffer, &workshop_fpg, &t, select_sound, accept_sound};
 	tower_minigame_controller_t tower_minigame{&game, &backbuffer};
 	menu_controller_t menu_ctrl{&game, &backbuffer, &menu_fpg, VIEWPORT, &t, select_sound, accept_sound, intro_sound};
 	ending_controller_t ending{&game, &backbuffer, &menu_fpg, &ending_banner, VIEWPORT, &t, ending_sound};

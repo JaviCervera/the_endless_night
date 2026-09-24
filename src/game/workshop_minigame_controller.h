@@ -5,22 +5,33 @@
 #include "../engine/pixmap.h"
 #include "../engine/pal.h"
 #include "../engine/fpg.h"
+#include "../engine/texts.h"
+#include <allegro.h>
 #include <cstdlib>
 #include <cstdio>
 #include <cstring>
+#include <string>
+#include <vector>
 
 struct workshop_minigame_controller_t : public controller_t
 {
 	enum state_t { FADE_IN, RUNNING, FADE_OUT };
 
-	workshop_minigame_controller_t(game_state_t *game, pixmap_t *backbuffer, const fpg_t *workshop_fpg)
-			: game{game}, backbuffer{backbuffer}, workshop_fpg{workshop_fpg}, state{FADE_IN}
+	static constexpr int INTRO_TICKS = 2 * 10; // 2 seconds at 10 FPS
+
+	workshop_minigame_controller_t(game_state_t *game, pixmap_t *backbuffer, const fpg_t *workshop_fpg, texts_t *t,
+																 SAMPLE *select_sound, SAMPLE *accept_sound)
+			: game{game}, backbuffer{backbuffer}, workshop_fpg{workshop_fpg}, t{t},
+				select_sound{select_sound}, accept_sound{accept_sound}, state{FADE_IN}
 	{
 	}
 
 	game_state_t *game;
 	pixmap_t *backbuffer;
 	const fpg_t *workshop_fpg;
+	texts_t *t;
+	SAMPLE *select_sound;
+	SAMPLE *accept_sound;
 	state_t state;
 
 	// Minigame data
@@ -32,6 +43,7 @@ struct workshop_minigame_controller_t : public controller_t
 	uint8_t current_column = 0;       // Active column (0-7)
 	uint8_t cursor_pos = 0;           // Bottom row cursor (0-7)
 	uint32_t timer_ticks = 600;       // 60 sec × 10 FPS
+	int intro_ticks = 0;              // Remaining ticks of the intro message
 	bool game_won = false;
 	bool minigame_started = false;
 	bool piece_available[8] = {true, true, true, true, true, true, true, true};
@@ -39,8 +51,14 @@ struct workshop_minigame_controller_t : public controller_t
 	void reset()
 	{
 		init_minigame();
+		intro_ticks = 0;
 		minigame_started = false;
 		state = FADE_IN;
+	}
+
+	void stop() override
+	{
+		backbuffer->fill(0);
 	}
 
 	void update(const input_t &input) override
@@ -71,21 +89,36 @@ struct workshop_minigame_controller_t : public controller_t
 			{
 				reset();
 				minigame_started = true;
+				intro_ticks = INTRO_TICKS;
 			}
 
-			if (timer_ticks > 0) timer_ticks--;
+			if (intro_ticks > 0)
+			{
+				// Intro message: pause the timer and ignore input
+				intro_ticks--;
+			}
+			else
+			{
+				if (timer_ticks > 0) timer_ticks--;
+				if (input.menu_left)
+				{
+					cursor_pos = seek_available(cursor_pos, -1);
+					play_select();
+				}
+				if (input.menu_right)
+				{
+					cursor_pos = seek_available(cursor_pos, 1);
+					play_select();
+				}
+				if (input.action && place_piece())
+					play_accept();
+			}
+
 			if (timer_ticks == 0)
 			{
 				pal_start_fade(0, 0, 0, 4);
 				state = FADE_OUT;
 			}
-
-			if (input.menu_left)
-				cursor_pos = seek_available(cursor_pos, -1);
-			if (input.menu_right)
-				cursor_pos = seek_available(cursor_pos, 1);
-			if (input.action)
-				place_piece();
 
 			if (game_won)
 			{
@@ -142,10 +175,10 @@ private:
 		return next;
 	}
 
-	void place_piece()
+	bool place_piece()
 	{
-		if (column_heights[current_column] >= 3) return;
-		if (!piece_available[cursor_pos]) return;
+		if (column_heights[current_column] >= 3) return false;
+		if (!piece_available[cursor_pos]) return false;
 
 		columns[current_column][column_heights[current_column]++] = cursor_pos;
 		piece_available[cursor_pos] = false;
@@ -157,18 +190,26 @@ private:
 			if (column_scores[current_column] == 3)
 			{
 				game_won = true;
-				return;
+				return true;
 			}
 
 			current_column++;
 			if (current_column >= 8)
 			{
-				// All 8 columns filled without win - clear everything and restart
+				// All 8 columns filled without win - clear everything and restart,
+				// carrying the 8th column over into the 1st so its score stays visible
+				uint8_t saved_pieces[3];
+				std::memcpy(saved_pieces, columns[7], sizeof(saved_pieces));
+				uint8_t saved_score = column_scores[7];
+
 				clear_columns();
-				num_columns = 0;
-				current_column = 0;
-				// Restore all pieces (they were marked unavailable when placed in 8th column)
 				restore_pieces();
+
+				std::memcpy(columns[0], saved_pieces, sizeof(saved_pieces));
+				column_heights[0] = 3;
+				column_scores[0] = saved_score;
+				num_columns = 1;
+				current_column = 1;
 			}
 			else
 			{
@@ -183,6 +224,20 @@ private:
 			// 1st or 2nd piece: move cursor to next available
 			cursor_pos = seek_available(cursor_pos, 1);
 		}
+
+		return true;
+	}
+
+	void play_select()
+	{
+		if (select_sound)
+			play_sample(select_sound, 255, 128, 1000, 0);
+	}
+
+	void play_accept()
+	{
+		if (accept_sound)
+			play_sample(accept_sound, 255, 128, 1000, 0);
 	}
 
 	int count_correct(int col)
@@ -263,5 +318,74 @@ private:
 		int cursor_x = col_x_start + cursor_pos * col_width;
 		int cursor_y = bottom_y + sprite_size + 4;
 		backbuffer->text("^", uvec2_t(static_cast<uint32_t>(cursor_x - 4), static_cast<uint32_t>(cursor_y)), 14);
+
+		if (intro_ticks > 0)
+			draw_intro_message();
+	}
+
+	std::vector<std::string> wrap_text(const std::string &text, int max_width)
+	{
+		std::vector<std::string> lines;
+		std::string line;
+		size_t pos = 0;
+
+		while (pos < text.length())
+		{
+			while (pos < text.length() && text[pos] == ' ')
+				pos++;
+			if (pos >= text.length())
+				break;
+
+			size_t word_start = pos;
+			while (pos < text.length() && text[pos] != ' ')
+				pos++;
+			std::string word = text.substr(word_start, pos - word_start);
+
+			std::string test = line.empty() ? word : line + " " + word;
+			if (text_length(font, test.c_str()) > max_width && !line.empty())
+			{
+				lines.push_back(line);
+				line = word;
+			}
+			else
+			{
+				line = test;
+			}
+		}
+		if (!line.empty())
+			lines.push_back(line);
+		return lines;
+	}
+
+	void draw_intro_message()
+	{
+		const int line_height = 8;
+		const int padding = 4;
+		auto size = backbuffer->size();
+		auto lines = wrap_text(t->get("workshop_minigame_intro"), 300);
+		if (lines.empty())
+			return;
+
+		int max_width = 0;
+		for (auto &line : lines)
+		{
+			int width = text_length(font, line.c_str());
+			if (width > max_width)
+				max_width = width;
+		}
+
+		int total_height = static_cast<int>(lines.size()) * line_height;
+		int box_x = (static_cast<int>(size.x) - max_width) / 2 - padding;
+		int box_y = (static_cast<int>(size.y) - total_height) / 2 - padding;
+		backbuffer->rectfill(uvec2_t(static_cast<uint32_t>(box_x), static_cast<uint32_t>(box_y)),
+												 uvec2_t(static_cast<uint32_t>(max_width + 2 * padding), static_cast<uint32_t>(total_height + 2 * padding)), 0);
+
+		int y = (static_cast<int>(size.y) - total_height) / 2;
+		for (auto &line : lines)
+		{
+			int x = (static_cast<int>(size.x) - text_length(font, line.c_str())) / 2;
+			backbuffer->text(line.c_str(), uvec2_t(static_cast<uint32_t>(x), static_cast<uint32_t>(y)), 15);
+			y += line_height;
+		}
 	}
 };
