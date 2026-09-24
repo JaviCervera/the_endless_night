@@ -46,6 +46,11 @@ struct menu_controller_t : public controller_t
 		enter_map(played_intro ? 1 : 0);
 	}
 
+	void stop() override
+	{
+		stop_intro_sound();
+	}
+
 	void stop_intro_sound()
 	{
 		if (intro_voice >= 0)

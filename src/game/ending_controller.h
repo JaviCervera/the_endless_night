@@ -18,8 +18,10 @@ struct ending_controller_t : public controller_t
 	static constexpr int TITLE_TICKS = 30;   // 3 seconds at 10 FPS
 	static constexpr int CREDITS_TICKS = 30; // 3 seconds at 10 FPS
 
-	ending_controller_t(game_state_t *game, pixmap_t *backbuffer, const fpg_t *menu_fpg, banner_t *banner, viewport_t viewport, texts_t *t)
-			: game{game}, backbuffer{backbuffer}, menu_fpg{menu_fpg}, banner{banner}, viewport{viewport}, t{t} {}
+	ending_controller_t(game_state_t *game, pixmap_t *backbuffer, const fpg_t *menu_fpg, banner_t *banner, viewport_t viewport, texts_t *t,
+											SAMPLE *ending_sound)
+			: game{game}, backbuffer{backbuffer}, menu_fpg{menu_fpg}, banner{banner}, viewport{viewport}, t{t},
+				ending_sound{ending_sound} {}
 
 	game_state_t *game;
 	pixmap_t *backbuffer;
@@ -27,6 +29,8 @@ struct ending_controller_t : public controller_t
 	banner_t *banner;
 	viewport_t viewport;
 	texts_t *t;
+	SAMPLE *ending_sound;
+	int ending_voice = -1;
 
 	state_t state = FADE_IN;
 	int ticks = 0;
@@ -41,6 +45,24 @@ struct ending_controller_t : public controller_t
 
 		banner->clear();
 		banner->show(t->get("ending_banner"));
+
+		stop_ending_sound();
+		if (ending_sound)
+			ending_voice = play_sample(ending_sound, 64, 128, 1000, 1);
+	}
+
+	void stop() override
+	{
+		stop_ending_sound();
+	}
+
+	void stop_ending_sound()
+	{
+		if (ending_voice >= 0)
+		{
+			voice_stop(ending_voice);
+			ending_voice = -1;
+		}
 	}
 
 	void update(const input_t &input) override

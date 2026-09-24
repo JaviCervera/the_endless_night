@@ -87,6 +87,7 @@ int main()
 	SAMPLE *select_sound = nullptr;
 	SAMPLE *accept_sound = nullptr;
 	SAMPLE *intro_sound = nullptr;
+	SAMPLE *ending_sound = nullptr;
 	if (install_sound(DIGI_AUTODETECT, MIDI_NONE, nullptr) == 0)
 	{
 		footsteps_sound = load_wav("assets/steps.wav");
@@ -94,6 +95,7 @@ int main()
 		select_sound = load_wav("assets/select.wav");
 		accept_sound = load_wav("assets/accept.wav");
 		intro_sound = load_wav("assets/intro.wav");
+		ending_sound = load_wav("assets/ending.wav");
 	}
 	else
 	{
@@ -140,7 +142,7 @@ int main()
 	workshop_minigame_controller_t workshop_minigame{&game, &backbuffer, &workshop_fpg};
 	tower_minigame_controller_t tower_minigame{&game, &backbuffer};
 	menu_controller_t menu_ctrl{&game, &backbuffer, &menu_fpg, VIEWPORT, &t, select_sound, accept_sound, intro_sound};
-	ending_controller_t ending{&game, &backbuffer, &menu_fpg, &ending_banner, VIEWPORT, &t};
+	ending_controller_t ending{&game, &backbuffer, &menu_fpg, &ending_banner, VIEWPORT, &t, ending_sound};
 	controller_t *current_controller = &lang;
 	game.phase = game_state_t::PHASE_LANG_SELECT;
 	lang.reset();
@@ -199,8 +201,8 @@ int main()
 			current_controller = &game_ctrl;
 		}
 
-		if (previous_controller == &menu_ctrl && current_controller != &menu_ctrl)
-			menu_ctrl.stop_intro_sound();
+		if (previous_controller != current_controller)
+			previous_controller->stop();
 	}
 
 	if (footsteps_sound)
@@ -213,6 +215,8 @@ int main()
 		destroy_sample(accept_sound);
 	if (intro_sound)
 		destroy_sample(intro_sound);
+	if (ending_sound)
+		destroy_sample(ending_sound);
 }
 
 END_OF_MAIN();
