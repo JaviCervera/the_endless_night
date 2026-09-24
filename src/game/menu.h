@@ -49,12 +49,17 @@ struct menu_t
 
 		if (input.accept)
 		{
-			if (accept_sound)
-				play_sample(accept_sound, 255, 128, 1000, 0);
+			play_accept();
 			return true;
 		}
 
 		return false;
+	}
+
+	void play_accept() const
+	{
+		if (accept_sound)
+			play_sample(accept_sound, 255, 128, 1000, 0);
 	}
 
 	int selected() const

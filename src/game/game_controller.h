@@ -110,6 +110,7 @@ struct game_controller_t : public controller_t
 
 			if (input.cancel)
 			{
+				pause_menu.play_accept();
 				resume();
 				return;
 			}
@@ -134,6 +135,7 @@ struct game_controller_t : public controller_t
 
 		if (input.cancel && game->phase == game_state_t::PHASE_PLAYING)
 		{
+			pause_menu.play_accept();
 			paused = true;
 			pause_elapsed_ticks = game->elapsed_ticks();
 			return;
