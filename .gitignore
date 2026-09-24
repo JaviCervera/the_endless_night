@@ -45,4 +45,7 @@ endless.exe
 *.dwo
 
 !CWSDPMI.EXE
+!The Endless Night.exe
+!SDL.dll
+!SDL_net.dll
 !lib/allegro/liballeg.a
