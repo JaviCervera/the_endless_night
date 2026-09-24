@@ -86,12 +86,14 @@ int main()
 	SAMPLE *humming_sound = nullptr;
 	SAMPLE *select_sound = nullptr;
 	SAMPLE *accept_sound = nullptr;
+	SAMPLE *intro_sound = nullptr;
 	if (install_sound(DIGI_AUTODETECT, MIDI_NONE, nullptr) == 0)
 	{
 		footsteps_sound = load_wav("assets/steps.wav");
 		humming_sound = load_wav("assets/humming.wav");
 		select_sound = load_wav("assets/select.wav");
 		accept_sound = load_wav("assets/accept.wav");
+		intro_sound = load_wav("assets/intro.wav");
 	}
 	else
 	{
@@ -137,7 +139,7 @@ int main()
 															&footsteps_voice, &humming_voice, &t};
 	workshop_minigame_controller_t workshop_minigame{&game, &backbuffer, &workshop_fpg};
 	tower_minigame_controller_t tower_minigame{&game, &backbuffer};
-	menu_controller_t menu_ctrl{&game, &backbuffer, &menu_fpg, VIEWPORT, &t, select_sound, accept_sound};
+	menu_controller_t menu_ctrl{&game, &backbuffer, &menu_fpg, VIEWPORT, &t, select_sound, accept_sound, intro_sound};
 	ending_controller_t ending{&game, &backbuffer, &menu_fpg, &ending_banner, VIEWPORT, &t};
 	controller_t *current_controller = &lang;
 	game.phase = game_state_t::PHASE_LANG_SELECT;
@@ -165,6 +167,8 @@ int main()
 					raycaster.floor({x, y}, tilemap.floor_at(x, y));
 				}
 		}
+
+		controller_t *previous_controller = current_controller;
 
 		if (game.phase == game_state_t::PHASE_INTRO && current_controller != &intro)
 		{
@@ -194,6 +198,9 @@ int main()
 		{
 			current_controller = &game_ctrl;
 		}
+
+		if (previous_controller == &menu_ctrl && current_controller != &menu_ctrl)
+			menu_ctrl.stop_intro_sound();
 	}
 
 	if (footsteps_sound)
@@ -204,6 +211,8 @@ int main()
 		destroy_sample(select_sound);
 	if (accept_sound)
 		destroy_sample(accept_sound);
+	if (intro_sound)
+		destroy_sample(intro_sound);
 }
 
 END_OF_MAIN();

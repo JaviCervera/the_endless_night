@@ -17,9 +17,10 @@ struct menu_controller_t : public controller_t
 	static constexpr int FADE_STEPS = 6;
 
 	menu_controller_t(game_state_t *game, pixmap_t *backbuffer, const fpg_t *menu_fpg, viewport_t viewport, texts_t *t,
-										SAMPLE *select_sound, SAMPLE *accept_sound)
+										SAMPLE *select_sound, SAMPLE *accept_sound, SAMPLE *intro_sound)
 			: game{game}, backbuffer{backbuffer}, menu_fpg{menu_fpg}, viewport{viewport},
-				t{t}, menu{t->get("main_menu_start"), t->get("main_menu_exit"), select_sound, accept_sound} {}
+				t{t}, menu{t->get("main_menu_start"), t->get("main_menu_exit"), select_sound, accept_sound},
+				intro_sound{intro_sound} {}
 
 	game_state_t *game;
 	pixmap_t *backbuffer;
@@ -27,6 +28,8 @@ struct menu_controller_t : public controller_t
 	viewport_t viewport;
 	texts_t *t;
 	menu_t menu;
+	SAMPLE *intro_sound;
+	int intro_voice = -1;
 
 	state_t state = MAP1_FADE_IN;
 	bool played_intro = false;
@@ -37,7 +40,19 @@ struct menu_controller_t : public controller_t
 		hold_ticks = 0;
 		menu.set_options(t->get("main_menu_start"), t->get("main_menu_exit"));
 		menu.reset();
+		stop_intro_sound();
+		if (intro_sound)
+			intro_voice = play_sample(intro_sound, 64, 128, 1000, 1);
 		enter_map(played_intro ? 1 : 0);
+	}
+
+	void stop_intro_sound()
+	{
+		if (intro_voice >= 0)
+		{
+			voice_stop(intro_voice);
+			intro_voice = -1;
+		}
 	}
 
 	void update(const input_t &input) override
