@@ -24,6 +24,18 @@ Download: https://github.com/andrewwutw/build-djgpp/releases/download/v3.4/djgpp
   * Run `dosbuild.bat`
    This produces `endless.exe` and runs it in DOSBox (which must have been previously installed).
 
+## Building for the web (js-dos / itch.io)
+
+The game can also run in a browser through [js-dos](https://js-dos.com), which embeds DOSBox compiled to WebAssembly. The js-dos v8.4.1 release (GPL-2.0, from https://github.com/caiiiycuk/js-dos/releases) is committed as `stuff/js-dos-8.4.1.zip`; `build_web.bat`/`build_web.sh` unpack it into a temporary staging directory, so no runtime files live in the repository.
+
+1. Build `endless.exe` (see above).
+2. Run `build_web.bat` (Windows) or `./build_web.sh` (Linux/macOS).
+   This produces `endless-web.zip` and removes all temporary files.
+3. Upload `endless-web.zip` to itch.io as an HTML project, tick "This file will be played in the browser", and use an embed size of 960x600.
+4. To test locally, unpack `endless-web.zip` into an empty directory, serve it over HTTP (e.g. `python -m http.server`) and open `http://localhost:8000/`. Opening `index.html` from the file system will not work.
+
+`index.html` loads `dosbox.conf` and the generated `files.json`; the latter lists the files placed inside the emulated `C:` drive. The player uses the DOSBox-X backend, because the plain DOSBox backend shipped with js-dos has no DPMI host, which makes the DJGPP stub fall back to `CWSDPMI.EXE` and hang.
+
 ![Poster](stuff/poster.png)
 
 ## Premise

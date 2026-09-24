@@ -49,3 +49,6 @@ endless.exe
 !SDL.dll
 !SDL_net.dll
 !lib/allegro/liballeg.a
+
+# Web build output
+endless-web.zip
