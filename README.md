@@ -1,6 +1,6 @@
 # The Endless Night
 
-![Cover](stuff/cover.png)
+![Cover](stuff/cover_big.png)
 
 An alien horror adventure in glorious 3D - Every night is the night of reckoning! Only for MS-DOS
 
