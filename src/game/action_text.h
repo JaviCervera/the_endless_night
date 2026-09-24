@@ -11,7 +11,8 @@
 
 struct action_text_t
 {
-	explicit action_text_t(texts_t *t) : t{t} {}
+	explicit action_text_t(texts_t *t, SAMPLE *action_sound = nullptr)
+			: t{t}, action_sound{action_sound} {}
 
 	actionable_t *update(vec2_t player_pos, const input_t &input, game_state_t &game)
 	{
@@ -43,6 +44,8 @@ struct action_text_t
 
 		if (input.action && m_target)
 		{
+			if (action_sound)
+				play_sample(action_sound, 255, 128, 1000, 0);
 			m_target->on_action_pressed();
 			return m_target;
 		}
@@ -64,6 +67,7 @@ struct action_text_t
 
 private:
 	texts_t *t;
+	SAMPLE *action_sound;
 	std::string m_text;
 	actionable_t *m_target = nullptr;
 };

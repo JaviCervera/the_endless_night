@@ -88,6 +88,7 @@ int main()
 	SAMPLE *accept_sound = nullptr;
 	SAMPLE *intro_sound = nullptr;
 	SAMPLE *ending_sound = nullptr;
+	SAMPLE *action_sound = nullptr;
 	if (install_sound(DIGI_AUTODETECT, MIDI_NONE, nullptr) == 0)
 	{
 		footsteps_sound = load_wav("assets/steps.wav");
@@ -96,6 +97,7 @@ int main()
 		accept_sound = load_wav("assets/accept.wav");
 		intro_sound = load_wav("assets/intro.wav");
 		ending_sound = load_wav("assets/ending.wav");
+		action_sound = load_wav("assets/action.wav");
 	}
 	else
 	{
@@ -113,7 +115,7 @@ int main()
 	auto player = player_t{tilemap, real_t(3.0f / TARGET_FPS), real_t(2.0f / TARGET_FPS), real_t(0.25f)};
 	auto banner = banner_t{};
 	auto ending_banner = banner_t{60}; // 6 seconds per page at 10 FPS
-	auto action_text = action_text_t{&t};
+	auto action_text = action_text_t{&t, action_sound};
 
 	auto raycaster = raycaster_t{{tilemap.map_size.x, tilemap.map_size.y}, fpg};
 #if FOG_ENABLED
@@ -217,6 +219,8 @@ int main()
 		destroy_sample(intro_sound);
 	if (ending_sound)
 		destroy_sample(ending_sound);
+	if (action_sound)
+		destroy_sample(action_sound);
 }
 
 END_OF_MAIN();
