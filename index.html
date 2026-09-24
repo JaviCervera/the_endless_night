@@ -87,6 +87,12 @@
           // js-dos does not provide one and hangs on CWSDPMI, so use DOSBox-X.
           backend: "dosboxX",
           backendLocked: true,
+          // Start the game without a click on the play button (js-dos only
+          // autostarts when a countdown is configured) and hide the player UI
+          // so that only the game is visible.
+          autoStart: true,
+          countDownStart: 1,
+          kiosk: true,
         });
       } catch (error) {
         status.textContent = "Failed to load the game: " + error.message;
