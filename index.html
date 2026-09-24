@@ -68,10 +68,19 @@
           };
         }));
 
+        // dosbox.conf targets a fullscreen PC, but in the browser the emulator
+        // must output the game at its original size so that js-dos can scale it
+        // to the player window, leaving black borders only to keep the aspect.
+        const webDosboxConf = dosboxConf
+          .replace(/^fullscreen=[^\r\n]*/m, "fullscreen=false")
+          .replace(/^fullresolution=[^\r\n]*/m, "fullresolution=original")
+          .replace(/^windowresolution=[^\r\n]*/m, "windowresolution=original")
+          .replace(/^output=[^\r\n]*/m, "output=surface");
+
         status.remove();
 
         Dos(document.getElementById("dos"), {
-          dosboxConf,
+          dosboxConf: webDosboxConf,
           initFs,
           pathPrefix: new URL("assets/js-dos/emulators/", location.href).href,
           // The DJGPP build needs a DPMI host; the plain DOSBox backend in
