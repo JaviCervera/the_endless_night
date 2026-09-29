@@ -49,7 +49,7 @@ CONTROLS
 * Up / Down: Walk.
 * Left / Right: Turn.
 * Space: Execute action / select.
-* Esc: Pause.
+* Esc / P: Pause.
 
 INFORMATION
 

@@ -110,6 +110,8 @@ bool screen_key(int key_code)
 		return key[KEY_ENTER] != 0;
 	case SCREEN_KEY_ESC:
 		return key[KEY_ESC] != 0;
+	case SCREEN_KEY_P:
+		return key[KEY_P] != 0;
 	default:
 		return false;
 	}

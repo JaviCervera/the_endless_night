@@ -12,6 +12,7 @@
 #define SCREEN_KEY_X 5
 #define SCREEN_KEY_ENTER 6
 #define SCREEN_KEY_ESC 7
+#define SCREEN_KEY_P 8
 
 void screen_open(const char *title, uvec2_t size, uint16_t target_fps);
 bool screen_load_font(const char *filename);
